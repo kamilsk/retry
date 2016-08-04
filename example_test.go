@@ -6,13 +6,15 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"time"
 
-	"github.com/Rican7/retry"
-	"github.com/Rican7/retry/backoff"
-	"github.com/Rican7/retry/jitter"
-	"github.com/Rican7/retry/strategy"
+	"github.com/kamilsk/retry"
+	"github.com/kamilsk/retry/backoff"
+	"github.com/kamilsk/retry/jitter"
+	"github.com/kamilsk/retry/net"
+	"github.com/kamilsk/retry/strategy"
 )
 
 func Example() {
@@ -43,11 +45,14 @@ func Example_fileOpen() {
 
 func Example_httpGetWithStrategies() {
 	var response *http.Response
+	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.WriteHeader(http.StatusOK)
+	}))
 
 	action := func(attempt uint) error {
 		var err error
 
-		response, err = http.Get("https://api.github.com/repos/Rican7/retry")
+		response, err = http.Get(ts.URL)
 
 		if nil == err && nil != response && response.StatusCode > 200 {
 			err = fmt.Errorf("failed to fetch (attempt #%d) with status code: %d", attempt, response.StatusCode)
@@ -83,4 +88,104 @@ func Example_withBackoffJitter() {
 			jitter.Deviation(random, 0.5),
 		),
 	)
+}
+
+// This example shows usage of strategy.Timeout(time.Duration).
+func Example_timeoutToRetry() {
+	webServer := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		time.Sleep(10 * time.Millisecond)
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Internal Server Error"))
+	}))
+
+	action := func(attempt uint) error {
+		resp, err := http.Get(webServer.URL)
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode != 200 {
+			return errors.New("bad response")
+		}
+		return nil
+	}
+
+	if err := retry.Retry(action, strategy.Timeout(30*time.Millisecond), strategy.Delay(20*time.Millisecond)); err != nil {
+		// err.Error() == "bad response"
+	}
+}
+
+// This example shows how to operate on errors.
+//
+//	type Temporary interface {
+//		Temporary() bool
+//	}
+//
+//	type HttpError struct {
+//		Code int
+//	}
+//
+//	func (err *HttpError) Error() string {
+//		return fmt.Sprintf("http: status code %d", err.Code)
+//	}
+//
+//	func (err *HttpError) Temporary() bool {
+//		switch err.Code {
+//		case http.StatusRequestTimeout:
+//		case http.StatusBadGateway:
+//		case http.StatusServiceUnavailable:
+//			return true
+//		}
+//		return false
+//	}
+func Example_operateOnError() {
+	webServer := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Internal Server Error"))
+	}))
+
+	checkStatusCode := func(attempt uint, err error) bool {
+		if tempError, ok := err.(Temporary); ok {
+			return tempError.Temporary()
+		}
+		return true
+	}
+
+	action := func(attempt uint) error {
+		resp, err := http.Get(webServer.URL)
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode != 200 {
+			return &HttpError{Code: resp.StatusCode}
+		}
+		return nil
+	}
+
+	if err := retry.RetryWithError(action, net.CheckNetError(), checkStatusCode); err != nil {
+		// this code will not be executed
+	}
+}
+
+// helpers
+
+type Temporary interface {
+	Temporary() bool
+}
+
+type HttpError struct {
+	Code int
+}
+
+func (err *HttpError) Error() string {
+	return fmt.Sprintf("http: status code %d", err.Code)
+}
+
+func (err *HttpError) Temporary() bool {
+	switch err.Code {
+	case http.StatusRequestTimeout:
+	case http.StatusBadGateway:
+	case http.StatusServiceUnavailable:
+		return true
+	}
+	return false
 }

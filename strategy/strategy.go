@@ -1,13 +1,11 @@
 // Package strategy provides a way to change the way that retry is performed.
-//
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package strategy
 
 import (
 	"time"
 
-	"github.com/Rican7/retry/backoff"
-	"github.com/Rican7/retry/jitter"
+	"github.com/kamilsk/retry/backoff"
+	"github.com/kamilsk/retry/jitter"
 )
 
 // Strategy defines a function that Retry calls before every successive attempt
@@ -19,6 +17,46 @@ import (
 // iteration, starting with a `0` value before the first attempt is actually
 // made. This allows for a pre-action delay, etc.
 type Strategy func(attempt uint) bool
+
+// Infinite creates a Strategy that will never stop repeating.
+func Infinite() Strategy {
+	return func(attempt uint) bool {
+		return true
+	}
+}
+
+// Timeout creates a Strategy that will return false if time is over.
+// Not thread-safe. Do not use the same instance in multiple goroutines simultaneously.
+//
+//  // The example below shows how to get a race condition.
+//  func TestTimeout_Concurrently(t *testing.T) {
+//  	strategy := Timeout(100 * time.Millisecond)
+//
+//  	start := make(chan bool)
+//  	wg := &sync.WaitGroup{}
+//
+//  	for i := 0; i < runtime.GOMAXPROCS(0); i++ {
+//  		wg.Add(1)
+//  		go func() {
+//  			defer wg.Done()
+//  			<-start
+//  			strategy(0)
+//  		}()
+//  	}
+//
+//  	close(start)
+//  	wg.Wait()
+//  }
+func Timeout(timeout time.Duration) Strategy {
+	var start time.Time
+	return func(attempt uint) bool {
+		if attempt == 0 {
+			start = time.Now()
+			return true
+		}
+		return start.Add(timeout).After(time.Now())
+	}
+}
 
 // Limit creates a Strategy that limits the number of attempts that Retry will
 // make.

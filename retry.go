@@ -1,10 +1,6 @@
-// Package retry provides a simple, stateless, functional mechanism to perform
-// actions repetitively until successful.
-//
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package retry
 
-import "github.com/Rican7/retry/strategy"
+import "github.com/kamilsk/retry/strategy"
 
 // Action defines a callable function that package retry can handle.
 type Action func(attempt uint) error
@@ -15,8 +11,13 @@ type Action func(attempt uint) error
 // should be made.
 func Retry(action Action, strategies ...strategy.Strategy) error {
 	var err error
+	attempt := uint(0)
 
-	for attempt := uint(0); (0 == attempt || nil != err) && shouldAttempt(attempt, strategies...); attempt++ {
+	if len(strategies) == 0 {
+		return action(attempt)
+	}
+
+	for ; (0 == attempt || nil != err) && shouldAttempt(attempt, strategies...); attempt++ {
 		err = action(attempt)
 	}
 

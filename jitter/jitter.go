@@ -1,6 +1,4 @@
 // Package jitter provides methods of transforming durations.
-//
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package jitter
 
 import (

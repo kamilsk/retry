@@ -1,39 +1,36 @@
 language: go
 
 go:
-    - 1.6
-    - tip
+- 1.5
+- 1.6
+- 1.7
+- tip
 
 sudo: false
 
 before_install:
-    # Install tools necessary to report code-coverage to Coveralls.io
-    - go get github.com/mattn/goveralls
-
-    # Export some environment variables
-    - export GO_TEST_COVERAGE_FILE_NAME='coverage.out'
+- go get github.com/mattn/goveralls
+- export GO_TEST_COVERAGE_FILE_NAME='coverage.out'
 
 install:
-    # Get all imported packages
-    - make install-deps install-deps-dev
-
-    # Basic build errors
-    - make build
+- make install-deps
+- make build
 
 script:
-    # Lint
-    - make format-lint
-    - make import-lint
-    - make copyright-lint
-
-    # Run tests
-    - make test-with-coverage-profile
+- make test-with-coverage-profile
 
 after_success:
-    # Report our code-coverage to Coveralls.io
-    - goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILE_NAME}"
+- goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILE_NAME}"
 
 matrix:
-    allow_failures:
-        - go: tip
-    fast_finish: true
+  allow_failures:
+  - go: tip
+  fast_finish: true
+
+notifications:
+  webhooks:
+    urls:
+    - https://webhooks.gitter.im/e/63f69d732d88862909a2
+    on_success: change
+    on_failure: always
+    on_start: never
