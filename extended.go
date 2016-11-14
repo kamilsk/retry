@@ -1,7 +1,7 @@
-package retry
+package retrier
 
 import (
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retrier/strategy"
 )
 
 // RetryWithError forwarding errors between repetitions.

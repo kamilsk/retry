@@ -3,7 +3,7 @@ package net
 import (
 	"net"
 
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retrier/strategy"
 )
 
 // CheckNetError creates a Strategy that will check if network request failed with a temporary error or timing.

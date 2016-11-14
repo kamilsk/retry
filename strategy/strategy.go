@@ -4,8 +4,8 @@ package strategy
 import (
 	"time"
 
-	"github.com/kamilsk/retry/backoff"
-	"github.com/kamilsk/retry/jitter"
+	"github.com/kamilsk/retrier/backoff"
+	"github.com/kamilsk/retrier/jitter"
 )
 
 // Strategy defines a function that Retry calls before every successive attempt

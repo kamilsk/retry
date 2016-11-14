@@ -1,8 +1,8 @@
-package retry
+package retrier
 
-import "github.com/kamilsk/retry/strategy"
+import "github.com/kamilsk/retrier/strategy"
 
-// Action defines a callable function that package retry can handle.
+// Action defines a callable function that package retrier can handle.
 type Action func(attempt uint) error
 
 // Retry takes an action and performs it, repetitively, until successful.

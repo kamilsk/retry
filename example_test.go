@@ -1,4 +1,4 @@
-package retry_test
+package retrier_test
 
 import (
 	"errors"
@@ -10,15 +10,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/kamilsk/retry"
-	"github.com/kamilsk/retry/backoff"
-	"github.com/kamilsk/retry/jitter"
-	"github.com/kamilsk/retry/net"
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retrier"
+	"github.com/kamilsk/retrier/backoff"
+	"github.com/kamilsk/retrier/jitter"
+	"github.com/kamilsk/retrier/net"
+	"github.com/kamilsk/retrier/strategy"
 )
 
 func Example() {
-	retry.Retry(func(attempt uint) error {
+	retrier.Retry(func(attempt uint) error {
 		return nil // Do something that may or may not cause an error
 	})
 }
@@ -28,7 +28,7 @@ func Example_fileOpen() {
 
 	var logFile *os.File
 
-	err := retry.Retry(func(attempt uint) error {
+	err := retrier.Retry(func(attempt uint) error {
 		var err error
 
 		logFile, err = os.Open(logFilePath)
@@ -61,7 +61,7 @@ func Example_httpGetWithStrategies() {
 		return err
 	}
 
-	err := retry.Retry(
+	err := retrier.Retry(
 		action,
 		strategy.Limit(5),
 		strategy.Backoff(backoff.Fibonacci(10*time.Millisecond)),
@@ -80,7 +80,7 @@ func Example_withBackoffJitter() {
 	seed := time.Now().UnixNano()
 	random := rand.New(rand.NewSource(seed))
 
-	retry.Retry(
+	retrier.Retry(
 		action,
 		strategy.Limit(5),
 		strategy.BackoffWithJitter(
@@ -109,7 +109,7 @@ func Example_timeoutToRetry() {
 		return nil
 	}
 
-	if err := retry.Retry(action, strategy.Timeout(30*time.Millisecond), strategy.Delay(20*time.Millisecond)); err != nil {
+	if err := retrier.Retry(action, strategy.Timeout(30*time.Millisecond), strategy.Delay(20*time.Millisecond)); err != nil {
 		// err.Error() == "bad response"
 	}
 }
@@ -161,7 +161,7 @@ func Example_operateOnError() {
 		return nil
 	}
 
-	if err := retry.RetryWithError(action, net.CheckNetError(), checkStatusCode); err != nil {
+	if err := retrier.RetryWithError(action, net.CheckNetError(), checkStatusCode); err != nil {
 		// this code will not be executed
 	}
 }

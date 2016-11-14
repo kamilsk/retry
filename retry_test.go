@@ -1,10 +1,10 @@
-package retry
+package retrier
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retrier/strategy"
 )
 
 func TestRetry(t *testing.T) {
