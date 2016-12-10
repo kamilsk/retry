@@ -35,3 +35,5 @@ $ go get bitbucket.org/kamilsk/retrier
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retrier)
 [![@ikamilsk](https://img.shields.io/badge/author-%40ikamilsk-blue.svg)](https://twitter.com/ikamilsk)
+
+## [Notes](NOTES.md)
