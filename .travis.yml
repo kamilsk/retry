@@ -8,9 +8,14 @@ go:
 
 sudo: false
 
+git:
+  submodules: false
+
 before_install:
+- sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
+- git submodule update --init --recursive
 - go get github.com/mattn/goveralls
-- export GO_TEST_COVERAGE_FILE_NAME='coverage.out'
+- export GO_TEST_COVERAGE_FILENAME='coverage.out'
 
 install:
 - make install-deps
@@ -20,7 +25,7 @@ script:
 - make test-with-coverage-profile
 
 after_success:
-- goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILE_NAME}"
+- goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILENAME}"
 
 matrix:
   allow_failures:
