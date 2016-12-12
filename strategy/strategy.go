@@ -1,4 +1,6 @@
 // Package strategy provides a way to change the way that retry is performed.
+//
+// Copyright © 2016 Trevor N. Suarez (Rican7)
 package strategy
 
 import (

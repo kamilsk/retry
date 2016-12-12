@@ -1,3 +1,4 @@
+// Copyright © 2016 Trevor N. Suarez (Rican7)
 package retrier
 
 import "github.com/kamilsk/retrier/strategy"

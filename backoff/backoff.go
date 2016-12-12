@@ -1,5 +1,7 @@
 // Package backoff provides stateless methods of calculating durations based on
 // a number of attempts made.
+//
+// Copyright © 2016 Trevor N. Suarez (Rican7)
 package backoff
 
 import (
