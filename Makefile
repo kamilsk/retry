@@ -1,11 +1,7 @@
-GIT_ORIGIN:="git@github.com:kamilsk/retrier.git"
-GIT_MIRROR:="git@bitbucket.org:kamilsk/retrier.git"
-GO_PACKAGE:="github.com/kamilsk/retrier"
-
 include makes/env.mk
+include makes/bench.mk
 include makes/deps.mk
 include makes/docker.mk
-include makes/flow.mk
 include makes/tests.mk
 include makes/tools.mk
 
@@ -13,10 +9,15 @@ include makes/tools.mk
 all: install-deps build install
 
 .PHONY: docker-bench
-docker-bench: docker-bench-1.5
+docker-bench: ARGS := -benchmem $(ARGS)
+#docker-bench: docker-bench-1.5
 docker-bench: docker-bench-1.6
 docker-bench: docker-bench-1.7
 docker-bench: docker-bench-latest
+
+.PHONY: docker-gometalinter
+docker-gometalinter: ARGS := --deadline=20s $(ARGS)
+docker-gometalinter: docker-tool-gometalinter
 
 .PHONY: docker-pull
 docker-pull: docker-pull-1.5
@@ -26,7 +27,15 @@ docker-pull: docker-pull-latest
 docker-pull: docker-clean
 
 .PHONY: docker-test
-docker-test: docker-install-deps-1.5    docker-test-1.5
-docker-test: docker-install-deps-1.6    docker-test-1.6
-docker-test: docker-install-deps-1.7    docker-test-1.7
-docker-test: docker-install-deps-latest docker-test-latest
+docker-test: ARGS := -v $(ARGS)
+#docker-test: docker-test-1.5
+docker-test: docker-test-1.6
+docker-test: docker-test-1.7
+docker-test: docker-test-latest
+
+.PHONY: docker-test-with-coverage
+docker-test-with-coverage: ARGS := -v $(ARGS)
+docker-test-with-coverage: docker-test-1.5-with-coverage
+docker-test-with-coverage: docker-test-1.6-with-coverage
+docker-test-with-coverage: docker-test-1.7-with-coverage
+docker-test-with-coverage: docker-test-latest-with-coverage
