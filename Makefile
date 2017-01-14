@@ -10,8 +10,7 @@ all: install-deps build install
 
 .PHONY: docker-bench
 docker-bench: ARGS := -benchmem $(ARGS)
-# blocked by https://github.com/kamilsk/shared/issues/65
-# docker-bench: docker-bench-1.5
+docker-bench: docker-bench-1.5
 docker-bench: docker-bench-1.6
 docker-bench: docker-bench-1.7
 docker-bench: docker-bench-latest
@@ -30,8 +29,7 @@ docker-pull: docker-clean
 
 .PHONY: docker-test
 docker-test: ARGS := -v $(ARGS)
-# blocked by https://github.com/kamilsk/shared/issues/65
-# docker-test: docker-test-1.5
+docker-test: docker-test-1.5
 docker-test: docker-test-1.6
 docker-test: docker-test-1.7
 docker-test: docker-test-latest
