@@ -8,12 +8,7 @@ go:
 
 sudo: false
 
-git:
-  submodules: false
-
 before_install:
-- sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
-- git submodule update --init --recursive
 - go get github.com/mattn/goveralls
 - export GO_TEST_COVERAGE_FILENAME='coverage.out'
 

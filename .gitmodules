@@ -1,6 +1,6 @@
 [submodule ".github"]
 	path = .github
-	url = git@github.com:kamilsk/shared.git
+	url = https://github.com/kamilsk/shared.git
 [submodule "makes"]
 	path = makes
-	url = git@github.com:kamilsk/shared.git
+	url = https://github.com/kamilsk/shared.git
