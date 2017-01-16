@@ -1,6 +1,6 @@
 > # retrier
 >
-> Functional mechanism to perform actions repetitively until successful based on context.
+> Functional mechanism based on context to perform actions repetitively until successful.
 
 [![Build Status](https://travis-ci.org/kamilsk/retrier.svg?branch=master)](https://travis-ci.org/kamilsk/retrier)
 [![Coverage Status](https://coveralls.io/repos/github/kamilsk/retrier/badge.svg)](https://coveralls.io/github/kamilsk/retrier)
