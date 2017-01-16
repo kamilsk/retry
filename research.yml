@@ -1,0 +1,12 @@
+package: github.com/kamilsk/retrier
+import:
+- package: github.com/Rican7/retry
+  version: 272ad122d6e5ce1be757544007cf8bcd1c9c9ab0
+- package: github.com/aybabtme/untilitworks
+  version: dcfb49bb642dd528a2cc2c3c73c0240bd41b3aa8
+- package: github.com/sethgrid/pester
+  version: 2c5fb962da6113d0968907fd81dba3ca35151d1c
+- package: github.com/eapache/go-resiliency
+  version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
+  subpackages:
+  - retrier

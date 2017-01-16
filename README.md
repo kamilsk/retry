@@ -1,8 +1,6 @@
 > # retrier
 >
-> A simple functional mechanism to perform actions repetitively until successful.
->
-> > Extended [Rican7/retry](https://github.com/Rican7/retry) package.
+> Functional mechanism to perform actions repetitively until successful based on context.
 
 [![Build Status](https://travis-ci.org/kamilsk/retrier.svg?branch=master)](https://travis-ci.org/kamilsk/retrier)
 [![Coverage Status](https://coveralls.io/repos/github/kamilsk/retrier/badge.svg)](https://coveralls.io/github/kamilsk/retrier)
@@ -10,7 +8,9 @@
 [![GoDoc](https://godoc.org/github.com/kamilsk/retrier?status.svg)](https://godoc.org/github.com/kamilsk/retrier)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE.md)
 
-## What's the differences?
+## Usage
+
+### What's the differences?
 
 | Rican7/retry        | kamilsk/retrier                                         | Description                                    |
 |:--------------------|:--------------------------------------------------------|:-----------------------------------------------|
@@ -18,6 +18,8 @@
 | -                   | retrier.Retry(action, strategy.Timeout(time.Duration))  | timeout to retry                               |
 | -                   | retrier.RetryWithError(action, strategies...)           | extended strategy could operate on error       |
 | -                   | retrier.RetryWithError(action, strategy.CheckNetError() | handle temporary or timeout network errors     |
+
+### More examples are coming soon...
 
 ## Installation
 
@@ -31,9 +33,27 @@ $ go get github.com/kamilsk/retrier
 $ go get bitbucket.org/kamilsk/retrier
 ```
 
+### Update
+
+This library is using [SemVer](http://semver.org) for versioning and it is not [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
+Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or something similar for this purpose.
+
+## Integration with Docker
+
+```bash
+$ make docker-pull
+$ make docker-gometalinter ARGS=--deadline=12s
+$ make docker-bench ARGS=-benchmem
+$ make docker-test ARGS=-v
+$ make docker-test-with-coverage ARGS=-v OPEN_BROWSER=true
+```
+
 ## Feedback
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retrier)
 [![@ikamilsk](https://img.shields.io/badge/author-%40ikamilsk-blue.svg)](https://twitter.com/ikamilsk)
 
-## [Research](RESEARCH.md)
+## Notes
+
+- tested on Go 1.5, 1.6 and 1.7
+- [research](RESEARCH.md)
