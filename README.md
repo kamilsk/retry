@@ -10,15 +10,6 @@
 
 ## Usage
 
-### What's the differences?
-
-| Rican7/retry        | kamilsk/retrier                                         | Description                                    |
-|:--------------------|:--------------------------------------------------------|:-----------------------------------------------|
-| retry.Retry(action) | retrier.Retry(action, strategy.Infinite())              | a clear indication of the infinity of attempts |
-| -                   | retrier.Retry(action, strategy.Timeout(time.Duration))  | timeout to retry                               |
-| -                   | retrier.RetryWithError(action, strategies...)           | extended strategy could operate on error       |
-| -                   | retrier.RetryWithError(action, strategy.CheckNetError() | handle temporary or timeout network errors     |
-
 ### More examples are coming soon...
 
 ## Installation

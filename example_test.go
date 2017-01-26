@@ -3,6 +3,7 @@
 package retrier_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -15,12 +16,12 @@ import (
 	"github.com/kamilsk/retrier"
 	"github.com/kamilsk/retrier/backoff"
 	"github.com/kamilsk/retrier/jitter"
-	"github.com/kamilsk/retrier/net"
 	"github.com/kamilsk/retrier/strategy"
+	"github.com/kamilsk/retrier/strategy/net"
 )
 
 func Example() {
-	retrier.Retry(func(attempt uint) error {
+	retrier.Retry(context.Background(), func(attempt uint) error {
 		return nil // Do something that may or may not cause an error
 	})
 }
@@ -30,7 +31,7 @@ func Example_fileOpen() {
 
 	var logFile *os.File
 
-	err := retrier.Retry(func(attempt uint) error {
+	err := retrier.Retry(context.Background(), func(attempt uint) error {
 		var err error
 
 		logFile, err = os.Open(logFilePath)
@@ -64,6 +65,7 @@ func Example_httpGetWithStrategies() {
 	}
 
 	err := retrier.Retry(
+		context.Background(),
 		action,
 		strategy.Limit(5),
 		strategy.Backoff(backoff.Fibonacci(10*time.Millisecond)),
@@ -83,6 +85,7 @@ func Example_withBackoffJitter() {
 	random := rand.New(rand.NewSource(seed))
 
 	retrier.Retry(
+		context.Background(),
 		action,
 		strategy.Limit(5),
 		strategy.BackoffWithJitter(
@@ -90,30 +93,6 @@ func Example_withBackoffJitter() {
 			jitter.Deviation(random, 0.5),
 		),
 	)
-}
-
-// This example shows usage of strategy.Timeout(time.Duration).
-func Example_timeoutToRetry() {
-	webServer := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		time.Sleep(10 * time.Millisecond)
-		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte("Internal Server Error"))
-	}))
-
-	action := func(attempt uint) error {
-		resp, err := http.Get(webServer.URL)
-		if err != nil {
-			return err
-		}
-		if resp.StatusCode != 200 {
-			return errors.New("bad response")
-		}
-		return nil
-	}
-
-	if err := retrier.Retry(action, strategy.Timeout(30*time.Millisecond), strategy.Delay(20*time.Millisecond)); err != nil {
-		// err.Error() == "bad response"
-	}
 }
 
 // This example shows how to operate on errors.
@@ -163,7 +142,7 @@ func Example_operateOnError() {
 		return nil
 	}
 
-	if err := retrier.RetryWithError(action, net.CheckNetError(), checkStatusCode); err != nil {
+	if err := retrier.Retry(context.Background(), action, net.CheckNetworkError(), checkStatusCode); err != nil {
 		// this code will not be executed
 	}
 }

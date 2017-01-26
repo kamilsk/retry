@@ -1,56 +1,9 @@
 package retrier
 
-import (
-	"errors"
-	"testing"
-
-	"github.com/kamilsk/retrier/strategy"
-)
-
-func TestRetry(t *testing.T) {
-	action := func(attempt uint) error {
-		return nil
-	}
-
-	err := Retry(action)
-
-	if nil != err {
-		t.Error("expected a nil error")
-	}
-}
-
-func TestRetryRetriesUntilNoErrorReturned(t *testing.T) {
-	const errorUntilAttemptNumber = 5
-
-	var attemptsMade uint
-
-	action := func(attempt uint) error {
-		attemptsMade = attempt
-
-		if errorUntilAttemptNumber == attempt {
-			return nil
-		}
-
-		return errors.New("erroring")
-	}
-
-	err := Retry(action, strategy.Infinite())
-
-	if nil != err {
-		t.Error("expected a nil error")
-	}
-
-	if errorUntilAttemptNumber != attemptsMade {
-		t.Errorf(
-			"expected %d attempts to be made, but %d were made instead",
-			errorUntilAttemptNumber,
-			attemptsMade,
-		)
-	}
-}
+import "testing"
 
 func TestShouldAttempt(t *testing.T) {
-	shouldAttempt := shouldAttempt(1)
+	shouldAttempt := shouldAttempt(1, nil)
 
 	if !shouldAttempt {
 		t.Error("expected to return true")
@@ -60,23 +13,23 @@ func TestShouldAttempt(t *testing.T) {
 func TestShouldAttemptWithStrategy(t *testing.T) {
 	const attemptNumberShouldReturnFalse = 7
 
-	strategy := func(attempt uint) bool {
-		return (attemptNumberShouldReturnFalse != attempt)
+	s := func(attempt uint, _ error) bool {
+		return attemptNumberShouldReturnFalse != attempt
 	}
 
-	should := shouldAttempt(1, strategy)
+	should := shouldAttempt(1, nil, s)
 
 	if !should {
 		t.Error("expected to return true")
 	}
 
-	should = shouldAttempt(1+attemptNumberShouldReturnFalse, strategy)
+	should = shouldAttempt(1+attemptNumberShouldReturnFalse, nil, s)
 
 	if !should {
 		t.Error("expected to return true")
 	}
 
-	should = shouldAttempt(attemptNumberShouldReturnFalse, strategy)
+	should = shouldAttempt(attemptNumberShouldReturnFalse, nil, s)
 
 	if should {
 		t.Error("expected to return false")
@@ -84,39 +37,39 @@ func TestShouldAttemptWithStrategy(t *testing.T) {
 }
 
 func TestShouldAttemptWithMultipleStrategies(t *testing.T) {
-	trueStrategy := func(attempt uint) bool {
+	trueStrategy := func(attempt uint, _ error) bool {
 		return true
 	}
 
-	falseStrategy := func(attempt uint) bool {
+	falseStrategy := func(attempt uint, _ error) bool {
 		return false
 	}
 
-	should := shouldAttempt(1, trueStrategy)
+	should := shouldAttempt(1, nil, trueStrategy)
 
 	if !should {
 		t.Error("expected to return true")
 	}
 
-	should = shouldAttempt(1, falseStrategy)
+	should = shouldAttempt(1, nil, falseStrategy)
 
 	if should {
 		t.Error("expected to return false")
 	}
 
-	should = shouldAttempt(1, trueStrategy, trueStrategy, trueStrategy)
+	should = shouldAttempt(1, nil, trueStrategy, trueStrategy, trueStrategy)
 
 	if !should {
 		t.Error("expected to return true")
 	}
 
-	should = shouldAttempt(1, falseStrategy, falseStrategy, falseStrategy)
+	should = shouldAttempt(1, nil, falseStrategy, falseStrategy, falseStrategy)
 
 	if should {
 		t.Error("expected to return false")
 	}
 
-	should = shouldAttempt(1, trueStrategy, trueStrategy, falseStrategy)
+	should = shouldAttempt(1, nil, trueStrategy, trueStrategy, falseStrategy)
 
 	if should {
 		t.Error("expected to return false")

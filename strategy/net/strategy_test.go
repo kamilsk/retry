@@ -6,7 +6,7 @@ import (
 )
 
 func TestCheckNetError(t *testing.T) {
-	strategy := CheckNetError()
+	strategy := CheckNetworkError()
 
 	if !strategy(0, nil) {
 		t.Error("strategy expected to return true")

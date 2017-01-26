@@ -25,7 +25,7 @@ func Incremental(initial, increment time.Duration) Algorithm {
 // duration by the attempt number for each attempt.
 func Linear(factor time.Duration) Algorithm {
 	return func(attempt uint) time.Duration {
-		return (factor * time.Duration(attempt))
+		return factor * time.Duration(attempt)
 	}
 }
 
@@ -34,7 +34,7 @@ func Linear(factor time.Duration) Algorithm {
 // calculated as the given base raised to the attempt number.
 func Exponential(factor time.Duration, base float64) Algorithm {
 	return func(attempt uint) time.Duration {
-		return (factor * time.Duration(math.Pow(base, float64(attempt))))
+		return factor * time.Duration(math.Pow(base, float64(attempt)))
 	}
 }
 
@@ -50,7 +50,7 @@ func BinaryExponential(factor time.Duration) Algorithm {
 // the Fibonacci sequence.
 func Fibonacci(factor time.Duration) Algorithm {
 	return func(attempt uint) time.Duration {
-		return (factor * time.Duration(fibonacciNumber(attempt)))
+		return factor * time.Duration(fibonacciNumber(attempt))
 	}
 }
 
