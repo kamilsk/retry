@@ -7,6 +7,7 @@ docker-bench: ARGS := -benchmem $(ARGS)
 docker-bench: docker-bench-1.5
 docker-bench: docker-bench-1.6
 docker-bench: docker-bench-1.7
+docker-bench: docker-bench-1.8
 docker-bench: docker-bench-latest
 
 .PHONY: docker-gometalinter
@@ -17,6 +18,7 @@ docker-gometalinter: docker-tool-gometalinter
 docker-pull: docker-pull-1.5
 docker-pull: docker-pull-1.6
 docker-pull: docker-pull-1.7
+docker-pull: docker-pull-1.8
 docker-pull: docker-pull-latest
 docker-pull: docker-pull-tools
 docker-pull: docker-clean
@@ -26,12 +28,14 @@ docker-test: ARGS := -v $(ARGS)
 docker-test: docker-test-1.5
 docker-test: docker-test-1.6
 docker-test: docker-test-1.7
+docker-test: docker-test-1.8
 docker-test: docker-test-latest
 
 .PHONY: docker-test-with-coverage
 docker-test-with-coverage: ARGS := -v $(ARGS)
 docker-test-with-coverage: OPEN_BROWSER := true
-docker-test-with-coverage: docker-test-1.5-with-coverage
-docker-test-with-coverage: docker-test-1.6-with-coverage
-docker-test-with-coverage: docker-test-1.7-with-coverage
-docker-test-with-coverage: docker-test-latest-with-coverage
+docker-test-with-coverage: docker-test-with-coverage-1.5
+docker-test-with-coverage: docker-test-with-coverage-1.6
+docker-test-with-coverage: docker-test-with-coverage-1.7
+docker-test-with-coverage: docker-test-with-coverage-1.8
+docker-test-with-coverage: docker-test-with-coverage-latest
