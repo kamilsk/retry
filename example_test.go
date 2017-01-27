@@ -21,7 +21,7 @@ import (
 )
 
 func Example() {
-	retrier.Retry(context.Background(), func(attempt uint) error {
+	_ = retrier.Retry(context.Background(), func(attempt uint) error {
 		return nil // Do something that may or may not cause an error
 	})
 }
@@ -43,7 +43,7 @@ func Example_fileOpen() {
 		log.Fatalf("Unable to open file %q with error %q", logFilePath, err)
 	}
 
-	logFile.Chdir() // Do something with the file
+	_ = logFile.Chdir() // Do something with the file
 }
 
 func Example_httpGetWithStrategies() {
@@ -84,7 +84,7 @@ func Example_withBackoffJitter() {
 	seed := time.Now().UnixNano()
 	random := rand.New(rand.NewSource(seed))
 
-	retrier.Retry(
+	_ = retrier.Retry(
 		context.Background(),
 		action,
 		strategy.Limit(5),
@@ -121,7 +121,7 @@ func Example_withBackoffJitter() {
 func Example_operateOnError() {
 	webServer := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
-		rw.Write([]byte("Internal Server Error"))
+		_, _ = rw.Write([]byte("Internal Server Error"))
 	}))
 
 	checkStatusCode := func(attempt uint, err error) bool {
