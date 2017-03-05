@@ -4,6 +4,7 @@ go:
 - 1.5
 - 1.6
 - 1.7
+- 1.8
 - tip
 
 sudo: false
@@ -17,7 +18,7 @@ install:
 - make build
 
 script:
-- make test-with-coverage-profile
+- make test-with-coverage-profile OPEN_BROWSER=
 
 after_success:
 - goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILENAME}"
