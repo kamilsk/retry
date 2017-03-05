@@ -2,7 +2,7 @@
 // a number of attempts made.
 //
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package backoff
+package backoff // import "github.com/kamilsk/retrier/backoff"
 
 import (
 	"math"

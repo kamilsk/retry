@@ -1,4 +1,4 @@
-package net
+package net // import "github.com/kamilsk/retrier/strategy/net"
 
 import (
 	"net"

@@ -1,7 +1,7 @@
 // Package strategy provides a way to change the way that retrier is performed.
 //
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package strategy
+package strategy // import "github.com/kamilsk/retrier/strategy"
 
 import (
 	"time"

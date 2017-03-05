@@ -2,7 +2,7 @@
 // to perform actions repetitively until successful.
 //
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package retrier
+package retrier // import "github.com/kamilsk/retrier"
 
 import "github.com/kamilsk/retrier/strategy"
 
