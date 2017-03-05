@@ -15,14 +15,16 @@
 ## Installation
 
 ```bash
-$ go get github.com/kamilsk/retrier
+$ egg -version 1.x github.com/kamilsk/retrier
 ```
 
 ### Mirror
 
 ```bash
-$ go get bitbucket.org/kamilsk/retrier
+$ go get bitbucket.org/kamilsk/retrier | egg -fix-vanity-url -version 1.x
 ```
+
+> [egg](https://github.com/kamilsk/egg) is an `extended go get`.
 
 ### Update
 
