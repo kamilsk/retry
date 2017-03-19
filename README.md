@@ -6,7 +6,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/kamilsk/retrier/badge.svg)](https://coveralls.io/github/kamilsk/retrier)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retrier)](https://goreportcard.com/report/github.com/kamilsk/retrier)
 [![GoDoc](https://godoc.org/github.com/kamilsk/retrier?status.svg)](https://godoc.org/github.com/kamilsk/retrier)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE.md)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE)
 
 ## Usage
 
