@@ -10,6 +10,39 @@
 
 ## Usage
 
+### HTTP calls with retries and backoff
+
+```go
+var response struct {
+    ID      int
+    Message string
+}
+client := &http.Client{Timeout: 100 * time.Millisecond}
+
+action := func(attempt uint) error {
+    resp, err := client.Do(&http.NewRequest(http.MethodGet, "http://localhost:8080", nil))
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    data, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return err
+    }
+
+    return json.Unmarshal(data, &response)
+}
+
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+
+if err := retrier.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time.Millisecond, math.Pi))); err != nil {
+    // handle error
+}
+// handle response
+```
+
 ### More examples are coming soon...
 
 ## Installation
