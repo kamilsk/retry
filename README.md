@@ -43,7 +43,18 @@ if err := retrier.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*ti
 // handle response
 ```
 
-### More examples are coming soon...
+### CLI tool for command execution repeating
+
+```bash
+$ export PATH=$GOPATH/bin:$PATH
+$ go install ./cmd/retry
+$ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
+curl: (52) Empty reply from server
+curl: (52) Empty reply from server
+curl: (52) Empty reply from server
+```
+
+See more details [here](cmd).
 
 ## Installation
 

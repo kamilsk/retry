@@ -31,7 +31,7 @@ func Infinite() Strategy {
 // make.
 func Limit(attemptLimit uint) Strategy {
 	return func(attempt uint, _ error) bool {
-		return attempt <= attemptLimit
+		return attempt < attemptLimit
 	}
 }
 

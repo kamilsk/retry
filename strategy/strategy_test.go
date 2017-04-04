@@ -27,6 +27,10 @@ func TestLimit(t *testing.T) {
 
 	strategy := Limit(attemptLimit)
 
+	if !strategy(0, nil) {
+		t.Error("strategy expected to return true")
+	}
+
 	if !strategy(1, nil) {
 		t.Error("strategy expected to return true")
 	}
@@ -35,11 +39,7 @@ func TestLimit(t *testing.T) {
 		t.Error("strategy expected to return true")
 	}
 
-	if !strategy(3, nil) {
-		t.Error("strategy expected to return true")
-	}
-
-	if strategy(4, nil) {
+	if strategy(3, nil) {
 		t.Error("strategy expected to return false")
 	}
 }

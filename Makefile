@@ -39,3 +39,8 @@ docker-test-with-coverage: docker-test-with-coverage-1.6
 docker-test-with-coverage: docker-test-with-coverage-1.7
 docker-test-with-coverage: docker-test-with-coverage-1.8
 docker-test-with-coverage: docker-test-with-coverage-latest
+
+.PHONY: cmd-test
+cmd-test:
+	go install ./cmd/retry
+	retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
