@@ -5,7 +5,7 @@
 ## retry
 
 ```bash
-$ retry -infinite
+$ retry --infinite
 #       -limit=X
 #       -delay=Xs
 #       -wait=Xs,Ys
@@ -25,7 +25,11 @@ $ retry -infinite
 # full example
 $ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
 curl: (52) Empty reply from server
-curl: (56) Recv failure: Connection reset by peer
 curl: (52) Empty reply from server
-curl: (56) Recv failure: Connection reset by peer
+curl: (52) Empty reply from server
+$ retry --infinite -- curl http://unknown.host
+curl: (52) Empty reply from server
+...
+curl: (52) Empty reply from server
+...
 ```
