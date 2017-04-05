@@ -1,4 +1,4 @@
-// TODO: generate it
+// +build go1.7
 
 package main
 
@@ -6,13 +6,14 @@ import (
 	"context"
 	"flag"
 	"reflect"
-
 	"time"
 
 	pkg_backoff "github.com/kamilsk/retrier/backoff"
 	pkg_jitter "github.com/kamilsk/retrier/jitter"
 	pkg_strategy "github.com/kamilsk/retrier/strategy"
 )
+
+// TODO: generate it
 
 var (
 	strategies map[string]reflect.Value
