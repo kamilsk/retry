@@ -25,7 +25,13 @@ func parse() (context.Context, []string, []pkg_strategy.Strategy) {
 	}
 	cl.Parse(os.Args[1:])
 
-	return context.Background(), cl.Args(), []pkg_strategy.Strategy{
+	timeout, err := time.ParseDuration(Timeout)
+	if err != nil {
+		panic(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), timeout)
+
+	return ctx, cl.Args(), []pkg_strategy.Strategy{
 		pkg_strategy.Limit(3),
 		pkg_strategy.Backoff(pkg_backoff.Linear(10 * time.Millisecond)),
 	}

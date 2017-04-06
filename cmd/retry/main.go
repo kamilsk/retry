@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
 	"github.com/kamilsk/retrier"
 )
+
+var Timeout = "1m"
 
 func main() {
 	ctx, args, strategies := parse()
@@ -14,5 +17,7 @@ func main() {
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		return cmd.Run()
 	}
-	retrier.Retry(ctx, action, strategies...)
+	if err := retrier.Retry(ctx, action, strategies...); err != nil {
+		fmt.Fprintf(os.Stderr, "error occurred %q \n", err)
+	}
 }
