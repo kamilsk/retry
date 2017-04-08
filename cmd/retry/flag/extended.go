@@ -9,7 +9,6 @@ import (
 )
 
 // TODO move to outside in version 2.0
-// TODO remove all overheads
 
 // The main benefits above standard flag is it supports sequence.
 
@@ -18,8 +17,6 @@ func NewFlagSet(name string) *FlagSet {
 }
 
 type FlagSet struct {
-	Usage func()
-
 	name          string
 	parsed        bool
 	actual        map[string]*flag.Flag
@@ -28,13 +25,17 @@ type FlagSet struct {
 	errorHandling flag.ErrorHandling
 	output        io.Writer
 
-	sequence []string
+	sequence []*flag.Flag
 }
 
 func (fs *FlagSet) Args() []string { return fs.args }
 
 func (fs *FlagSet) BoolVar(p *bool, name string, value bool, usage string) {
 	fs.Var(newBoolValue(value, p), name, usage)
+}
+
+func (fs *FlagSet) Flags() []*flag.Flag {
+	return fs.sequence
 }
 
 func (fs *FlagSet) Parse(arguments []string) error {
@@ -84,19 +85,9 @@ func (fs *FlagSet) Var(value flag.Value, name string, usage string) {
 	fs.formal[name] = f
 }
 
-func (fs *FlagSet) defaultUsage() {
-	if fs.name == "" {
-		fmt.Fprint(fs.out(), "Usage:\n")
-	} else {
-		fmt.Fprintf(fs.out(), "Usage of %s:\n", fs.name)
-	}
-	// fs.PrintDefaults()
-}
-
 func (fs *FlagSet) failf(format string, a ...interface{}) error {
 	err := fmt.Errorf(format, a...)
 	fmt.Fprintln(fs.out(), err)
-	fs.usage()
 	return err
 }
 
@@ -143,10 +134,6 @@ func (fs *FlagSet) parseOne() (bool, error) {
 	m := fs.formal
 	f, alreadythere := m[name] // BUG
 	if !alreadythere {
-		if name == "help" || name == "h" { // special case for nice help message.
-			fs.usage()
-			return false, flag.ErrHelp
-		}
 		return false, fs.failf("flag provided but not defined: -%s", name)
 	}
 
@@ -168,14 +155,6 @@ func (fs *FlagSet) parseOne() (bool, error) {
 	}
 	fs.actual[name] = f
 	return true, nil
-}
-
-func (fs *FlagSet) usage() {
-	if fs.Usage == nil {
-		fs.defaultUsage()
-	} else {
-		fs.Usage()
-	}
 }
 
 // -- bool Value
