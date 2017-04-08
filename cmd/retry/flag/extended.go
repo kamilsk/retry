@@ -54,6 +54,8 @@ func (s *stringValue) Get() interface{} { return string(*s) }
 
 func (s *stringValue) String() string { return string(*s) }
 
+// A FlagSet represents a set of defined flags. The zero value of a FlagSet
+// has no name and has ContinueOnError error handling.
 type FlagSet struct {
 	name          string
 	parsed        bool
@@ -66,6 +68,7 @@ type FlagSet struct {
 	sequence []*flag.Flag
 }
 
+// Args returns the non-flag arguments.
 func (fs *FlagSet) Args() []string { return fs.args }
 
 func (fs *FlagSet) out() io.Writer {
@@ -231,6 +234,7 @@ func NewFlagSet(name string) *FlagSet {
 	return &FlagSet{name: name, errorHandling: flag.PanicOnError}
 }
 
+// Flags returns the flag sequence.
 func (fs *FlagSet) Flags() []*flag.Flag {
 	return fs.sequence
 }

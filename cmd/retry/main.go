@@ -8,6 +8,8 @@ import (
 	"github.com/kamilsk/retrier"
 )
 
+// Timeout is a timeout of retried operation.
+// Can be changed by `-ldflags "-X 'main.Timeout=...'"` or `-timeout ...` parameter.
 var Timeout = "1m"
 
 func main() {

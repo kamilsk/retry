@@ -14,14 +14,12 @@ import (
 	"github.com/kamilsk/retrier/strategy"
 )
 
-type Compliance map[string]struct {
-	cursor  interface{}
-	usage   string
-	handler func(*flag.Flag) (strategy.Strategy, error)
-}
-
 var (
-	compliance Compliance
+	compliance map[string]struct {
+		cursor  interface{}
+		usage   string
+		handler func(*flag.Flag) (strategy.Strategy, error)
+	}
 	algorithms map[string]func(args string) (backoff.Algorithm, error)
 	transforms map[string]func(args string) (jitter.Transformation, error)
 	re         = regexp.MustCompile(`^(\w+)(?:\[((?:\w+,?)+)\])?$`)
@@ -83,11 +81,11 @@ func parseTransform(arg string) (jitter.Transformation, error) {
 
 // strategies
 
-func InfiniteStrategy_gen(_ *flag.Flag) (strategy.Strategy, error) {
+func generatedInfiniteStrategy(_ *flag.Flag) (strategy.Strategy, error) {
 	return strategy.Infinite(), nil
 }
 
-func LimitStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
+func generatedLimitStrategy(f *flag.Flag) (strategy.Strategy, error) {
 	attemptLimit, err := strconv.ParseUint(f.Value.String(), 10, 0)
 	if err != nil {
 		return nil, err
@@ -95,7 +93,7 @@ func LimitStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
 	return strategy.Limit(uint(attemptLimit)), nil
 }
 
-func DelayStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
+func generatedDelayStrategy(f *flag.Flag) (strategy.Strategy, error) {
 	duration, err := time.ParseDuration(f.Value.String())
 	if err != nil {
 		return nil, err
@@ -103,7 +101,7 @@ func DelayStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
 	return strategy.Delay(duration), nil
 }
 
-func WaitStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
+func generatedWaitStrategy(f *flag.Flag) (strategy.Strategy, error) {
 	args := strings.Split(f.Value.String(), ",")
 	durations := make([]time.Duration, 0, len(args))
 	for _, arg := range args {
@@ -116,7 +114,7 @@ func WaitStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
 	return strategy.Wait(durations...), nil
 }
 
-func BackoffStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
+func generatedBackoffStrategy(f *flag.Flag) (strategy.Strategy, error) {
 	algorithm, err := parseAlgorithm(f.Value.String())
 	if err != nil {
 		return nil, err
@@ -124,7 +122,7 @@ func BackoffStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
 	return strategy.Backoff(algorithm), nil
 }
 
-func BackoffWithJitterStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
+func generatedBackoffWithJitterStrategy(f *flag.Flag) (strategy.Strategy, error) {
 	args := strings.Split(f.Value.String(), ",")
 	if len(args) != 2 {
 		return nil, errors.New("invalid argument count")
@@ -142,7 +140,7 @@ func BackoffWithJitterStrategy_gen(f *flag.Flag) (strategy.Strategy, error) {
 
 // algorithms
 
-func IncrementalAlgorithm_gen(raw string) (backoff.Algorithm, error) {
+func generatedIncrementalAlgorithm(raw string) (backoff.Algorithm, error) {
 	args := strings.Split(raw, ",")
 	if len(args) != 2 {
 		return nil, errors.New("invalid argument count")
@@ -158,7 +156,7 @@ func IncrementalAlgorithm_gen(raw string) (backoff.Algorithm, error) {
 	return backoff.Incremental(initial, increment), nil
 }
 
-func LinearAlgorithm_gen(raw string) (backoff.Algorithm, error) {
+func generatedLinearAlgorithm(raw string) (backoff.Algorithm, error) {
 	factor, err := time.ParseDuration(raw)
 	if err != nil {
 		return nil, err
@@ -166,7 +164,7 @@ func LinearAlgorithm_gen(raw string) (backoff.Algorithm, error) {
 	return backoff.Linear(factor), nil
 }
 
-func ExponentialAlgorithm_gen(raw string) (backoff.Algorithm, error) {
+func generatedExponentialAlgorithm(raw string) (backoff.Algorithm, error) {
 	args := strings.Split(raw, ",")
 	if len(args) != 2 {
 		return nil, errors.New("invalid argument count")
@@ -182,7 +180,7 @@ func ExponentialAlgorithm_gen(raw string) (backoff.Algorithm, error) {
 	return backoff.Exponential(factor, base), nil
 }
 
-func BinaryExponentialAlgorithm_gen(raw string) (backoff.Algorithm, error) {
+func generatedBinaryExponentialAlgorithm(raw string) (backoff.Algorithm, error) {
 	factor, err := time.ParseDuration(raw)
 	if err != nil {
 		return nil, err
@@ -190,7 +188,7 @@ func BinaryExponentialAlgorithm_gen(raw string) (backoff.Algorithm, error) {
 	return backoff.BinaryExponential(factor), nil
 }
 
-func FibonacciAlgorithm_gen(raw string) (backoff.Algorithm, error) {
+func generatedFibonacciAlgorithm(raw string) (backoff.Algorithm, error) {
 	factor, err := time.ParseDuration(raw)
 	if err != nil {
 		return nil, err
@@ -200,15 +198,15 @@ func FibonacciAlgorithm_gen(raw string) (backoff.Algorithm, error) {
 
 // transforms
 
-func FullTransformation_gen(_ string) (jitter.Transformation, error) {
+func generatedFullTransformation(_ string) (jitter.Transformation, error) {
 	return jitter.Full(generator()), nil
 }
 
-func EqualTransformation_gen(_ string) (jitter.Transformation, error) {
+func generatedEqualTransformation(_ string) (jitter.Transformation, error) {
 	return jitter.Equal(generator()), nil
 }
 
-func DeviationTransformation_gen(raw string) (jitter.Transformation, error) {
+func generatedDeviationTransformation(raw string) (jitter.Transformation, error) {
 	factor, err := strconv.ParseFloat(raw, 0)
 	if err != nil {
 		return nil, err
@@ -216,7 +214,7 @@ func DeviationTransformation_gen(raw string) (jitter.Transformation, error) {
 	return jitter.Deviation(generator(), factor), nil
 }
 
-func NormalDistributionTransformation_gen(raw string) (jitter.Transformation, error) {
+func generatedNormalDistributionTransformation(raw string) (jitter.Transformation, error) {
 	standardDeviation, err := strconv.ParseFloat(raw, 0)
 	if err != nil {
 		return nil, err
@@ -226,34 +224,38 @@ func NormalDistributionTransformation_gen(raw string) (jitter.Transformation, er
 
 func init() {
 	var (
-		f_infinite                                      bool
-		f_limit, f_delay, f_wait, f_backoff, f_tbackoff string
+		fInfinite                                  bool
+		fLimit, fDelay, fWait, fBackoff, fTBackoff string
 	)
-	compliance = Compliance{
-		"infinite": {cursor: &f_infinite,
-			handler: InfiniteStrategy_gen},
-		"limit": {cursor: &f_limit,
-			handler: LimitStrategy_gen},
-		"delay": {cursor: &f_delay,
-			handler: DelayStrategy_gen},
-		"wait": {cursor: &f_wait,
-			handler: WaitStrategy_gen},
-		"backoff": {cursor: &f_backoff,
-			handler: BackoffStrategy_gen},
-		"tbackoff": {cursor: &f_tbackoff,
-			handler: BackoffWithJitterStrategy_gen},
+	compliance = map[string]struct {
+		cursor  interface{}
+		usage   string
+		handler func(*flag.Flag) (strategy.Strategy, error)
+	}{
+		"infinite": {cursor: &fInfinite,
+			handler: generatedInfiniteStrategy},
+		"limit": {cursor: &fLimit,
+			handler: generatedLimitStrategy},
+		"delay": {cursor: &fDelay,
+			handler: generatedDelayStrategy},
+		"wait": {cursor: &fWait,
+			handler: generatedWaitStrategy},
+		"backoff": {cursor: &fBackoff,
+			handler: generatedBackoffStrategy},
+		"tbackoff": {cursor: &fTBackoff,
+			handler: generatedBackoffWithJitterStrategy},
 	}
 	algorithms = map[string]func(args string) (backoff.Algorithm, error){
-		"inc":    IncrementalAlgorithm_gen,
-		"lin":    LinearAlgorithm_gen,
-		"epx":    ExponentialAlgorithm_gen,
-		"binexp": BinaryExponentialAlgorithm_gen,
-		"fib":    FibonacciAlgorithm_gen,
+		"inc":    generatedIncrementalAlgorithm,
+		"lin":    generatedLinearAlgorithm,
+		"epx":    generatedExponentialAlgorithm,
+		"binexp": generatedBinaryExponentialAlgorithm,
+		"fib":    generatedFibonacciAlgorithm,
 	}
 	transforms = map[string]func(args string) (jitter.Transformation, error){
-		"full":  FullTransformation_gen,
-		"equal": EqualTransformation_gen,
-		"dev":   DeviationTransformation_gen,
-		"ndist": NormalDistributionTransformation_gen,
+		"full":  generatedFullTransformation,
+		"equal": generatedEqualTransformation,
+		"dev":   generatedDeviationTransformation,
+		"ndist": generatedNormalDistributionTransformation,
 	}
 }
