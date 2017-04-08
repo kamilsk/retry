@@ -43,4 +43,4 @@ docker-test-with-coverage: docker-test-with-coverage-latest
 .PHONY: cmd-test
 cmd-test:
 	go install -ldflags "-X 'main.Timeout=100ms'" ./cmd/retry
-	retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
+	retry -limit=3 -backoff=lin[10ms] -timeout=1m -- curl http://unknown.host

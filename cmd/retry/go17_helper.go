@@ -23,6 +23,7 @@ func parse() (context.Context, []string, []strategy.Strategy) {
 		}
 
 	}
+	cl.StringVar(&Timeout, "timeout", Timeout, "value which supported by time.ParseDuration")
 	cl.Parse(os.Args[1:])
 
 	timeout, err := time.ParseDuration(Timeout)
