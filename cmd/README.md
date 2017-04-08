@@ -8,7 +8,7 @@
 $ retry --infinite
 #       -limit=X
 #       -delay=Xs
-#       -wait=Xs,Ys
+#       -wait=Xs,...
 #       -backoff=<algorithm>
 #       -tbackoff=<algorithm>,<jitter>
 # <algorithm>

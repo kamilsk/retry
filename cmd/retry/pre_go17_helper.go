@@ -23,16 +23,20 @@ func parse() (context.Context, []string, []strategy.Strategy) {
 		}
 
 	}
+	cl.StringVar(&Timeout, "timeout", Timeout, "value which supported by time.ParseDuration")
 	cl.Parse(os.Args[1:])
 
 	timeout, err := time.ParseDuration(Timeout)
 	if err != nil {
 		panic(err)
 	}
+
+	strategies, err := handle(cl.Flags())
+	if err != nil {
+		panic(err)
+	}
+
 	ctx, _ := context.WithTimeout(context.Background(), timeout)
 
-	return ctx, cl.Args(), []strategy.Strategy{
-		strategy.Limit(3),
-		strategy.Backoff(backoff.Linear(10 * time.Millisecond)),
-	}
+	return ctx, cl.Args(), strategies
 }
