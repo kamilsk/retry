@@ -56,13 +56,18 @@ func (s *stringValue) String() string { return string(*s) }
 // A FlagSet represents a set of defined flags. The zero value of a FlagSet
 // has no name and has ContinueOnError error handling.
 type FlagSet struct {
+	// Usage is the function called when an error occurs while parsing flags.
+	// The field is a function (not a method) that may be changed to point to
+	// a custom error handler.
+	Usage func()
+
 	name          string
 	parsed        bool
 	actual        map[string]*flag.Flag
 	formal        map[string]*flag.Flag
-	args          []string
+	args          []string // arguments after flags
 	errorHandling flag.ErrorHandling
-	output        io.Writer
+	output        io.Writer // nil means stderr; use out() accessor
 
 	sequence []*flag.Flag
 }
@@ -126,7 +131,15 @@ func (fs *FlagSet) Var(value flag.Value, name string, usage string) {
 func (fs *FlagSet) failf(format string, a ...interface{}) error {
 	err := fmt.Errorf(format, a...)
 	fmt.Fprintln(fs.out(), err)
+	fs.usage()
 	return err
+}
+
+// usage calls the Usage method for the flag set if one is specified.
+func (fs *FlagSet) usage() {
+	if fs.Usage != nil {
+		fs.Usage()
+	}
 }
 
 // parseOne parses one flag. It reports whether a flag was seen.
@@ -166,6 +179,10 @@ func (fs *FlagSet) parseOne() (bool, error) {
 	m := fs.formal
 	f, alreadythere := m[name] // BUG
 	if !alreadythere {
+		if name == "help" || name == "h" { // special case for nice help message.
+			fs.usage()
+			return false, flag.ErrHelp
+		}
 		return false, fs.failf("flag provided but not defined: -%s", name)
 	}
 
@@ -193,7 +210,6 @@ func (fs *FlagSet) parseOne() (bool, error) {
 			return false, fs.failf("invalid value %q for flag -%s: %v", value, name, err)
 		}
 	}
-
 	if fs.actual == nil {
 		fs.actual = make(map[string]*flag.Flag)
 	}
@@ -205,6 +221,7 @@ func (fs *FlagSet) parseOne() (bool, error) {
 // Parse parses flag definitions from the argument list, which should not
 // include the command name. Must be called after all flags in the FlagSet
 // are defined and before flags are accessed by the program.
+// The return value will be ErrHelp if -help or -h were set but not defined.
 func (fs *FlagSet) Parse(arguments []string) error {
 	fs.parsed = true
 	fs.args = arguments
