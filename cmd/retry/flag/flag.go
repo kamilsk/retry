@@ -1,3 +1,4 @@
+// Copyright 2009 The Go Authors. All rights reserved.
 package flag
 
 import (
@@ -7,8 +8,6 @@ import (
 	"os"
 	"strconv"
 )
-
-// The main benefits above standard flag is it supports sequence of flags.
 
 // -- bool Value
 type boolValue bool

@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/kamilsk/retrier"
+	"github.com/kamilsk/retry"
 )
 
 // Timeout is a timeout of retried operation.
@@ -19,7 +19,7 @@ func main() {
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		return cmd.Run()
 	}
-	if err := retrier.Retry(ctx, action, strategies...); err != nil {
+	if err := retry.Retry(ctx, action, strategies...); err != nil {
 		fmt.Fprintf(os.Stderr, "error occurred %q \n", err)
 	}
 }

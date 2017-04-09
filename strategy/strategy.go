@@ -1,13 +1,13 @@
-// Package strategy provides a way to change the way that retrier is performed.
+// Package strategy provides a way to change the way that retry is performed.
 //
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package strategy // import "github.com/kamilsk/retrier/strategy"
+package strategy // import "github.com/kamilsk/retry/strategy"
 
 import (
 	"time"
 
-	"github.com/kamilsk/retrier/backoff"
-	"github.com/kamilsk/retrier/jitter"
+	"github.com/kamilsk/retry/backoff"
+	"github.com/kamilsk/retry/jitter"
 )
 
 // Strategy defines a function that Retry calls before every successive attempt

@@ -2,11 +2,11 @@
 // to perform actions repetitively until successful.
 //
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package retrier // import "github.com/kamilsk/retrier"
+package retry // import "github.com/kamilsk/retry"
 
-import "github.com/kamilsk/retrier/strategy"
+import "github.com/kamilsk/retry/strategy"
 
-// Action defines a callable function that package retrier can handle.
+// Action defines a callable function that package retry can handle.
 type Action func(attempt uint) error
 
 // shouldAttempt evaluates the provided strategies with the given attempt to

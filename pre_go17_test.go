@@ -1,13 +1,13 @@
 // +build !go1.7
 
-package retrier
+package retry
 
 import (
 	"errors"
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retrier/strategy"
+	"github.com/kamilsk/retry/strategy"
 	"golang.org/x/net/context"
 )
 

@@ -1,6 +1,6 @@
 // +build go1.7
 
-package retrier_test
+package retry_test
 
 import (
 	"context"
@@ -8,20 +8,20 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"time"
 
-	"github.com/kamilsk/retrier"
-	"github.com/kamilsk/retrier/backoff"
-	"github.com/kamilsk/retrier/jitter"
-	"github.com/kamilsk/retrier/strategy"
-	"github.com/kamilsk/retrier/strategy/net"
+	"github.com/kamilsk/retry"
+	"github.com/kamilsk/retry/backoff"
+	"github.com/kamilsk/retry/jitter"
+	"github.com/kamilsk/retry/strategy"
 )
 
 func Example() {
-	_ = retrier.Retry(context.Background(), func(attempt uint) error {
+	_ = retry.Retry(context.Background(), func(attempt uint) error {
 		return nil // Do something that may or may not cause an error
 	})
 }
@@ -31,7 +31,7 @@ func Example_fileOpen() {
 
 	var logFile *os.File
 
-	err := retrier.Retry(context.Background(), func(attempt uint) error {
+	err := retry.Retry(context.Background(), func(attempt uint) error {
 		var err error
 
 		logFile, err = os.Open(logFilePath)
@@ -64,7 +64,7 @@ func Example_httpGetWithStrategies() {
 		return err
 	}
 
-	err := retrier.Retry(
+	err := retry.Retry(
 		context.Background(),
 		action,
 		strategy.Limit(5),
@@ -84,7 +84,7 @@ func Example_withBackoffJitter() {
 	seed := time.Now().UnixNano()
 	random := rand.New(rand.NewSource(seed))
 
-	_ = retrier.Retry(
+	_ = retry.Retry(
 		context.Background(),
 		action,
 		strategy.Limit(5),
@@ -124,9 +124,16 @@ func Example_operateOnError() {
 		_, _ = rw.Write([]byte("Internal Server Error"))
 	}))
 
+	checkNetworkError := func(attempt uint, err error) bool {
+		if err, ok := err.(net.Error); ok {
+			return err.Timeout() || err.Temporary()
+		}
+		return true
+	}
+
 	checkStatusCode := func(attempt uint, err error) bool {
-		if tempError, ok := err.(Temporary); ok {
-			return tempError.Temporary()
+		if err, ok := err.(Temporary); ok {
+			return err.Temporary()
 		}
 		return true
 	}
@@ -142,7 +149,7 @@ func Example_operateOnError() {
 		return nil
 	}
 
-	if err := retrier.Retry(context.Background(), action, net.CheckNetworkError(), checkStatusCode); err != nil {
+	if err := retry.Retry(context.Background(), action, checkNetworkError, checkStatusCode); err != nil {
 		// this code will not be executed
 	}
 }

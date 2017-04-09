@@ -2,8 +2,8 @@
 // Use of this source code is governed by the MIT license
 // that can be found in the LICENSE file.
 
-// Package retrier provides a simple, stateless, functional mechanism to perform
+// Package retry provides a simple, stateless, functional mechanism to perform
 // actions repetitively until successful.
 //
-// This package is an extension of the existing https://godoc.org/github.com/Rican7/retry.
-package retrier
+// This package is an extended version of https://godoc.org/github.com/Rican7/retry.
+package retry

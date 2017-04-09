@@ -1,11 +1,11 @@
-> # retrier
+> # retry
 >
 > Functional mechanism based on context to perform actions repetitively until successful.
 
-[![Build Status](https://travis-ci.org/kamilsk/retrier.svg?branch=master)](https://travis-ci.org/kamilsk/retrier)
-[![Coverage Status](https://coveralls.io/repos/github/kamilsk/retrier/badge.svg)](https://coveralls.io/github/kamilsk/retrier)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retrier)](https://goreportcard.com/report/github.com/kamilsk/retrier)
-[![GoDoc](https://godoc.org/github.com/kamilsk/retrier?status.svg)](https://godoc.org/github.com/kamilsk/retrier)
+[![Build Status](https://travis-ci.org/kamilsk/retry.svg?branch=master)](https://travis-ci.org/kamilsk/retry)
+[![Coverage Status](https://coveralls.io/repos/github/kamilsk/retry/badge.svg)](https://coveralls.io/github/kamilsk/retry)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retry)](https://goreportcard.com/report/github.com/kamilsk/retry)
+[![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE)
 
 ## Usage
@@ -37,13 +37,13 @@ action := func(attempt uint) error {
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 defer cancel()
 
-if err := retrier.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time.Millisecond, math.Pi))); err != nil {
+if err := retry.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time.Millisecond, math.Pi))); err != nil {
     // handle error
 }
 // handle response
 ```
 
-### CLI tool for command execution repeating
+### CLI tool for command execution repeatedly
 
 ```bash
 $ export PATH=$GOPATH/bin:$PATH
@@ -59,13 +59,13 @@ See more details [here](cmd).
 ## Installation
 
 ```bash
-$ egg -version 1.x github.com/kamilsk/retrier
+$ egg -version 1.x github.com/kamilsk/retry
 ```
 
 ### Mirror
 
 ```bash
-$ go get bitbucket.org/kamilsk/retrier | egg -fix-vanity-url -version 1.x
+$ go get bitbucket.org/kamilsk/retry | egg -fix-vanity-url -version 1.x
 ```
 
 > [egg](https://github.com/kamilsk/egg) is an `extended go get`.
@@ -87,7 +87,7 @@ $ make docker-test-with-coverage ARGS=-v OPEN_BROWSER=true
 
 ## Feedback
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retrier)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retry)
 [![@ikamilsk](https://img.shields.io/badge/author-%40ikamilsk-blue.svg)](https://twitter.com/ikamilsk)
 
 ## Notes

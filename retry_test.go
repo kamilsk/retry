@@ -1,4 +1,4 @@
-package retrier
+package retry
 
 import "testing"
 

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kamilsk/retrier/backoff"
-	"github.com/kamilsk/retrier/jitter"
-	"github.com/kamilsk/retrier/strategy"
+	"github.com/kamilsk/retry/backoff"
+	"github.com/kamilsk/retry/jitter"
+	"github.com/kamilsk/retry/strategy"
 )
 
 var (

@@ -1,4 +1,4 @@
-package: github.com/kamilsk/retrier
+package: github.com/kamilsk/retry
 import:
 - package: github.com/Rican7/retry
   version: 272ad122d6e5ce1be757544007cf8bcd1c9c9ab0
@@ -12,6 +12,8 @@ import:
   version: 0a75e2299cc2aaa3af2c30a08833105b24dcc064
 - package: github.com/bernos/go-retry
   version: 5c5b1f97512c9dc2406b2c77edc1284eb63847eb
+- package: github.com/cenkalti/backoff
+  version: 5d150e7eec023ce7a124856b37c68e54b4050ac7
 - package: github.com/dgrijalva/retry
   version: ef012c8afd3f69ebcf28859766d025a9802ab575
 - package: github.com/drichardson/retry

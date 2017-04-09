@@ -1,8 +1,10 @@
-> # retrier/cmd
+> # retry/cmd
 >
-> Package cmd provides Command Line Interface to repeat terminal commands.
+> Package cmd contains CLI tools.
 
 ## retry
+
+> `retry` provides functionality to repeat terminal commands.
 
 ```bash
 $ retry --infinite
@@ -27,9 +29,9 @@ $ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
 curl: (52) Empty reply from server
 curl: (52) Empty reply from server
 curl: (52) Empty reply from server
-$ retry --infinite -- curl http://unknown.host
+$ retry -timeout=500ms --infinite -- curl http://unknown.host
 curl: (52) Empty reply from server
 ...
 curl: (52) Empty reply from server
-...
+error occurred "context deadline exceeded"
 ```

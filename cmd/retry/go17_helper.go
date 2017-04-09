@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/kamilsk/retrier/cmd/retry/flag"
-	"github.com/kamilsk/retrier/strategy"
+	"github.com/kamilsk/retry/cmd/retry/flag"
+	"github.com/kamilsk/retry/strategy"
 )
 
 func parse() (context.Context, []string, []strategy.Strategy) {

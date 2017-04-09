@@ -1,6 +1,6 @@
 // +build go1.7
 
-package retrier
+package retry
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retrier/strategy"
+	"github.com/kamilsk/retry/strategy"
 )
 
 func TestRetry(t *testing.T) {
