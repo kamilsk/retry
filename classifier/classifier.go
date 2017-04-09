@@ -1,5 +1,6 @@
-// Copyright © 2014 Evan Huus (eapache)
 package classifier // import "github.com/kamilsk/retry/classifier"
+
+// Copyright © 2014 Evan Huus (eapache)
 
 // Action is the type returned by a Classifier
 // to indicate how the Retrier should proceed.

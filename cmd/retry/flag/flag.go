@@ -1,5 +1,6 @@
-// Copyright 2009 The Go Authors. All rights reserved.
 package flag
+
+// Copyright 2009 The Go Authors. All rights reserved.
 
 import (
 	"flag"

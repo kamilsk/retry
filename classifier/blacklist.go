@@ -1,5 +1,6 @@
-// Copyright © 2014 Evan Huus (eapache)
 package classifier
+
+// Copyright © 2014 Evan Huus (eapache)
 
 // BlacklistClassifier classifies errors based on a blacklist.
 // If the error is nil, it returns Succeed;

@@ -17,7 +17,7 @@ func parse() (context.Context, []string, []strategy.Strategy) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Fprintf(os.Stderr, "error occured %q \n", r)
+			fmt.Fprintf(os.Stderr, "error occurred %q \n", r)
 			cl.Usage()
 			os.Exit(1)
 		}

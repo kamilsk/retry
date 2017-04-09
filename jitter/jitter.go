@@ -1,5 +1,6 @@
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package jitter // import "github.com/kamilsk/retry/jitter"
+
+// Copyright © 2016 Trevor N. Suarez (Rican7)
 
 import (
 	"math"

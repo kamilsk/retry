@@ -1,8 +1,6 @@
-// Package retrier provides functional mechanism based on context
-// to perform actions repetitively until successful.
-//
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package retry // import "github.com/kamilsk/retry"
+
+// Copyright © 2016 Trevor N. Suarez (Rican7)
 
 import "github.com/kamilsk/retry/strategy"
 
