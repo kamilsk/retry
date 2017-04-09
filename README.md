@@ -60,13 +60,13 @@ See more details [here](cmd).
 ## Installation
 
 ```bash
-$ egg -version 1.x github.com/kamilsk/retry
+$ go get github.com/kamilsk/retry
 ```
 
 ### Mirror
 
 ```bash
-$ go get bitbucket.org/kamilsk/retry | egg -fix-vanity-url -version 1.x
+$ go get bitbucket.org/kamilsk/retry | egg -fix-vanity-url
 ```
 
 > [egg](https://github.com/kamilsk/egg) is an `extended go get`.
