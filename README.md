@@ -44,7 +44,7 @@ if err := retry.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time
 // handle response
 ```
 
-### CLI tool for command execution repeatedly
+### CLI tool for command execution repetitively
 
 ```bash
 $ export PATH=$GOPATH/bin:$PATH

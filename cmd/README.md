@@ -7,7 +7,7 @@
 > `retry` provides functionality to repeat terminal commands.
 
 ```bash
-usage: %s [-timeout timeout] [strategy flags] -- command
+usage: retry [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
     --infinite
