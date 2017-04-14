@@ -9,6 +9,16 @@
 [![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE)
 
+## Differences from [Rican7/retry](https://github.com/Rican7/retry)
+
+- fixed [bug](https://github.com/Rican7/retry/pull/2) with unexpected infinite loop
+  - added transparency mechanism for this purpose as `Infinite` [strategy](strategy/strategy.go#L24-L28)
+- added `context` support to cancellation
+- added `error` transmission between attempts
+  - added `classifier` to handle them (see [classifier](classifier) package)
+- added cli tool `retry` provides functionality to repeat terminal commands
+  - read more [here](cmd)
+
 ## Usage
 
 ### HTTP calls with retries and backoff
@@ -73,7 +83,8 @@ $ go get bitbucket.org/kamilsk/retry | egg -fix-vanity-url
 
 ### Update
 
-This library is using [SemVer](http://semver.org) for versioning and it is not [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
+This library is using [SemVer](http://semver.org) for versioning and it is not 
+[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
 Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or something similar for this purpose.
 
 ## Integration with Docker
