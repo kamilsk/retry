@@ -12,7 +12,7 @@
 ## Differences from [Rican7/retry](https://github.com/Rican7/retry)
 
 - fixed [bug](https://github.com/Rican7/retry/pull/2) with unexpected infinite loop
-  - added transparency mechanism for this purpose as `Infinite` [strategy](strategy/strategy.go#L24-L28)
+  - added transparent mechanism for this purpose as `Infinite` [strategy](strategy/strategy.go#L24-L28)
 - added `context` support to cancellation
 - added `error` transmission between attempts
   - added `classifier` to handle them (see [classifier](classifier) package)
