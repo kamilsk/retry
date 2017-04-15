@@ -16,8 +16,7 @@
 - added `context` support to cancellation
 - added `error` transmission between attempts
   - added `classifier` to handle them (see [classifier](classifier) package)
-- added cli tool `retry` provides functionality to repeat terminal commands
-  - read more [here](cmd)
+- added cli tool `retry` which provides functionality to repeat terminal commands (see [cmd/retry](cmd))
 
 ## Usage
 
@@ -52,6 +51,37 @@ if err := retry.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time
     // handle error
 }
 // handle response
+```
+
+### Database connection restore
+
+```go
+MustOpen := func() *sql.DB {
+	db, err := sql.Open("sqlite", "./sqlite.db")
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+go func(db *sql.DB, attempt uint, frequency time.Duration) {
+	ping := func(attempt uint) error {
+		return db.Ping()
+	}
+	strategies := []strategy.Strategy{
+		strategy.Limit(attempt),
+		strategy.BackoffWithJitter(
+			backoff.Incremental(100*time.Millisecond, time.Second),
+			jitter.NormalDistribution(rand.New(rand.NewSource(time.Now().UnixNano())), 2.0),
+		),
+	}
+	for {
+		if err := retry.Retry(context.Background(), ping, strategies...); err != nil {
+			panic(err)
+		}
+		time.Sleep(frequency)
+	}
+}(MustOpen(), 10, time.Minute)
 ```
 
 ### CLI tool for command execution repetitively
