@@ -9,6 +9,15 @@
 [![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE)
 
+## Differences from [Rican7/retry](https://github.com/Rican7/retry)
+
+- fixed [bug](https://github.com/Rican7/retry/pull/2) with unexpected infinite loop
+  - added transparent mechanism for this purpose as `Infinite` [strategy](strategy/strategy.go#L24-L28)
+- added `context` support to cancellation
+- added `error` transmission between attempts
+  - added `classifier` to handle them (see [classifier](classifier) package)
+- added cli tool `retry` which provides functionality to repeat terminal commands (see [cmd/retry](cmd))
+
 ## Usage
 
 ### HTTP calls with retries and backoff
@@ -44,6 +53,37 @@ if err := retry.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time
 // handle response
 ```
 
+### Database connection restore
+
+```go
+MustOpen := func() *sql.DB {
+	db, err := sql.Open("sqlite", "./sqlite.db")
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+go func(db *sql.DB, attempt uint, frequency time.Duration) {
+	ping := func(attempt uint) error {
+		return db.Ping()
+	}
+	strategies := []strategy.Strategy{
+		strategy.Limit(attempt),
+		strategy.BackoffWithJitter(
+			backoff.Incremental(100*time.Millisecond, time.Second),
+			jitter.NormalDistribution(rand.New(rand.NewSource(time.Now().UnixNano())), 2.0),
+		),
+	}
+	for {
+		if err := retry.Retry(context.Background(), ping, strategies...); err != nil {
+			panic(err)
+		}
+		time.Sleep(frequency)
+	}
+}(MustOpen(), 10, time.Minute)
+```
+
 ### CLI tool for command execution repetitively
 
 ```bash
@@ -73,7 +113,8 @@ $ go get bitbucket.org/kamilsk/retry | egg -fix-vanity-url -version 2.x
 
 ### Update
 
-This library is using [SemVer](http://semver.org) for versioning and it is not [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
+This library is using [SemVer](http://semver.org) for versioning and it is not 
+[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
 Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or something similar for this purpose.
 
 ## Integration with Docker

@@ -248,7 +248,7 @@ func (fs *FlagSet) Parse(arguments []string) error {
 
 // NewFlagSet returns a new, empty flag set with the specified name.
 func NewFlagSet(name string) *FlagSet {
-	return &FlagSet{name: name, errorHandling: flag.PanicOnError}
+	return &FlagSet{name: name, errorHandling: flag.ContinueOnError}
 }
 
 // Flags returns the flag sequence.

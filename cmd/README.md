@@ -5,8 +5,10 @@
 ## retry
 
 > `retry` provides functionality to repeat terminal commands.
+> > status: **experimental**
 
 ```bash
+$ retry help
 usage: retry [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
@@ -25,7 +27,7 @@ The strategy flags
     -backoff=:algorithm
         Backoff creates a Strategy that waits before each attempt, with a duration as
         defined by the given backoff.Algorithm.
-    -tbackoff=:algorithm,:jitter
+    -tbackoff=:algorithm,:transformation
         BackoffWithJitter creates a Strategy that waits before each attempt, with a
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 
@@ -49,7 +51,7 @@ The strategy flags
         an increasing factor for each attempt, where the factor is the Nth number in
         the Fibonacci sequence.
 
-:jitter
+:transformation
     full
         Full creates a Transformation that transforms a duration into a result
         duration in [0, n) randomly, where n is the given duration.
