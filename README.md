@@ -106,7 +106,7 @@ $ egg -version 2.x github.com/kamilsk/retry
 ### Mirror
 
 ```bash
-$ go get bitbucket.org/kamilsk/retry | egg -fix-vanity-url -version 2.x
+$ egg -fix-vanity-url -version 2.x bitbucket.org/kamilsk/retry 
 ```
 
 > [egg](https://github.com/kamilsk/egg) is an `extended go get`.
