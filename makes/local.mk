@@ -47,7 +47,7 @@ test-with-coverage:
 
 .PHONY: test-with-coverage-formatted
 test-with-coverage-formatted:
-	$(PACKAGES)| xargs go test -cover $(strip $(ARGS)) | column -t | sort -r
+	$(PACKAGES) | xargs go test -cover $(strip $(ARGS)) | column -t | sort -r
 
 .PHONY: test-with-coverage-profile
 test-with-coverage-profile:
@@ -59,7 +59,7 @@ test-with-coverage-profile:
 	    sed '1d' "coverage_$${package##*/}.out" >> '${GO_TEST_COVERAGE_FILENAME}'; \
 	    rm "coverage_$${package##*/}.out"; \
 	done
-	if [ '$(OPEN_BROWSER)' != '' ]; then go tool cover -html='${GO_TEST_COVERAGE_FILENAME}'; fi
+	if [ '${OPEN_BROWSER}' != '' ]; then go tool cover -html='${GO_TEST_COVERAGE_FILENAME}'; fi
 
 .PHONY: test-example
 test-example: GO_TEST_COVERAGE_FILENAME = coverage_example.out
@@ -73,9 +73,20 @@ test-example:
 	    sed '1d' "coverage_example_$${package##*/}.out" >> '${GO_TEST_COVERAGE_FILENAME}'; \
 	    rm "coverage_example_$${package##*/}.out"; \
 	done
-	if [ '$(OPEN_BROWSER)' != '' ]; then go tool cover -html='${GO_TEST_COVERAGE_FILENAME}'; fi
+	if [ '${OPEN_BROWSER}' != '' ]; then go tool cover -html='${GO_TEST_COVERAGE_FILENAME}'; fi
 
 
 .PHONY: bench
 bench:
 	$(PACKAGES) | xargs go test -bench=. $(strip $(ARGS))
+
+.PHONY: docs
+docs: WAITING = 2
+docs:
+	godoc -play -http localhost:8080 &
+	sleep $(WAITING)
+	open http://localhost:8080/pkg/$(GO_PACKAGE)
+
+.PHONY: docs-stop
+docs-stop:
+	ps cax | grep godoc | awk '{print $$1}' | xargs kill
