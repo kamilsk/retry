@@ -1,8 +1,7 @@
 PRUNE_AVAILABLE := $(shell echo "1.13.0\n$(DOCKER_VERSION)" | sort -ct. -k1,1n -k2,2n && echo true)
 
-PRUNE ?=
-
 .PHONY: docker-clean
+docker-clean: PRUNE = --force
 docker-clean: docker-clean-invalid-common
 docker-clean: docker-clean-invalid-golang
 docker-clean: docker-clean-invalid-custom
