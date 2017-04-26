@@ -12,7 +12,7 @@ import (
 	"github.com/kamilsk/retry/strategy"
 )
 
-func parse() (context.Context, []string, []strategy.Strategy) {
+func parse() (context.Context, context.CancelFunc, []string, []strategy.Strategy) {
 	cl := flag.NewFlagSet("retry")
 
 	defer func() {
@@ -34,7 +34,9 @@ func parse() (context.Context, []string, []strategy.Strategy) {
 
 	}
 	cl.StringVar(&Timeout, "timeout", Timeout, "value which supported by time.ParseDuration")
-	cl.Parse(os.Args[1:])
+	if err := cl.Parse(os.Args[1:]); err != nil {
+		panic(err)
+	}
 
 	timeout, err := time.ParseDuration(Timeout)
 	if err != nil {
@@ -51,7 +53,7 @@ func parse() (context.Context, []string, []strategy.Strategy) {
 		panic("please provide a command to retry")
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
-	return ctx, cl.Args(), strategies
+	return ctx, cancel, cl.Args(), strategies
 }

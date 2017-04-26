@@ -16,7 +16,8 @@ var Timeout = "1m"
 
 func main() {
 	done := make(chan struct{})
-	ctx, args, strategies := parse()
+	ctx, cancel, args, strategies := parse()
+	defer cancel()
 	action := func(attempt uint) error {
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, &buf{c: done, w: os.Stderr}
