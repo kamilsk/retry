@@ -7,6 +7,7 @@ SUPPORTED_VERSIONS ?= 1.5 1.6 1.7 1.8 latest
 
 include env.mk
 include docker/alpine.mk
+include docker/tools.mk
 
 ARGS = a
 
@@ -17,3 +18,6 @@ test1:
 test2: override ARGS += 2
 test2:
 	echo $(ARGS)
+
+test3:
+	echo $(GITHUB_TOKEN)

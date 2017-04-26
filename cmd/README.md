@@ -88,6 +88,8 @@ Full example:
     retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
     retry -timeout=500ms --infinite -- curl http://unknown.host
 
+Current version is alpha.
+
 $ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
 curl: (52) Empty reply from server
 curl: (52) Empty reply from server

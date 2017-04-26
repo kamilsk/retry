@@ -10,9 +10,13 @@ import (
 	"github.com/kamilsk/retry"
 )
 
-// Timeout is a timeout of retried operation.
-// Can be changed by `-ldflags "-X 'main.Timeout=...'"` or `-timeout ...` parameter.
-var Timeout = "1m"
+var (
+	// Timeout is a timeout of retried operation.
+	// Can be changed by `-ldflags "-X 'main.Timeout=...'"` or `-timeout ...` parameter.
+	Timeout = "1m"
+	// Version will always be the name of the current Git tag.
+	Version string
+)
 
 func main() {
 	done := make(chan struct{})

@@ -105,7 +105,9 @@ The strategy flags
 Full example:
     retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
     retry -timeout=500ms --infinite -- curl http://unknown.host
-`, os.Args[0])
+
+Current version is %s.
+`, os.Args[0], Version)
 	}
 )
 
