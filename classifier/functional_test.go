@@ -39,18 +39,16 @@ func TestFunctionalClassifier_Classify(t *testing.T) {
 
 func TestFunctionalClassifier_NetworkErrorClassifier_Classify(t *testing.T) {
 	var (
-		errNetworkTimeout   = &net.DNSError{IsTimeout: true}
-		errNetworkTemporary = &net.DNSError{IsTemporary: true}
-		errNetworkOther     = &net.DNSError{}
-		errOther            = errors.New("is not network error")
+		errNetworkTimeout = &net.DNSError{IsTimeout: true}
+		errNetworkOther   = &net.DNSError{}
+		errOther          = errors.New("is not network error")
 	)
 
 	if NetworkErrorClassifier.Classify(nil) != Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if NetworkErrorClassifier.Classify(errNetworkTimeout) != Retry ||
-		NetworkErrorClassifier.Classify(errNetworkTemporary) != Retry {
+	if NetworkErrorClassifier.Classify(errNetworkTimeout) != Retry {
 		t.Error("retry is expected")
 	}
 
