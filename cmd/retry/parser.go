@@ -1,28 +1,15 @@
-// +build !go1.7
-
 package main
 
 import (
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/kamilsk/retry/cmd/retry/flag"
 	"github.com/kamilsk/retry/strategy"
-	"golang.org/x/net/context"
 )
 
-func parse() (context.Context, context.CancelFunc, []string, []strategy.Strategy) {
+func parse() (time.Duration, []string, []strategy.Strategy) {
 	cl := flag.NewFlagSet("retry")
-
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Fprintf(os.Stderr, "error occurred %q \n", r)
-			cl.Usage()
-			os.Exit(1)
-		}
-	}()
-
 	cl.Usage = usage
 	for name, cfg := range compliance {
 		switch cursor := cfg.cursor.(type) {
@@ -34,9 +21,7 @@ func parse() (context.Context, context.CancelFunc, []string, []strategy.Strategy
 
 	}
 	cl.StringVar(&Timeout, "timeout", Timeout, "value which supported by time.ParseDuration")
-	if err := cl.Parse(os.Args[1:]); err != nil {
-		panic(err)
-	}
+	cl.Parse(os.Args[1:])
 
 	timeout, err := time.ParseDuration(Timeout)
 	if err != nil {
@@ -53,7 +38,5 @@ func parse() (context.Context, context.CancelFunc, []string, []strategy.Strategy
 		panic("please provide a command to retry")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-
-	return ctx, cancel, cl.Args(), strategies
+	return timeout, cl.Args(), strategies
 }
