@@ -11,12 +11,12 @@
 
 ## Differences from [Rican7/retry](https://github.com/Rican7/retry)
 
-- fixed [bug](https://github.com/Rican7/retry/pull/2) with unexpected infinite loop
-  - added transparent mechanism for this purpose as `Infinite` [strategy](strategy/strategy.go#L24-L28)
-- added `context` support to cancellation
-- added `error` transmission between attempts
-  - added `classifier` to handle them (see [classifier](classifier) package)
-- added cli tool `retry` which provides functionality to repeat terminal commands (see [cmd/retry](cmd))
+- Fixed [bug](https://github.com/Rican7/retry/pull/2) with an unexpected infinite loop.
+  - Added a clear mechanism for this purpose as the Infinite [strategy](strategy/strategy.go#L24-L28).
+- Added `context` support to cancellation.
+- Added `error` transmission between attempts.
+  - Added `classifier` to handle them (see [classifier](classifier) package).
+- Added CLI tool `retry` which provides functionality for repeating terminal commands (see [cmd/retry](cmd)).
 
 ## Usage
 

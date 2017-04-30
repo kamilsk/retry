@@ -9,7 +9,7 @@ import (
 )
 
 func parse() (time.Duration, []string, []strategy.Strategy) {
-	cl := flag.NewFlagSet("retry")
+	cl := flag.NewSet("retry")
 	cl.Usage = usage
 	for name, cfg := range compliance {
 		switch cursor := cfg.cursor.(type) {
@@ -21,14 +21,16 @@ func parse() (time.Duration, []string, []strategy.Strategy) {
 
 	}
 	cl.StringVar(&Timeout, "timeout", Timeout, "value which supported by time.ParseDuration")
-	cl.Parse(os.Args[1:])
+	if err := cl.Parse(os.Args[1:]); err != nil {
+		panic(err)
+	}
 
 	timeout, err := time.ParseDuration(Timeout)
 	if err != nil {
 		panic(err)
 	}
 
-	strategies, err := handle(cl.Flags())
+	strategies, err := handle(cl.Sequence())
 	if err != nil {
 		panic(err)
 	}

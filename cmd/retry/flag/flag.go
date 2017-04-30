@@ -5,8 +5,6 @@ package flag
 import (
 	"flag"
 	"fmt"
-	"io"
-	"os"
 	"strconv"
 )
 
@@ -54,50 +52,34 @@ func (s *stringValue) Get() interface{} { return string(*s) }
 
 func (s *stringValue) String() string { return string(*s) }
 
-// A FlagSet represents a set of defined flags. The zero value of a FlagSet
+// A Set represents a set of defined flags. The zero value of a Set
 // has no name and has ContinueOnError error handling.
-type FlagSet struct {
+type Set struct {
 	// Usage is the function called when an error occurs while parsing flags.
 	// The field is a function (not a method) that may be changed to point to
 	// a custom error handler.
 	Usage func()
 
 	name          string
-	parsed        bool
-	actual        map[string]*flag.Flag
 	formal        map[string]*flag.Flag
 	args          []string // arguments after flags
 	errorHandling flag.ErrorHandling
-	output        io.Writer // nil means stderr; use out() accessor
 
-	sequence []*flag.Flag
+	actual []*flag.Flag
 }
 
 // Args returns the non-flag arguments.
-func (fs *FlagSet) Args() []string { return fs.args }
-
-func (fs *FlagSet) out() io.Writer {
-	if fs.output == nil {
-		return os.Stderr
-	}
-	return fs.output
-}
-
-// SetOutput sets the destination for usage and error messages.
-// If output is nil, os.Stderr is used.
-func (fs *FlagSet) SetOutput(output io.Writer) {
-	fs.output = output
-}
+func (fs *Set) Args() []string { return fs.args }
 
 // BoolVar defines a bool flag with specified name, default value, and usage string.
 // The argument p points to a bool variable in which to store the value of the flag.
-func (fs *FlagSet) BoolVar(p *bool, name string, value bool, usage string) {
+func (fs *Set) BoolVar(p *bool, name string, value bool, usage string) {
 	fs.Var(newBoolValue(value, p), name, usage)
 }
 
 // StringVar defines a string flag with specified name, default value, and usage string.
 // The argument p points to a string variable in which to store the value of the flag.
-func (fs *FlagSet) StringVar(p *string, name string, value string, usage string) {
+func (fs *Set) StringVar(p *string, name string, value string, usage string) {
 	fs.Var(newStringValue(value, p), name, usage)
 }
 
@@ -107,20 +89,9 @@ func (fs *FlagSet) StringVar(p *string, name string, value string, usage string)
 // caller could create a flag that turns a comma-separated string into a slice
 // of strings by giving the slice the methods of Value; in particular, Set would
 // decompose the comma-separated string into the slice.
-func (fs *FlagSet) Var(value flag.Value, name string, usage string) {
+func (fs *Set) Var(value flag.Value, name string, usage string) {
 	// Remember the default value as a string; it won't change.
 	f := &flag.Flag{Name: name, Usage: usage, Value: value, DefValue: value.String()}
-	_, alreadythere := fs.formal[name]
-	if alreadythere {
-		var msg string
-		if fs.name == "" {
-			msg = fmt.Sprintf("flag redefined: %s", name)
-		} else {
-			msg = fmt.Sprintf("%s flag redefined: %s", fs.name, name)
-		}
-		fmt.Fprintln(fs.out(), msg)
-		panic(msg) // Happens only if flags are declared with identical names
-	}
 	if fs.formal == nil {
 		fs.formal = make(map[string]*flag.Flag)
 	}
@@ -129,22 +100,19 @@ func (fs *FlagSet) Var(value flag.Value, name string, usage string) {
 
 // failf prints to standard error a formatted error and
 // returns the error.
-func (fs *FlagSet) failf(format string, a ...interface{}) error {
-	err := fmt.Errorf(format, a...)
-	fmt.Fprintln(fs.out(), err)
-	fs.usage()
-	return err
+func (fs *Set) failf(format string, a ...interface{}) error {
+	return fmt.Errorf(format, a...)
 }
 
 // usage calls the Usage method for the flag set if one is specified.
-func (fs *FlagSet) usage() {
+func (fs *Set) usage() {
 	if fs.Usage != nil {
 		fs.Usage()
 	}
 }
 
 // parseOne parses one flag. It reports whether a flag was seen.
-func (fs *FlagSet) parseOne() (bool, error) {
+func (fs *Set) parseOne() (bool, error) {
 	if len(fs.args) == 0 {
 		return false, nil
 	}
@@ -178,7 +146,7 @@ func (fs *FlagSet) parseOne() (bool, error) {
 		}
 	}
 	m := fs.formal
-	f, alreadythere := m[name] // BUG
+	f, alreadythere := m[name]
 	if !alreadythere {
 		if name == "help" || name == "h" { // special case for nice help message.
 			fs.usage()
@@ -211,20 +179,15 @@ func (fs *FlagSet) parseOne() (bool, error) {
 			return false, fs.failf("invalid value %q for flag -%s: %v", value, name, err)
 		}
 	}
-	if fs.actual == nil {
-		fs.actual = make(map[string]*flag.Flag)
-	}
-	fs.actual[name] = f
-	fs.sequence = append(fs.sequence, f)
+	fs.actual = append(fs.actual, f)
 	return true, nil
 }
 
 // Parse parses flag definitions from the argument list, which should not
-// include the command name. Must be called after all flags in the FlagSet
+// include the command name. Must be called after all flags in the Set
 // are defined and before flags are accessed by the program.
 // The return value will be ErrHelp if -help or -h were set but not defined.
-func (fs *FlagSet) Parse(arguments []string) error {
-	fs.parsed = true
+func (fs *Set) Parse(arguments []string) error {
 	fs.args = arguments
 	for {
 		seen, err := fs.parseOne()
@@ -234,24 +197,17 @@ func (fs *FlagSet) Parse(arguments []string) error {
 		if err == nil {
 			break
 		}
-		switch fs.errorHandling {
-		case flag.ContinueOnError:
-			return err
-		case flag.ExitOnError:
-			os.Exit(2)
-		case flag.PanicOnError:
-			panic(err)
-		}
+		return err
 	}
 	return nil
 }
 
-// NewFlagSet returns a new, empty flag set with the specified name.
-func NewFlagSet(name string) *FlagSet {
-	return &FlagSet{name: name, errorHandling: flag.ContinueOnError}
+// Sequence returns the parsed flag sequence.
+func (fs *Set) Sequence() []*flag.Flag {
+	return fs.actual
 }
 
-// Flags returns the flag sequence.
-func (fs *FlagSet) Flags() []*flag.Flag {
-	return fs.sequence
+// NewSet returns a new, empty flag set with the specified name.
+func NewSet(name string) *Set {
+	return &Set{name: name, errorHandling: flag.ContinueOnError}
 }
