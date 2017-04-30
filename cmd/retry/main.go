@@ -18,6 +18,9 @@ var (
 	// Can be changed by `-ldflags "-X 'main.Timeout=...'"`
 	// or `-timeout ...` parameter.
 	Timeout = "1m"
+	// NoColor deprecates colorize logger' output.
+	// Can be changed by `-ldflags "-X 'main.Timeout=...'"`.
+	NoColor = false
 	// Version will always be the name of the current Git tag.
 	Version string
 )
@@ -49,7 +52,7 @@ func main() {
 	}
 	ctx, cancel := ctx(timeout)
 	if err := retry.Retry(ctx, action, strategies...); err != nil {
-		l.Errorf("error occcured %q", err)
+		l.Errorf("error occcured: %q", err)
 		close(done)
 	}
 	cancel()

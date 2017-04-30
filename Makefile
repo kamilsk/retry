@@ -54,5 +54,9 @@ pull-makes:
 
 .PHONY: cmd-test
 cmd-test:
-	go install -ldflags "-X 'main.Timeout=100ms'" ./cmd/retry
-	retry -limit=3 -backoff=lin[10ms] -timeout=200ms -- curl http://unknown.host
+	docker run --rm \
+	           -v '$(GOPATH)/src/$(GO_PACKAGE)':'/go/src/$(GO_PACKAGE)' \
+	           -w '/go/src/$(GO_PACKAGE)' \
+	           golang:1.7 \
+	           /bin/sh -c 'go install -ldflags "-X 'main.Timeout=100ms' -X 'main.Version=0.1'" ./cmd/retry && \
+	                       retry -limit=3 -backoff=lin[10ms] -timeout=200ms -- curl http://unknown.host'
