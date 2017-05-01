@@ -113,26 +113,15 @@ func (fs *Set) usage() {
 
 // parseOne parses one flag. It reports whether a flag was seen.
 func (fs *Set) parseOne() (bool, error) {
-	if len(fs.args) == 0 {
-		return false, nil
-	}
-	s := fs.args[0]
-	if len(s) == 0 || s[0] != '-' || len(s) == 1 {
-		return false, nil
-	}
-	numMinuses := 1
-	if s[1] == '-' {
-		numMinuses++
-		if len(s) == 2 { // "--" terminates the flags
-			fs.args = fs.args[1:]
-			return false, nil
-		}
-	}
-	name := s[numMinuses:]
-	if len(name) == 0 || name[0] == '-' || name[0] == '=' {
-		return false, fs.failf("bad flag syntax: %s", s)
-	}
+	var (
+		result bool
+		err    error
+	)
 
+	name, err := fs.validate()
+	if name == "" {
+		return false, err
+	}
 	// it's a flag. does it have an argument?
 	fs.args = fs.args[1:]
 	hasValue := false
@@ -145,8 +134,8 @@ func (fs *Set) parseOne() (bool, error) {
 			break
 		}
 	}
-	m := fs.formal
-	f, alreadythere := m[name]
+
+	f, alreadythere := fs.formal[name]
 	if !alreadythere {
 		if name == "help" || name == "h" { // special case for nice help message.
 			fs.usage()
@@ -156,31 +145,68 @@ func (fs *Set) parseOne() (bool, error) {
 	}
 
 	if fv, ok := f.Value.(boolFlag); ok && fv.IsBoolFlag() { // special case: doesn't need an arg
-		if hasValue {
-			if err := fv.Set(value); err != nil {
-				return false, fs.failf("invalid boolean value %q for -%s: %v", value, name, err)
-			}
-		} else {
-			if err := fv.Set("true"); err != nil {
-				return false, fs.failf("invalid boolean flag %s: %v", name, err)
-			}
+		result, err = fs.parseBool(f, name, value, hasValue)
+	} else {
+		result, err = fs.parseString(f, name, value, hasValue)
+	}
+
+	if result {
+		fs.actual = append(fs.actual, f)
+	}
+
+	return result, err
+}
+
+func (fs *Set) parseBool(f *flag.Flag, name, value string, hasValue bool) (bool, error) {
+	if hasValue {
+		if err := f.Value.Set(value); err != nil {
+			return false, fs.failf("invalid boolean value %q for -%s: %v", value, name, err)
 		}
 	} else {
-		// It must have a value, which might be the next argument.
-		if !hasValue && len(fs.args) > 0 {
-			// value is the next arg
-			hasValue = true
-			value, fs.args = fs.args[0], fs.args[1:]
-		}
-		if !hasValue {
-			return false, fs.failf("flag needs an argument: -%s", name)
-		}
-		if err := f.Value.Set(value); err != nil {
-			return false, fs.failf("invalid value %q for flag -%s: %v", value, name, err)
+		if err := f.Value.Set("true"); err != nil {
+			return false, fs.failf("invalid boolean flag %s: %v", name, err)
 		}
 	}
-	fs.actual = append(fs.actual, f)
 	return true, nil
+}
+
+func (fs *Set) parseString(f *flag.Flag, name, value string, hasValue bool) (bool, error) {
+	// It must have a value, which might be the next argument.
+	if !hasValue && len(fs.args) > 0 {
+		// value is the next arg
+		hasValue = true
+		value, fs.args = fs.args[0], fs.args[1:]
+	}
+	if !hasValue {
+		return false, fs.failf("flag needs an argument: -%s", name)
+	}
+	if err := f.Value.Set(value); err != nil {
+		return false, fs.failf("invalid value %q for flag -%s: %v", value, name, err)
+	}
+	return true, nil
+}
+
+func (fs *Set) validate() (string, error) {
+	if len(fs.args) == 0 {
+		return "", nil
+	}
+	s := fs.args[0]
+	if len(s) == 0 || s[0] != '-' || len(s) == 1 {
+		return "", nil
+	}
+	numMinuses := 1
+	if s[1] == '-' {
+		numMinuses++
+		if len(s) == 2 { // "--" terminates the flags
+			fs.args = fs.args[1:]
+			return "", nil
+		}
+	}
+	name := s[numMinuses:]
+	if len(name) == 0 || name[0] == '-' || name[0] == '=' {
+		return "", fs.failf("bad flag syntax: %s", s)
+	}
+	return name, nil
 }
 
 // Parse parses flag definitions from the argument list, which should not
