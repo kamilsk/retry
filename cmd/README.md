@@ -27,7 +27,7 @@ The strategy flags
     -backoff=:algorithm
         Backoff creates a Strategy that waits before each attempt, with a duration as
         defined by the given backoff.Algorithm.
-    -tbackoff=:algorithm,:transformation
+    -tbackoff=":algorithm :transformation"
         BackoffWithJitter creates a Strategy that waits before each attempt, with a
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 

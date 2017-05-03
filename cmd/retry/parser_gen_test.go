@@ -1,10 +1,176 @@
 package main
 
-import "testing"
-
 // TODO:GEN generate it
 
+import (
+	"flag"
+	"testing"
+)
+
+type value string
+
+func (v value) String() string {
+	return string(v)
+}
+
+func (v value) Set(n string) error {
+	p := &v
+	*p = value(n)
+	return nil
+}
+
 func Test_handle_generated(t *testing.T) {
+	for i, tc := range []struct {
+		name     string
+		flags    []*flag.Flag
+		error    string
+		expected int
+	}{
+		{
+			name: "infinite",
+			flags: []*flag.Flag{
+				{
+					Name: "infinite",
+				},
+			},
+			expected: 1,
+		},
+		{
+			name: "limit",
+			flags: []*flag.Flag{
+				{
+					Name:  "limit",
+					Value: value("1"),
+				},
+			},
+			expected: 1,
+		},
+		{
+			name: "limit: invalid attemptLimit",
+			flags: []*flag.Flag{
+				{
+					Name:  "limit",
+					Value: value("attemptLimit"),
+				},
+			},
+			error: `strconv.ParseUint: parsing "attemptLimit": invalid syntax`,
+		},
+		{
+			name: "delay",
+			flags: []*flag.Flag{
+				{
+					Name:  "delay",
+					Value: value("1s"),
+				},
+			},
+			expected: 1,
+		},
+		{
+			name: "delay: invalid duration",
+			flags: []*flag.Flag{
+				{
+					Name:  "delay",
+					Value: value("duration"),
+				},
+			},
+			error: "time: invalid duration duration",
+		},
+		{
+			name: "wait",
+			flags: []*flag.Flag{
+				{
+					Name:  "wait",
+					Value: value("1s,1s,1s,1s,1s"),
+				},
+			},
+			expected: 1,
+		},
+		{
+			name: "wait: invalid duration",
+			flags: []*flag.Flag{
+				{
+					Name:  "wait",
+					Value: value("1s,1s,duration,1s,1s"),
+				},
+			},
+			error: "time: invalid duration duration",
+		},
+		{
+			name: "backoff",
+			flags: []*flag.Flag{
+				{
+					Name:  "backoff",
+					Value: value("inc[1s,1s]"),
+				},
+			},
+			expected: 1,
+		},
+		{
+			name: "backoff: unknown algorithm",
+			flags: []*flag.Flag{
+				{
+					Name:  "backoff",
+					Value: value("x"),
+				},
+			},
+			error: "unknown algorithm x",
+		},
+		{
+			name: "backoff with jitter",
+			flags: []*flag.Flag{
+				{
+					Name:  "tbackoff",
+					Value: value("inc[1s,1s] full"),
+				},
+			},
+			expected: 1,
+		},
+		{
+			name: "backoff with jitter: invalid argument count",
+			flags: []*flag.Flag{
+				{
+					Name:  "tbackoff",
+					Value: value("inc[1s,1s]"),
+				},
+			},
+			error: "invalid argument count",
+		},
+		{
+			name: "backoff with jitter: unknown algorithm",
+			flags: []*flag.Flag{
+				{
+					Name:  "tbackoff",
+					Value: value("x full"),
+				},
+			},
+			error: "unknown algorithm x",
+		},
+		{
+			name: "backoff with jitter: unknown transformation",
+			flags: []*flag.Flag{
+				{
+					Name:  "tbackoff",
+					Value: value("inc[1s,1s] x"),
+				},
+			},
+			error: "unknown transformation x",
+		},
+	} {
+		strategies, err := handle(tc.flags)
+
+		switch {
+		case tc.error == "" && err != nil:
+			t.Errorf("unexpected error %q at {%s:%d} test case", err, tc.name, i)
+		case tc.error != "" && err == nil:
+			t.Errorf("expected error %q, obtained nil at {%s:%d} test case", tc.error, tc.name, i)
+		case tc.error != "" && err != nil:
+			if tc.error != err.Error() {
+				t.Errorf("expected error %q, obtained %q at {%s:%d} test case", tc.error, err, tc.name, i)
+			}
+		case len(strategies) != tc.expected:
+			t.Errorf("expected %d strategies, obtained %d", tc.expected, len(strategies))
+		}
+	}
 }
 
 func Test_parseAlgorithm_generated(t *testing.T) {
@@ -18,7 +184,7 @@ func Test_parseAlgorithm_generated(t *testing.T) {
 			args: "inc[1s,1s]",
 		},
 		{
-			name:  "incremental: argument count",
+			name:  "incremental: invalid argument count",
 			args:  "inc[1s]",
 			error: "invalid argument count",
 		},
@@ -46,7 +212,7 @@ func Test_parseAlgorithm_generated(t *testing.T) {
 			args: "exp[1s,1.0]",
 		},
 		{
-			name:  "exponential: argument count",
+			name:  "exponential: invalid argument count",
 			args:  "exp[1s]",
 			error: "invalid argument count",
 		},
@@ -57,8 +223,8 @@ func Test_parseAlgorithm_generated(t *testing.T) {
 		},
 		{
 			name:  "exponential: invalid base",
-			args:  "exp[1s,1s]",
-			error: `strconv.ParseFloat: parsing "1s": invalid syntax`,
+			args:  "exp[1s,base]",
+			error: `strconv.ParseFloat: parsing "base": invalid syntax`,
 		},
 		{
 			name: "binary exponential",
@@ -97,4 +263,51 @@ func Test_parseAlgorithm_generated(t *testing.T) {
 }
 
 func Test_parseTransform_generated(t *testing.T) {
+	for i, tc := range []struct {
+		name  string
+		args  string
+		error string
+	}{
+		{
+			name: "full",
+			args: "full",
+		},
+		{
+			name: "equal",
+			args: "equal",
+		},
+		{
+			name: "deviation",
+			args: "dev[1.0]",
+		},
+		{
+			name:  "deviation: invalid factor",
+			args:  "dev[factor]",
+			error: `strconv.ParseFloat: parsing "factor": invalid syntax`,
+		},
+		{
+			name: "normal distribution",
+			args: "ndist[1.0]",
+		},
+		{
+			name:  "normal distribution: invalid standardDeviation",
+			args:  "ndist[standardDeviation]",
+			error: `strconv.ParseFloat: parsing "standardDeviation": invalid syntax`,
+		},
+	} {
+		tr, err := parseTransform(tc.args)
+
+		switch {
+		case tc.error == "" && err != nil:
+			t.Errorf("unexpected error %q at {%s:%d} test case", err, tc.name, i)
+		case tc.error != "" && err == nil:
+			t.Errorf("expected error %q, obtained nil at {%s:%d} test case", tc.error, tc.name, i)
+		case tc.error != "" && err != nil:
+			if tc.error != err.Error() {
+				t.Errorf("expected error %q, obtained %q at {%s:%d} test case", tc.error, err, tc.name, i)
+			}
+		case tr == nil:
+			t.Error("expected correct transformation, obtained nil")
+		}
+	}
 }

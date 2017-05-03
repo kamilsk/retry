@@ -1,5 +1,7 @@
 package main
 
+// TODO:GEN generate it
+
 import (
 	"errors"
 	"flag"
@@ -14,8 +16,6 @@ import (
 	"github.com/kamilsk/retry/jitter"
 	"github.com/kamilsk/retry/strategy"
 )
-
-// TODO:GEN generate it
 
 func init() {
 	var (
@@ -73,7 +73,7 @@ The strategy flags
     -backoff=:algorithm
         Backoff creates a Strategy that waits before each attempt, with a duration as
         defined by the given backoff.Algorithm.
-    -tbackoff=:algorithm,:transformation
+    -tbackoff=":algorithm :transformation"
         BackoffWithJitter creates a Strategy that waits before each attempt, with a
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 
@@ -183,7 +183,7 @@ func generatedBackoffStrategy(f *flag.Flag) (strategy.Strategy, error) {
 }
 
 func generatedBackoffWithJitterStrategy(f *flag.Flag) (strategy.Strategy, error) {
-	args := strings.Split(f.Value.String(), ",")
+	args := strings.Split(f.Value.String(), " ")
 	if len(args) != 2 {
 		return nil, errors.New("invalid argument count")
 	}
