@@ -5,6 +5,8 @@ package flag
 import (
 	"flag"
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 )
 
@@ -58,7 +60,7 @@ type Set struct {
 	// Usage is the function called when an error occurs while parsing flags.
 	// The field is a function (not a method) that may be changed to point to
 	// a custom error handler.
-	Usage func()
+	Usage func(output io.Writer, args ...string)
 
 	name          string
 	formal        map[string]*flag.Flag
@@ -107,7 +109,7 @@ func (fs *Set) failf(format string, a ...interface{}) error {
 // usage calls the Usage method for the flag set if one is specified.
 func (fs *Set) usage() {
 	if fs.Usage != nil {
-		fs.Usage()
+		fs.Usage(os.Stderr, os.Args...)
 	}
 }
 

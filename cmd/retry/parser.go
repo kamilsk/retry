@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
+	"io"
 	"regexp"
 	"time"
 
@@ -23,10 +25,10 @@ var (
 	}
 	algorithms map[string]func(args string) (backoff.Algorithm, error)
 	transforms map[string]func(args string) (jitter.Transformation, error)
-	usage      func()
+	usage      func(stdout io.Writer, args ...string)
 )
 
-func parse(arguments []string) (time.Duration, []string, []strategy.Strategy) {
+func parse(arguments ...string) (time.Duration, []string, []strategy.Strategy) {
 	cl := cflag.NewSet("retry")
 	cl.Usage = usage
 	for name, cfg := range compliance {
@@ -35,15 +37,21 @@ func parse(arguments []string) (time.Duration, []string, []strategy.Strategy) {
 			cl.StringVar(cursor, name, "", cfg.usage)
 		case *bool:
 			cl.BoolVar(cursor, name, false, cfg.usage)
+		default:
+			panic(fmt.Sprintf("an unsupported cursor type %T", cursor))
 		}
-
 	}
-	cl.StringVar(&Timeout, "timeout", Timeout, "value which supported by time.ParseDuration")
+	var timeoutVar string
+	cl.StringVar(&timeoutVar, "timeout", "", "a value which supported by time.ParseDuration")
+
 	if err := cl.Parse(arguments); err != nil {
 		panic(err)
 	}
 
-	timeout, err := time.ParseDuration(Timeout)
+	if timeoutVar == "" {
+		timeoutVar = Timeout
+	}
+	timeout, err := time.ParseDuration(timeoutVar)
 	if err != nil {
 		panic(err)
 	}

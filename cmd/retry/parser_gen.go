@@ -6,8 +6,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -53,8 +53,13 @@ func init() {
 		"dev":   generatedDeviationTransformation,
 		"ndist": generatedNormalDistributionTransformation,
 	}
-	usage = func() {
-		fmt.Fprintf(os.Stderr, `
+	usage = func(output io.Writer, args ...string) {
+		var cmd string = "retry"
+		if len(args) != 0 {
+			cmd = args[0]
+		}
+
+		fmt.Fprintf(output, `
 usage: %s [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
@@ -135,7 +140,7 @@ Full example:
     retry -timeout=500ms --infinite -- curl http://unknown.host
 
 Current version is %s.
-`, os.Args[0], Version)
+`, cmd, Version)
 	}
 }
 
