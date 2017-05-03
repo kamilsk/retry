@@ -27,7 +27,7 @@ The strategy flags
     -backoff=:algorithm
         Backoff creates a Strategy that waits before each attempt, with a duration as
         defined by the given backoff.Algorithm.
-    -tbackoff=:algorithm,:transformation
+    -tbackoff=":algorithm :transformation"
         BackoffWithJitter creates a Strategy that waits before each attempt, with a
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 
@@ -38,7 +38,7 @@ The strategy flags
     lin[Xs]
         Linear creates a Algorithm that linearly multiplies the factor
         duration by the attempt number for each attempt.
-    epx[Xs,Y]
+    exp[Xs,Y]
         Exponential creates a Algorithm that multiplies the factor duration by
         an exponentially increasing factor for each attempt, where the factor is
         calculated as the given base raised to the attempt number.
@@ -87,6 +87,8 @@ The strategy flags
 Full example:
     retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
     retry -timeout=500ms --infinite -- curl http://unknown.host
+
+Current version is alpha.
 
 $ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
 curl: (52) Empty reply from server

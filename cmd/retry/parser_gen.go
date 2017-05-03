@@ -1,12 +1,13 @@
 package main
 
+// TODO:GEN generate it
+
 import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"math/rand"
-	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -16,17 +17,49 @@ import (
 	"github.com/kamilsk/retry/strategy"
 )
 
-var (
-	compliance map[string]struct {
+func init() {
+	var (
+		fInfinite                                  bool
+		fLimit, fDelay, fWait, fBackoff, fTBackoff string
+	)
+	compliance = map[string]struct {
 		cursor  interface{}
 		usage   string
 		handler func(*flag.Flag) (strategy.Strategy, error)
+	}{
+		"infinite": {cursor: &fInfinite,
+			handler: generatedInfiniteStrategy},
+		"limit": {cursor: &fLimit,
+			handler: generatedLimitStrategy},
+		"delay": {cursor: &fDelay,
+			handler: generatedDelayStrategy},
+		"wait": {cursor: &fWait,
+			handler: generatedWaitStrategy},
+		"backoff": {cursor: &fBackoff,
+			handler: generatedBackoffStrategy},
+		"tbackoff": {cursor: &fTBackoff,
+			handler: generatedBackoffWithJitterStrategy},
 	}
-	algorithms map[string]func(args string) (backoff.Algorithm, error)
-	transforms map[string]func(args string) (jitter.Transformation, error)
-	re         = regexp.MustCompile(`^(\w+)(?:\[((?:\w+,?)+)\])?$`)
-	usage      = func() {
-		fmt.Fprintf(os.Stderr, `
+	algorithms = map[string]func(args string) (backoff.Algorithm, error){
+		"inc":    generatedIncrementalAlgorithm,
+		"lin":    generatedLinearAlgorithm,
+		"exp":    generatedExponentialAlgorithm,
+		"binexp": generatedBinaryExponentialAlgorithm,
+		"fib":    generatedFibonacciAlgorithm,
+	}
+	transforms = map[string]func(args string) (jitter.Transformation, error){
+		"full":  generatedFullTransformation,
+		"equal": generatedEqualTransformation,
+		"dev":   generatedDeviationTransformation,
+		"ndist": generatedNormalDistributionTransformation,
+	}
+	usage = func(output io.Writer, args ...string) {
+		var cmd string = "retry"
+		if len(args) != 0 {
+			cmd = args[0]
+		}
+
+		fmt.Fprintf(output, `
 usage: %s [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
@@ -45,7 +78,7 @@ The strategy flags
     -backoff=:algorithm
         Backoff creates a Strategy that waits before each attempt, with a duration as
         defined by the given backoff.Algorithm.
-    -tbackoff=:algorithm,:transformation
+    -tbackoff=":algorithm :transformation"
         BackoffWithJitter creates a Strategy that waits before each attempt, with a
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 
@@ -56,7 +89,7 @@ The strategy flags
     lin[Xs]
         Linear creates a Algorithm that linearly multiplies the factor
         duration by the attempt number for each attempt.
-    epx[Xs,Y]
+    exp[Xs,Y]
         Exponential creates a Algorithm that multiplies the factor duration by
         an exponentially increasing factor for each attempt, where the factor is
         calculated as the given base raised to the attempt number.
@@ -105,63 +138,11 @@ The strategy flags
 Full example:
     retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
     retry -timeout=500ms --infinite -- curl http://unknown.host
-`, os.Args[0])
-	}
-)
 
-func generator() *rand.Rand {
-	return rand.New(rand.NewSource(time.Now().UnixNano()))
+Current version is %s.
+`, cmd, Version)
+	}
 }
-
-func handle(flags []*flag.Flag) ([]strategy.Strategy, error) {
-	strategies := make([]strategy.Strategy, 0, len(flags))
-
-	for _, f := range flags {
-		if c, ok := compliance[f.Name]; ok {
-			s, err := c.handler(f)
-			if err != nil {
-				return nil, err
-			}
-			strategies = append(strategies, s)
-		}
-	}
-
-	return strategies, nil
-}
-
-func parseAlgorithm(arg string) (backoff.Algorithm, error) {
-	m := re.FindStringSubmatch(arg)
-	if len(m) < 2 {
-		return nil, errors.New("invalid argument " + arg)
-	}
-	algorithm, ok := algorithms[m[1]]
-	if !ok {
-		return nil, errors.New("unknown algorithn " + m[1])
-	}
-	args := ""
-	if len(m) == 3 {
-		args = m[2]
-	}
-	return algorithm(args)
-}
-
-func parseTransform(arg string) (jitter.Transformation, error) {
-	m := re.FindStringSubmatch(arg)
-	if len(m) < 2 {
-		return nil, errors.New("invalid argument " + arg)
-	}
-	transformation, ok := transforms[m[1]]
-	if !ok {
-		return nil, errors.New("unknown transformation " + m[1])
-	}
-	args := ""
-	if len(m) == 3 {
-		args = m[2]
-	}
-	return transformation(args)
-}
-
-// TODO: generate it
 
 // strategies
 
@@ -207,7 +188,7 @@ func generatedBackoffStrategy(f *flag.Flag) (strategy.Strategy, error) {
 }
 
 func generatedBackoffWithJitterStrategy(f *flag.Flag) (strategy.Strategy, error) {
-	args := strings.Split(f.Value.String(), ",")
+	args := strings.Split(f.Value.String(), " ")
 	if len(args) != 2 {
 		return nil, errors.New("invalid argument count")
 	}
@@ -233,7 +214,7 @@ func generatedIncrementalAlgorithm(raw string) (backoff.Algorithm, error) {
 	if err != nil {
 		return nil, err
 	}
-	increment, err := time.ParseDuration(args[0])
+	increment, err := time.ParseDuration(args[1])
 	if err != nil {
 		return nil, err
 	}
@@ -283,11 +264,11 @@ func generatedFibonacciAlgorithm(raw string) (backoff.Algorithm, error) {
 // transforms
 
 func generatedFullTransformation(_ string) (jitter.Transformation, error) {
-	return jitter.Full(generator()), nil
+	return jitter.Full(rand.New(rand.NewSource(time.Now().UnixNano()))), nil
 }
 
 func generatedEqualTransformation(_ string) (jitter.Transformation, error) {
-	return jitter.Equal(generator()), nil
+	return jitter.Equal(rand.New(rand.NewSource(time.Now().UnixNano()))), nil
 }
 
 func generatedDeviationTransformation(raw string) (jitter.Transformation, error) {
@@ -295,7 +276,7 @@ func generatedDeviationTransformation(raw string) (jitter.Transformation, error)
 	if err != nil {
 		return nil, err
 	}
-	return jitter.Deviation(generator(), factor), nil
+	return jitter.Deviation(rand.New(rand.NewSource(time.Now().UnixNano())), factor), nil
 }
 
 func generatedNormalDistributionTransformation(raw string) (jitter.Transformation, error) {
@@ -303,43 +284,5 @@ func generatedNormalDistributionTransformation(raw string) (jitter.Transformatio
 	if err != nil {
 		return nil, err
 	}
-	return jitter.NormalDistribution(generator(), standardDeviation), nil
-}
-
-func init() {
-	var (
-		fInfinite                                  bool
-		fLimit, fDelay, fWait, fBackoff, fTBackoff string
-	)
-	compliance = map[string]struct {
-		cursor  interface{}
-		usage   string
-		handler func(*flag.Flag) (strategy.Strategy, error)
-	}{
-		"infinite": {cursor: &fInfinite,
-			handler: generatedInfiniteStrategy},
-		"limit": {cursor: &fLimit,
-			handler: generatedLimitStrategy},
-		"delay": {cursor: &fDelay,
-			handler: generatedDelayStrategy},
-		"wait": {cursor: &fWait,
-			handler: generatedWaitStrategy},
-		"backoff": {cursor: &fBackoff,
-			handler: generatedBackoffStrategy},
-		"tbackoff": {cursor: &fTBackoff,
-			handler: generatedBackoffWithJitterStrategy},
-	}
-	algorithms = map[string]func(args string) (backoff.Algorithm, error){
-		"inc":    generatedIncrementalAlgorithm,
-		"lin":    generatedLinearAlgorithm,
-		"epx":    generatedExponentialAlgorithm,
-		"binexp": generatedBinaryExponentialAlgorithm,
-		"fib":    generatedFibonacciAlgorithm,
-	}
-	transforms = map[string]func(args string) (jitter.Transformation, error){
-		"full":  generatedFullTransformation,
-		"equal": generatedEqualTransformation,
-		"dev":   generatedDeviationTransformation,
-		"ndist": generatedNormalDistributionTransformation,
-	}
+	return jitter.NormalDistribution(rand.New(rand.NewSource(time.Now().UnixNano())), standardDeviation), nil
 }
