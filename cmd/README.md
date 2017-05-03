@@ -38,7 +38,7 @@ The strategy flags
     lin[Xs]
         Linear creates a Algorithm that linearly multiplies the factor
         duration by the attempt number for each attempt.
-    epx[Xs,Y]
+    exp[Xs,Y]
         Exponential creates a Algorithm that multiplies the factor duration by
         an exponentially increasing factor for each attempt, where the factor is
         calculated as the given base raised to the attempt number.

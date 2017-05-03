@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -16,71 +15,7 @@ import (
 	"github.com/kamilsk/retry/strategy"
 )
 
-var (
-	compliance map[string]struct {
-		cursor  interface{}
-		usage   string
-		handler func(*flag.Flag) (strategy.Strategy, error)
-	}
-	algorithms map[string]func(args string) (backoff.Algorithm, error)
-	transforms map[string]func(args string) (jitter.Transformation, error)
-	re         = regexp.MustCompile(`^(\w+)(?:\[((?:\w+,?)+)\])?$`)
-	usage      func()
-)
-
-func generator() *rand.Rand {
-	return rand.New(rand.NewSource(time.Now().UnixNano()))
-}
-
-func handle(flags []*flag.Flag) ([]strategy.Strategy, error) {
-	strategies := make([]strategy.Strategy, 0, len(flags))
-
-	for _, f := range flags {
-		if c, ok := compliance[f.Name]; ok {
-			s, err := c.handler(f)
-			if err != nil {
-				return nil, err
-			}
-			strategies = append(strategies, s)
-		}
-	}
-
-	return strategies, nil
-}
-
-func parseAlgorithm(arg string) (backoff.Algorithm, error) {
-	m := re.FindStringSubmatch(arg)
-	if len(m) < 2 {
-		return nil, errors.New("invalid argument " + arg)
-	}
-	algorithm, ok := algorithms[m[1]]
-	if !ok {
-		return nil, errors.New("unknown algorithn " + m[1])
-	}
-	args := ""
-	if len(m) == 3 {
-		args = m[2]
-	}
-	return algorithm(args)
-}
-
-func parseTransform(arg string) (jitter.Transformation, error) {
-	m := re.FindStringSubmatch(arg)
-	if len(m) < 2 {
-		return nil, errors.New("invalid argument " + arg)
-	}
-	transformation, ok := transforms[m[1]]
-	if !ok {
-		return nil, errors.New("unknown transformation " + m[1])
-	}
-	args := ""
-	if len(m) == 3 {
-		args = m[2]
-	}
-	return transformation(args)
-}
-
-// TODO: generate it
+// TODO:GEN generate it
 
 func init() {
 	var (
@@ -108,7 +43,7 @@ func init() {
 	algorithms = map[string]func(args string) (backoff.Algorithm, error){
 		"inc":    generatedIncrementalAlgorithm,
 		"lin":    generatedLinearAlgorithm,
-		"epx":    generatedExponentialAlgorithm,
+		"exp":    generatedExponentialAlgorithm,
 		"binexp": generatedBinaryExponentialAlgorithm,
 		"fib":    generatedFibonacciAlgorithm,
 	}
@@ -149,7 +84,7 @@ The strategy flags
     lin[Xs]
         Linear creates a Algorithm that linearly multiplies the factor
         duration by the attempt number for each attempt.
-    epx[Xs,Y]
+    exp[Xs,Y]
         Exponential creates a Algorithm that multiplies the factor duration by
         an exponentially increasing factor for each attempt, where the factor is
         calculated as the given base raised to the attempt number.
@@ -274,7 +209,7 @@ func generatedIncrementalAlgorithm(raw string) (backoff.Algorithm, error) {
 	if err != nil {
 		return nil, err
 	}
-	increment, err := time.ParseDuration(args[0])
+	increment, err := time.ParseDuration(args[1])
 	if err != nil {
 		return nil, err
 	}
@@ -324,11 +259,11 @@ func generatedFibonacciAlgorithm(raw string) (backoff.Algorithm, error) {
 // transforms
 
 func generatedFullTransformation(_ string) (jitter.Transformation, error) {
-	return jitter.Full(generator()), nil
+	return jitter.Full(rand.New(rand.NewSource(time.Now().UnixNano()))), nil
 }
 
 func generatedEqualTransformation(_ string) (jitter.Transformation, error) {
-	return jitter.Equal(generator()), nil
+	return jitter.Equal(rand.New(rand.NewSource(time.Now().UnixNano()))), nil
 }
 
 func generatedDeviationTransformation(raw string) (jitter.Transformation, error) {
@@ -336,7 +271,7 @@ func generatedDeviationTransformation(raw string) (jitter.Transformation, error)
 	if err != nil {
 		return nil, err
 	}
-	return jitter.Deviation(generator(), factor), nil
+	return jitter.Deviation(rand.New(rand.NewSource(time.Now().UnixNano())), factor), nil
 }
 
 func generatedNormalDistributionTransformation(raw string) (jitter.Transformation, error) {
@@ -344,5 +279,5 @@ func generatedNormalDistributionTransformation(raw string) (jitter.Transformatio
 	if err != nil {
 		return nil, err
 	}
-	return jitter.NormalDistribution(generator(), standardDeviation), nil
+	return jitter.NormalDistribution(rand.New(rand.NewSource(time.Now().UnixNano())), standardDeviation), nil
 }

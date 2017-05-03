@@ -44,7 +44,7 @@ func main() {
 	}()
 
 	done := make(chan struct{})
-	timeout, args, strategies := parse()
+	timeout, args, strategies := parse(os.Args[1:])
 	action := func(attempt uint) error {
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, &buf{c: done, w: os.Stderr}
