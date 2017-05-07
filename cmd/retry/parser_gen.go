@@ -54,7 +54,7 @@ func init() {
 		"ndist": generatedNormalDistributionTransformation,
 	}
 	usage = func(output io.Writer, args ...string) {
-		var cmd string = "retry"
+		var cmd = "retry"
 		if len(args) != 0 {
 			cmd = args[0]
 		}

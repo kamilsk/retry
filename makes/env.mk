@@ -2,9 +2,6 @@ ifndef GOPATH
 $(error $$GOPATH not set)
 endif
 
-
-ARGS =
-
 CWD        := $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
 CID        := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 DATE       := $(shell date -u "+%Y-%m-%d %H:%M:%S")
