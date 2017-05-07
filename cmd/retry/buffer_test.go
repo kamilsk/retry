@@ -9,9 +9,13 @@ func TestBuffer_Write(t *testing.T) {
 	w := bytes.NewBuffer(nil)
 	b := buf{c: make(chan struct{}), w: w}
 
-	b.Write([]byte("test"))
+	if _, err := b.Write([]byte("test")); err != nil {
+		t.Errorf("unexpected error %q", err)
+	}
 	close(b.c)
-	b.Write([]byte("buffer"))
+	if _, err := b.Write([]byte("buffer")); err != nil {
+		t.Errorf("unexpected error %q", err)
+	}
 
 	expected, obtained := "test", w.String()
 	if obtained != expected {
