@@ -1,0 +1,48 @@
+homepage:    &home https://github.com/kamilsk/retry
+description: &desc Functional mechanism based on context to perform actions repetitively until successful.
+
+archive:
+  files:
+  - LICENSE
+  format: tar.gz
+  format_overrides:
+  - goos:   windows
+    format: zip
+  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  replacements:
+    386:    32bit
+    amd64:  64bit
+
+    darwin:  macOS
+    linux:   Linux
+    windows: Windows
+
+brew:
+  caveats: retry help
+  folder: Formula
+  github:
+    name:  homebrew-tap
+    owner: kamilsk
+  homepage:    &home
+  description: &desc
+
+build:
+  binary: retry
+  goarch:
+  - 386
+  - amd64
+  goos:
+  - darwin
+  - linux
+  - windows
+  ldflags: -s -w -X 'main.Version="{{.Version}} ({{.Commit}}, {{.Date}})"'
+  main:    ./cmd/retry
+
+release:
+  draft: true
+  github:
+    name:  retry
+    owner: kamilsk
+
+snapshot:
+  name_template: "{{.Commit}}_{{.Timestamp}}"

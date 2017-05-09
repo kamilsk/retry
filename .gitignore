@@ -1,4 +1,5 @@
 /.glide/
+/dist/
 /vendor/
 *coverage*.out
 glide.lock
