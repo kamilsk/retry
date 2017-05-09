@@ -39,7 +39,7 @@ build:
   main:    ./cmd/retry
 
 release:
-  draft: true
+  draft: false
   github:
     name:  retry
     owner: kamilsk
