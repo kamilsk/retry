@@ -7,6 +7,47 @@
 > `retry` provides functionality to repeat terminal commands.
 > > status: **experimental**
 
+### Installation
+
+#### macOS
+
+```bash
+$ brew install kamilsk/tap/retry
+```
+
+#### Download binary
+
+```bash
+$ export version=...
+# see available releases https://github.com/kamilsk/retry/releases
+$ export os=...
+$ export arch=...
+# see uname -a for details
+$ wget -q -O /tmp/goreleaser.tar.gz \
+    https://github.com/kamilsk/retry/releases/download/${version}/retry_${os}_${arch}.tar.gz
+```
+
+#### From source
+
+```bash
+$ export PATH=$GOPATH/bin:$PATH
+$ export version=...
+# see available releases https://github.com/kamilsk/retry/releases
+$ go get -d github.com/kamilsk/retry
+$ cd $GOPATH/src/github.com/kamilsk/retry
+$ git checkout ${version}
+$ go install ./cmd/retry
+```
+
+```bash
+$ export PATH=$GOPATH/bin:$PATH
+$ export version=...
+# see available releases https://github.com/kamilsk/retry/releases
+$ egg install github.com/kamilsk/retry ${version} cmd/retry
+```
+
+### Usage
+
 ```bash
 $ retry help
 usage: retry [-timeout timeout] [strategy flags] -- command
