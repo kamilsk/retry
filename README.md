@@ -87,8 +87,6 @@ go func(db *sql.DB, attempt uint, frequency time.Duration) {
 ### CLI tool for command execution repetitively
 
 ```bash
-$ export PATH=$GOPATH/bin:$PATH
-$ go install ./cmd/retry
 $ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
 curl: (52) Empty reply from server
 curl: (52) Empty reply from server
