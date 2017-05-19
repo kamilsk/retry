@@ -1,5 +1,4 @@
 .PHONY: hugo-init
-hugo-init: SITE = www
 hugo-init:
 	mkdir -p site/$(SITE)/archetypes \
 	         site/$(SITE)/content \
@@ -27,7 +26,6 @@ hugo-themes:
 	git clone --depth 1 --recursive https://github.com/spf13/hugoThemes.git themes
 
 .PHONY: hugo-site
-hugo-site: SITE = www
 hugo-site:
 	docker run --rm \
 	    -v '$(CWD)/site':/opt \
@@ -36,8 +34,6 @@ hugo-site:
 	    hugo new site $(SITE)
 
 .PHONY: hugo-theme
-hugo-theme: SITE  = www
-hugo-theme: THEME = new
 hugo-theme:
 	docker run --rm \
 	    -v '$(CWD)/site/$(SITE)':/opt \
@@ -46,8 +42,6 @@ hugo-theme:
 	    hugo new theme $(THEME)
 
 .PHONY: hugo-content
-hugo-content: SITE    = www
-hugo-content: CONTENT = item
 hugo-content:
 	docker run --rm \
 	    -v '$(CWD)/site/$(SITE)':/opt \
@@ -56,7 +50,6 @@ hugo-content:
 	    hugo new $(CONTENT).md
 
 .PHONY: hugo-mount
-hugo-mount: SITE = www
 hugo-mount:
 	docker run --rm -it \
 	    -v '$(CWD)/site/$(SITE)':/opt \
@@ -66,14 +59,13 @@ hugo-mount:
 	    /bin/sh
 
 .PHONY: hugo-start
-hugo-start: SITE = www
 hugo-start:
 	docker run --rm -d \
 	    -v '$(CWD)/site/$(SITE)':/opt \
 	    -w /opt \
 	    -p 127.0.0.1:8080:8080 \
 	    kamilsk/hugo:latest \
-	    /bin/sh -c 'hugo server --config=config.yml --baseURL=http://localhost:8080 --bind="" --port=8080 --buildDrafts'
+	    /bin/sh -c 'hugo server --baseURL=http://localhost:8080 --bind="" --port=8080 --buildDrafts $(strip $(ARGS))'
 
 .PHONY: hugo-stop
 hugo-stop:

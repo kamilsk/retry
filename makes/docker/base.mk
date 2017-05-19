@@ -57,7 +57,6 @@ docker-test-with-coverage-$(1):
 	if [ '$${OPEN_BROWSER}' != '' ]; then go tool cover -html='$$@.out'; fi
 
 .PHONY: docker-docs-$(1)
-docker-docs-$(1): WAITING = 2
 docker-docs-$(1):
 	docker run -d --rm \
 	           -v '$${GOPATH}/src/$${GO_PACKAGE}':'/go/src/$${GO_PACKAGE}' \
@@ -65,7 +64,7 @@ docker-docs-$(1):
 	           -p 127.0.0.1:8080:8080 \
 	           golang:$(1) \
 	           godoc -play -http :8080
-	sleep $$(WAITING)
+	sleep 2
 	open http://localhost:8080/pkg/$$(GO_PACKAGE)
 
 .PHONY: docker-docs-$(1)-stop

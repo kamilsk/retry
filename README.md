@@ -84,6 +84,48 @@ go func(db *sql.DB, attempt uint, frequency time.Duration) {
 }(MustOpen(), 10, time.Minute)
 ```
 
+### Re-login
+
+**NOTE:** issue [#54](https://github.com/kamilsk/retry/issues/54).
+
+```go
+func Callback(f func(), c classifier.Classifier) strategy.Strategy {
+	return func(attempt uint, err error) bool {
+		if c.Classify(err) == classifier.Retry {
+			f()
+		}
+		// skip to other
+		return true
+	}
+}
+
+var LoginChecker classifier.FunctionalClassifier = func(err error) classifier.Action {
+	if err == nil {
+		return Succeed
+	}
+
+	// handle error
+}
+
+var (
+	action retry.Action = func(attempt uint) error {
+		resp, err := http.Post("/api", "application/json", ...)
+		if err != nil {
+			return err
+		}
+		// handle response
+	}
+	relogin func () = func () {
+		resp, err := http.PostForm("/login", url.Values{...}})
+		// handle error and response
+	}
+)
+
+if err := retry.Retry(context.TODO(), action, Callback(relogin, AuthChecker)); err != nil {
+	// handle error
+}
+```
+
 ### CLI tool for command execution repetitively
 
 ```bash
@@ -111,18 +153,33 @@ $ egg -fix-vanity-url bitbucket.org/kamilsk/retry
 
 ### Update
 
-This library is using [SemVer](http://semver.org) for versioning and it is not 
+This library is using [SemVer](http://semver.org) for versioning and it is not
 [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
 Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or something similar for this purpose.
 
-## Integration with Docker
+## Contributing workflow
+
+### Code quality checking
+
+```bash
+$ make docker-pull-tools
+$ make docker-gometalinter
+```
+
+### Testing
+
+#### Local
+
+```bash
+$ make install-deps
+$ make test-with-coverage
+```
+
+#### Docker
 
 ```bash
 $ make docker-pull
-$ make docker-gometalinter ARGS=--deadline=12s
-$ make docker-bench ARGS=-benchmem
-$ make docker-test ARGS=-v
-$ make docker-test-with-coverage ARGS=-v OPEN_BROWSER=true
+$ make docker-test-with-coverage
 ```
 
 ## Feedback
