@@ -163,7 +163,7 @@ Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or
 
 ```bash
 $ make docker-pull-tools
-$ make docker-gometalinter
+$ make docker-check
 ```
 
 ### Testing

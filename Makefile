@@ -12,9 +12,9 @@ docker-bench: docker-bench-1.7
 docker-bench: docker-bench-1.8
 docker-bench: docker-bench-latest
 
-.PHONY: docker-gometalinter
-docker-gometalinter: ARGS = --vendor --deadline=1m ./...
-docker-gometalinter: docker-tool-gometalinter
+.PHONY: docker-check
+docker-check: ARGS = --vendor --deadline=1m ./...
+docker-check: docker-tool-gometalinter
 
 .PHONY: docker-pull
 docker-pull: docker-pull-1.5
