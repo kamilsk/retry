@@ -1,13 +1,13 @@
 package main
 
-// TODO:GEN generate it
-
 import (
 	"bytes"
 	"flag"
-	"fmt"
+	"io/ioutil"
 	"testing"
 )
+
+var update = flag.Bool("update", false, "update .golden files")
 
 type value string
 
@@ -316,93 +316,23 @@ func Test_parseTransform_generated(t *testing.T) {
 
 func Test_usage(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
-	// don't forget update README.md
-	expected := fmt.Sprintf(`
-usage: test [-timeout timeout] [strategy flags] -- command
+	golden := "usage.golden"
 
-The strategy flags
-    --infinite
-        Infinite creates a Strategy that will never stop repeating.
-    -limit=X
-        Limit creates a Strategy that limits the number of attempts that Retry will
-        make.
-    -delay=Xs
-        Delay creates a Strategy that waits the given duration before the first
-        attempt is made.
-    -wait=Xs,...
-        Wait creates a Strategy that waits the given durations for each attempt after
-        the first. If the number of attempts is greater than the number of durations
-        provided, then the strategy uses the last duration provided.
-    -backoff=:algorithm
-        Backoff creates a Strategy that waits before each attempt, with a duration as
-        defined by the given backoff.Algorithm.
-    -tbackoff=":algorithm :transformation"
-        BackoffWithJitter creates a Strategy that waits before each attempt, with a
-        duration as defined by the given backoff.Algorithm and jitter.Transformation.
+	usage(buf, "retry", "1.0.0")
+	actual := buf.Bytes()
 
-:algorithm
-    inc[Xs,Ys]
-        Incremental creates a Algorithm that increments the initial duration
-        by the given increment for each attempt.
-    lin[Xs]
-        Linear creates a Algorithm that linearly multiplies the factor
-        duration by the attempt number for each attempt.
-    exp[Xs,Y]
-        Exponential creates a Algorithm that multiplies the factor duration by
-        an exponentially increasing factor for each attempt, where the factor is
-        calculated as the given base raised to the attempt number.
-    binexp[Xs]
-        BinaryExponential creates a Algorithm that multiplies the factor
-        duration by an exponentially increasing factor for each attempt, where the
-        factor is calculated as "2" raised to the attempt number (2^attempt).
-    fib[Xs]
-        Fibonacci creates a Algorithm that multiplies the factor duration by
-        an increasing factor for each attempt, where the factor is the Nth number in
-        the Fibonacci sequence.
+	if *update {
+		if err := ioutil.WriteFile(golden, actual, 0644); err != nil {
+			t.Error(err)
+		}
+	}
 
-:transformation
-    full
-        Full creates a Transformation that transforms a duration into a result
-        duration in [0, n) randomly, where n is the given duration.
+	expected, err := ioutil.ReadFile(golden)
+	if err != nil {
+		t.Error(err)
+	}
 
-        The given generator is what is used to determine the random transformation.
-        If a nil generator is passed, a default one will be provided.
-
-        Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
-    equal
-        Equal creates a Transformation that transforms a duration into a result
-        duration in [n/2, n) randomly, where n is the given duration.
-
-        The given generator is what is used to determine the random transformation.
-        If a nil generator is passed, a default one will be provided.
-
-        Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
-    dev[X]
-        Deviation creates a Transformation that transforms a duration into a result
-        duration that deviates from the input randomly by a given factor.
-
-        The given generator is what is used to determine the random transformation.
-        If a nil generator is passed, a default one will be provided.
-
-        Inspired by https://developers.google.com/api-client-library/java/google-http-java-client/backoff
-    ndist[X]
-        NormalDistribution creates a Transformation that transforms a duration into a
-        result duration based on a normal distribution of the input and the given
-        standard deviation.
-
-        The given generator is what is used to determine the random transformation.
-        If a nil generator is passed, a default one will be provided.
-
-Full example:
-    retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
-    retry -timeout=500ms --infinite -- curl http://unknown.host
-
-Current version is %s.
-`, Version)
-
-	usage(buf, "test")
-
-	if buf.String() != expected {
+	if !bytes.Equal(actual, expected) {
 		t.Error("unexpected usage message")
 	}
 }

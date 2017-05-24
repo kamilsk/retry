@@ -1,7 +1,5 @@
 package main
 
-// TODO:GEN generate it
-
 import (
 	"errors"
 	"flag"
@@ -54,9 +52,12 @@ func init() {
 		"ndist": generatedNormalDistributionTransformation,
 	}
 	usage = func(output io.Writer, args ...string) {
-		var cmd = "retry"
-		if len(args) != 0 {
+		var cmd, version = "retry", Version
+		if len(args) > 1 {
 			cmd = args[0]
+			if len(args) >= 2 {
+				version = args[1]
+			}
 		}
 
 		fmt.Fprintf(output, `
@@ -136,11 +137,11 @@ The strategy flags
         If a nil generator is passed, a default one will be provided.
 
 Full example:
-    retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
-    retry -timeout=500ms --infinite -- curl http://unknown.host
+    retry -limit=3 -backoff=lin[10ms] -- curl http://example.com
+    retry -timeout=500ms --infinite -- git pull
 
 Current version is %s.
-`, cmd, Version)
+`, cmd, version)
 	}
 }
 

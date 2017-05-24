@@ -25,16 +25,6 @@ var (
 	Version string
 )
 
-var l *logger
-
-func init() {
-	l = &logger{
-		stderr: log.New(os.Stderr, "", log.Lshortfile),
-		stdout: log.New(os.Stdout, "", 0),
-		debug:  Debug,
-	}
-}
-
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -42,6 +32,18 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+
+	var stderrFlag, stdoutFlag int
+	if Debug {
+		stderrFlag = log.Lshortfile
+	}
+
+	l := &logger{
+		stderr:  log.New(os.Stderr, "", stderrFlag),
+		stdout:  log.New(os.Stdout, "", stdoutFlag),
+		debug:   Debug,
+		colored: !NoColor,
+	}
 
 	done := make(chan struct{})
 	timeout, args, strategies := parse(os.Args[1:]...)
@@ -52,7 +54,7 @@ func main() {
 	}
 	ctx, cancel := ctx(timeout)
 	if err := retry.Retry(ctx, action, strategies...); err != nil {
-		l.Errorf("error occcured: %q", err)
+		l.Errorf("error occurred: %q", err)
 		close(done)
 	}
 	cancel()

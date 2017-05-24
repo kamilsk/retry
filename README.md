@@ -2,6 +2,7 @@
 >
 > Functional mechanism based on context to perform actions repetitively until successful.
 
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#utilities)
 [![Build Status](https://travis-ci.org/kamilsk/retry.svg?branch=master)](https://travis-ci.org/kamilsk/retry)
 [![Coverage Status](https://coveralls.io/repos/github/kamilsk/retry/badge.svg)](https://coveralls.io/github/kamilsk/retry)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retry)](https://goreportcard.com/report/github.com/kamilsk/retry)
@@ -22,6 +23,8 @@
 
 ### HTTP calls with retries and backoff
 
+This example shows how to repeat http calls.
+
 ```go
 var response struct {
     ID      int
@@ -30,7 +33,7 @@ var response struct {
 client := &http.Client{Timeout: 100 * time.Millisecond}
 
 action := func(attempt uint) error {
-    resp, err := client.Do(&http.NewRequest(http.MethodGet, "http://localhost:8080", nil))
+    resp, err := client.Do(&http.NewRequest(http.MethodGet, "http://some.json.api", nil))
     if err != nil {
         return err
     }
@@ -55,6 +58,8 @@ if err := retry.Retry(ctx, action, strategy.Backoff(backoff.Exponential(100*time
 
 ### Database connection restore
 
+This example shows how to use the library to restore database connection.
+
 ```go
 MustOpen := func() *sql.DB {
 	db, err := sql.Open("sqlite", "./sqlite.db")
@@ -64,7 +69,13 @@ MustOpen := func() *sql.DB {
 	return db
 }
 
-go func(db *sql.DB, attempt uint, frequency time.Duration) {
+go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, attempt uint, frequency time.Duration) {
+	defer func() {
+		if r := recover(); r != nil {
+			shutdown <- struct{}{}
+		}
+	}()
+
 	ping := func(attempt uint) error {
 		return db.Ping()
 	}
@@ -75,53 +86,95 @@ go func(db *sql.DB, attempt uint, frequency time.Duration) {
 			jitter.NormalDistribution(rand.New(rand.NewSource(time.Now().UnixNano())), 2.0),
 		),
 	}
+
 	for {
-		if err := retry.Retry(context.Background(), ping, strategies...); err != nil {
+		if err := retry.Retry(ctx, ping, strategies...); err != nil {
 			panic(err)
 		}
 		time.Sleep(frequency)
 	}
-}(MustOpen(), 10, time.Minute)
+}(MustOpen(), context.Background(), shutdown, 10, time.Minute)
 ```
 
-### Re-login
+### Autologin
 
-**NOTE:** issue [#54](https://github.com/kamilsk/retry/issues/54).
+This example shows how to extend the library to solve a problem with authentication.
 
 ```go
-func Callback(f func(), c classifier.Classifier) strategy.Strategy {
+type AuthError struct{}
+
+func (err AuthError) Error() string {
+	return "auth needed"
+}
+
+func Callback(c classifier.Classifier, f func()) strategy.Strategy {
 	return func(attempt uint, err error) bool {
-		if c.Classify(err) == classifier.Retry {
+		action := c.Classify(err)
+		if action == classifier.Retry {
 			f()
 		}
-		// skip to other
-		return true
+		// skip to other strategies if not fail
+		return action != classifier.Fail
 	}
 }
 
-var LoginChecker classifier.FunctionalClassifier = func(err error) classifier.Action {
+var AuthChecker classifier.FunctionalClassifier = func(err error) classifier.Action {
 	if err == nil {
-		return Succeed
+		return classifier.Succeed
 	}
 
-	// handle error
+	if _, is := err.(AuthError); is {
+		return classifier.Retry
+	}
+
+	return classifier.Unknown
 }
 
-var (
-	action retry.Action = func(attempt uint) error {
-		resp, err := http.Post("/api", "application/json", ...)
-		if err != nil {
-			return err
-		}
-		// handle response
-	}
-	relogin func () = func () {
-		resp, err := http.PostForm("/login", url.Values{...}})
-		// handle error and response
-	}
-)
+client := &http.Client{Timeout: 100 * time.Millisecond}
 
-if err := retry.Retry(context.TODO(), action, Callback(relogin, AuthChecker)); err != nil {
+action := func(attempt uint) error {
+	req, err := http.NewRequest(http.MethodGet, "http://some.api/get", nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("token", "secret")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusUnauthorized {
+			return AuthError{}
+		}
+		return HttpError{Code: resp.StatusCode}
+	}
+
+	// handle response
+
+	return nil
+}
+ctx := context.Background()
+login := func() {
+	req, err := http.NewRequest(http.MethodGet, "http://some.api/login", nil)
+	if err != nil {
+		return
+	}
+
+	req.Header.Add("token", "secret")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	// handle response
+}
+
+if err := retry.Retry(ctx, action, Callback(AuthChecker, login), strategy.Limit(10)); err != nil {
 	// handle error
 }
 ```
@@ -129,10 +182,11 @@ if err := retry.Retry(context.TODO(), action, Callback(relogin, AuthChecker)); e
 ### CLI tool for command execution repetitively
 
 ```bash
-$ retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
-curl: (52) Empty reply from server
-curl: (52) Empty reply from server
-curl: (52) Empty reply from server
+$ retry -limit=3 -backoff=lin[10ms] -- /bin/sh -c 'echo "trying..."; exit 1'
+trying...
+trying...
+trying...
+[ERROR] error occurred: "exit status 1"
 ```
 
 See more details [here](cmd).
