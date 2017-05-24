@@ -27,6 +27,7 @@ docker-pull: PRUNE = --force
 docker-pull: docker-clean
 
 .PHONY: docker-test
+docker-test: ARGS = -timeout=1s
 docker-test: docker-test-1.5
 docker-test: docker-test-1.6
 docker-test: docker-test-1.7
@@ -34,6 +35,7 @@ docker-test: docker-test-1.8
 docker-test: docker-test-latest
 
 .PHONY: docker-test-with-coverage
+docker-test-with-coverage: ARGS = -timeout=1s
 docker-test-with-coverage: docker-test-with-coverage-1.5
 docker-test-with-coverage: docker-test-with-coverage-1.6
 docker-test-with-coverage: docker-test-with-coverage-1.7
