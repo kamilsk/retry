@@ -28,8 +28,8 @@ brew:
 
 build:
   binary: retry
-  env:
-    - CGO_ENABLED=0
+#  env:
+#    - CGO_ENABLED=0
   goarch:
   - 386
   - amd64
