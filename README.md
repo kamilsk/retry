@@ -98,7 +98,7 @@ go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, attempt uint,
 
 ### Autologin
 
-This example shows how to extend the library to solve a problem with authentication.
+This example shows how to extend the library to solve a problem with authentication using classifier.
 
 ```go
 type AuthError struct{}

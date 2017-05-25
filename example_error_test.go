@@ -35,8 +35,8 @@ func (err HttpError) Temporary() bool {
 	return false
 }
 
-// This example shows how to classify errors.
-func Example_classifyErrors() {
+// This example shows how to handle errors.
+func Example_handleErrors() {
 	var repeat int
 
 	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {

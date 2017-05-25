@@ -44,7 +44,7 @@ var AuthChecker classifier.FunctionalClassifier = func(err error) classifier.Act
 	return classifier.Unknown
 }
 
-// This example shows how to extend the library to solve a problem with authentication.
+// This example shows how to extend the library to solve a problem with authentication using classifier.
 func Example_autologin() {
 	tokens := map[string]time.Time{}
 
