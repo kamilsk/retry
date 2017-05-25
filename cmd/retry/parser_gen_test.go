@@ -102,7 +102,7 @@ func Test_handle_generated(t *testing.T) {
 			flags: []*flag.Flag{
 				{
 					Name:  "backoff",
-					Value: value("inc[1s,1s]"),
+					Value: value("inc{1s,1s}"),
 				},
 			},
 			expected: 1,
@@ -122,7 +122,7 @@ func Test_handle_generated(t *testing.T) {
 			flags: []*flag.Flag{
 				{
 					Name:  "tbackoff",
-					Value: value("inc[1s,1s] full"),
+					Value: value("inc{1s,1s} full"),
 				},
 			},
 			expected: 1,
@@ -132,7 +132,7 @@ func Test_handle_generated(t *testing.T) {
 			flags: []*flag.Flag{
 				{
 					Name:  "tbackoff",
-					Value: value("inc[1s,1s]"),
+					Value: value("inc{1s,1s}"),
 				},
 			},
 			error: "invalid argument count",
@@ -152,7 +152,7 @@ func Test_handle_generated(t *testing.T) {
 			flags: []*flag.Flag{
 				{
 					Name:  "tbackoff",
-					Value: value("inc[1s,1s] x"),
+					Value: value("inc{1s,1s} x"),
 				},
 			},
 			error: "unknown transformation x",
@@ -183,67 +183,67 @@ func Test_parseAlgorithm_generated(t *testing.T) {
 	}{
 		{
 			name: "incremental",
-			args: "inc[1s,1s]",
+			args: "inc{1s,1s}",
 		},
 		{
 			name:  "incremental: invalid argument count",
-			args:  "inc[1s]",
+			args:  "inc{1s}",
 			error: "invalid argument count",
 		},
 		{
 			name:  "incremental: invalid initial",
-			args:  "inc[initial,1s]",
+			args:  "inc{initial,1s}",
 			error: "time: invalid duration initial",
 		},
 		{
 			name:  "incremental: invalid increment",
-			args:  "inc[1s,increment]",
+			args:  "inc{1s,increment}",
 			error: "time: invalid duration increment",
 		},
 		{
 			name: "linear",
-			args: "lin[1s]",
+			args: "lin{1s}",
 		},
 		{
 			name:  "linear: invalid factor",
-			args:  "lin[factor]",
+			args:  "lin{factor}",
 			error: "time: invalid duration factor",
 		},
 		{
 			name: "exponential",
-			args: "exp[1s,1.0]",
+			args: "exp{1s,1.0}",
 		},
 		{
 			name:  "exponential: invalid argument count",
-			args:  "exp[1s]",
+			args:  "exp{1s}",
 			error: "invalid argument count",
 		},
 		{
 			name:  "exponential: invalid factor",
-			args:  "exp[factor,1.0]",
+			args:  "exp{factor,1.0}",
 			error: "time: invalid duration factor",
 		},
 		{
 			name:  "exponential: invalid base",
-			args:  "exp[1s,base]",
+			args:  "exp{1s,base}",
 			error: `strconv.ParseFloat: parsing "base": invalid syntax`,
 		},
 		{
 			name: "binary exponential",
-			args: "binexp[1s]",
+			args: "binexp{1s}",
 		},
 		{
 			name:  "binary exponential: invalid factor",
-			args:  "binexp[factor]",
+			args:  "binexp{factor}",
 			error: "time: invalid duration factor",
 		},
 		{
 			name: "fibonacci",
-			args: "fib[1s]",
+			args: "fib{1s}",
 		},
 		{
 			name:  "fibonacci: invalid factor",
-			args:  "fib[factor]",
+			args:  "fib{factor}",
 			error: "time: invalid duration factor",
 		},
 	} {
@@ -280,20 +280,20 @@ func Test_parseTransform_generated(t *testing.T) {
 		},
 		{
 			name: "deviation",
-			args: "dev[1.0]",
+			args: "dev{1.0}",
 		},
 		{
 			name:  "deviation: invalid factor",
-			args:  "dev[factor]",
+			args:  "dev{factor}",
 			error: `strconv.ParseFloat: parsing "factor": invalid syntax`,
 		},
 		{
 			name: "normal distribution",
-			args: "ndist[1.0]",
+			args: "ndist{1.0}",
 		},
 		{
 			name:  "normal distribution: invalid standardDeviation",
-			args:  "ndist[standardDeviation]",
+			args:  "ndist{standardDeviation}",
 			error: `strconv.ParseFloat: parsing "standardDeviation": invalid syntax`,
 		},
 	} {
