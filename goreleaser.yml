@@ -28,6 +28,8 @@ brew:
 
 build:
   binary: retry
+  env:
+    - CGO_ENABLED=0
   goarch:
   - 386
   - amd64
@@ -35,7 +37,7 @@ build:
   - darwin
   - linux
   - windows
-  ldflags: -s -w -X 'main.Version="{{.Version}} ({{.Date}})"'
+  ldflags: -s -w -X main.Version="{{.Version}} ({{.Date}})"
   main:    ./cmd/retry
 
 release:

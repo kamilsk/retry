@@ -15,9 +15,8 @@ type printer interface {
 }
 
 type logger struct {
-	stderr printer
-	stdout printer
-	debug  bool
+	stderr, stdout printer
+	debug, colored bool
 }
 
 func (l *logger) Debug(message string) {
@@ -49,7 +48,7 @@ func (l *logger) Infof(format string, args ...interface{}) {
 }
 
 func (l *logger) colorize(color int, str string) string {
-	if NoColor {
+	if !l.colored {
 		return str
 	}
 	return escape + "[" + strconv.Itoa(color) + "m" + str + escape + "[0m"

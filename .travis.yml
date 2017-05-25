@@ -16,7 +16,7 @@ install:
 - make build
 
 script:
-- make test-with-coverage-profile OPEN_BROWSER=
+- make test-with-coverage-profile ARGS='-timeout=1s' OPEN_BROWSER=
 
 after_success:
 - goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILENAME}"

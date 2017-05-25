@@ -1,7 +1,5 @@
 package main
 
-// TODO:GEN generate it
-
 import (
 	"errors"
 	"flag"
@@ -54,50 +52,61 @@ func init() {
 		"ndist": generatedNormalDistributionTransformation,
 	}
 	usage = func(output io.Writer, args ...string) {
-		var cmd = "retry"
-		if len(args) != 0 {
+		var cmd, version = "retry", Version
+		if len(args) > 1 {
 			cmd = args[0]
+			if len(args) >= 2 {
+				version = args[1]
+			}
 		}
 
-		fmt.Fprintf(output, `
-usage: %s [-timeout timeout] [strategy flags] -- command
+		fmt.Fprintf(output, `usage: %s [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
     --infinite
         Infinite creates a Strategy that will never stop repeating.
+
     -limit=X
         Limit creates a Strategy that limits the number of attempts that Retry will
         make.
+
     -delay=Xs
         Delay creates a Strategy that waits the given duration before the first
         attempt is made.
+
     -wait=Xs,...
         Wait creates a Strategy that waits the given durations for each attempt after
         the first. If the number of attempts is greater than the number of durations
         provided, then the strategy uses the last duration provided.
+
     -backoff=:algorithm
         Backoff creates a Strategy that waits before each attempt, with a duration as
         defined by the given backoff.Algorithm.
+
     -tbackoff=":algorithm :transformation"
         BackoffWithJitter creates a Strategy that waits before each attempt, with a
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 
 :algorithm
-    inc[Xs,Ys]
+    inc{Xs,Ys}
         Incremental creates a Algorithm that increments the initial duration
         by the given increment for each attempt.
-    lin[Xs]
+
+    lin{Xs}
         Linear creates a Algorithm that linearly multiplies the factor
         duration by the attempt number for each attempt.
-    exp[Xs,Y]
+
+    exp{Xs,Y}
         Exponential creates a Algorithm that multiplies the factor duration by
         an exponentially increasing factor for each attempt, where the factor is
         calculated as the given base raised to the attempt number.
-    binexp[Xs]
+
+    binexp{Xs}
         BinaryExponential creates a Algorithm that multiplies the factor
         duration by an exponentially increasing factor for each attempt, where the
         factor is calculated as "2" raised to the attempt number (2^attempt).
-    fib[Xs]
+
+    fib{Xs}
         Fibonacci creates a Algorithm that multiplies the factor duration by
         an increasing factor for each attempt, where the factor is the Nth number in
         the Fibonacci sequence.
@@ -111,6 +120,7 @@ The strategy flags
         If a nil generator is passed, a default one will be provided.
 
         Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
+
     equal
         Equal creates a Transformation that transforms a duration into a result
         duration in [n/2, n) randomly, where n is the given duration.
@@ -119,7 +129,8 @@ The strategy flags
         If a nil generator is passed, a default one will be provided.
 
         Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
-    dev[X]
+
+    dev{X}
         Deviation creates a Transformation that transforms a duration into a result
         duration that deviates from the input randomly by a given factor.
 
@@ -127,7 +138,8 @@ The strategy flags
         If a nil generator is passed, a default one will be provided.
 
         Inspired by https://developers.google.com/api-client-library/java/google-http-java-client/backoff
-    ndist[X]
+
+    ndist{X}
         NormalDistribution creates a Transformation that transforms a duration into a
         result duration based on a normal distribution of the input and the given
         standard deviation.
@@ -136,11 +148,12 @@ The strategy flags
         If a nil generator is passed, a default one will be provided.
 
 Full example:
-    retry -limit=3 -backoff=lin[10ms] -- curl http://unknown.host
-    retry -timeout=500ms --infinite -- curl http://unknown.host
+    retry -limit=3 -backoff=lin{10ms} -- curl http://example.com
+    retry -tbackoff="lin{10s} full" --infinite -- curl https://example.com
+    retry -timeout=500ms --infinite -- git pull
 
 Current version is %s.
-`, cmd, Version)
+`, cmd, version)
 	}
 }
 

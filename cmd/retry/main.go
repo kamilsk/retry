@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/kamilsk/retry"
 )
@@ -20,21 +21,11 @@ var (
 	// or `-timeout ...` parameter.
 	Timeout = "1m"
 	// NoColor deprecates colorize logger' output.
-	// Can be changed by `-ldflags "-X 'main.Timeout=...'"`.
+	// Can be changed by `-ldflags "-X 'main.NoColor=...'"`.
 	NoColor = false
 	// Version will always be the name of the current Git tag.
 	Version string
 )
-
-var l *logger
-
-func init() {
-	l = &logger{
-		stderr: log.New(os.Stderr, "", log.Lshortfile),
-		stdout: log.New(os.Stdout, "", 0),
-		debug:  Debug,
-	}
-}
 
 func main() {
 	defer func() {
@@ -44,16 +35,39 @@ func main() {
 		}
 	}()
 
+	var stderrFlag, stdoutFlag int
+	if Debug {
+		stderrFlag = log.Lshortfile
+	}
+
+	l := &logger{
+		stderr:  log.New(os.Stderr, "", stderrFlag),
+		stdout:  log.New(os.Stdout, "", stdoutFlag),
+		debug:   Debug,
+		colored: !NoColor,
+	}
+
+	var (
+		start   time.Time
+		started bool
+	)
+
 	done := make(chan struct{})
 	timeout, args, strategies := parse(os.Args[1:]...)
 	action := func(attempt uint) error {
+		if !started {
+			start = time.Now()
+			started = true
+		} else {
+			l.Infof("#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
+		}
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, &buf{c: done, w: os.Stderr}
 		return cmd.Run()
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	if err := retry.Retry(ctx, action, strategies...); err != nil {
-		l.Errorf("error occcured: %q", err)
+		l.Errorf("error occurred: %q", err)
 		close(done)
 	}
 	cancel()

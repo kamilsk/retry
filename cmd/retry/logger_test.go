@@ -124,8 +124,7 @@ func TestLogger(t *testing.T) {
 		},
 	} {
 		b.Reset()
-		l.debug = tc.debug
-		NoColor = tc.noColor
+		l.debug, l.colored = tc.debug, !tc.noColor
 
 		tc.action()
 
