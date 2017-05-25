@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/kamilsk/retry"
 )
@@ -19,7 +20,7 @@ var (
 	// or `-timeout ...` parameter.
 	Timeout = "1m"
 	// NoColor deprecates colorize logger' output.
-	// Can be changed by `-ldflags "-X 'main.Timeout=...'"`.
+	// Can be changed by `-ldflags "-X 'main.NoColor=...'"`.
 	NoColor = false
 	// Version will always be the name of the current Git tag.
 	Version string
@@ -45,9 +46,20 @@ func main() {
 		colored: !NoColor,
 	}
 
+	var (
+		start   time.Time
+		started bool
+	)
+
 	done := make(chan struct{})
 	timeout, args, strategies := parse(os.Args[1:]...)
 	action := func(attempt uint) error {
+		if !started {
+			start = time.Now()
+			started = true
+		} else {
+			l.Infof("#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
+		}
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, &buf{c: done, w: os.Stderr}
 		return cmd.Run()

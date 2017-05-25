@@ -48,7 +48,7 @@ func (l *logger) Infof(format string, args ...interface{}) {
 }
 
 func (l *logger) colorize(color int, str string) string {
-	if l.colored {
+	if !l.colored {
 		return str
 	}
 	return escape + "[" + strconv.Itoa(color) + "m" + str + escape + "[0m"
