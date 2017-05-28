@@ -196,13 +196,13 @@ See more details [here](cmd).
 ## Installation
 
 ```bash
-$ go get github.com/kamilsk/retry
+$ egg -version 2.x github.com/kamilsk/retry
 ```
 
 ### Mirror
 
 ```bash
-$ egg -fix-vanity-url bitbucket.org/kamilsk/retry 
+$ egg -version 2.x -fix-vanity-url bitbucket.org/kamilsk/retry 
 ```
 
 > [egg](https://github.com/kamilsk/egg) is an `extended go get`.
@@ -245,5 +245,5 @@ $ make docker-test-with-coverage
 
 ## Notes
 
-- tested on Go 1.5, 1.6, 1.7 and 1.8
+- tested on Go 1.7 and 1.8, use 1.x version for 1.5 and 1.6
 - [research](RESEARCH.md)
