@@ -28,49 +28,45 @@ hugo-themes:
 .PHONY: hugo-site
 hugo-site:
 	docker run --rm \
-	    -v '$(CWD)/site':/opt \
-	    -w /opt \
+	    -v '$(CWD)/site':/usr/share \
+	    -w /usr/share \
 	    kamilsk/hugo:latest \
 	    hugo new site $(SITE)
 
 .PHONY: hugo-theme
 hugo-theme:
 	docker run --rm \
-	    -v '$(CWD)/site/$(SITE)':/opt \
-	    -w /opt \
+	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
 	    kamilsk/hugo:latest \
 	    hugo new theme $(THEME)
 
 .PHONY: hugo-content
 hugo-content:
 	docker run --rm \
-	    -v '$(CWD)/site/$(SITE)':/opt \
-	    -w /opt \
+	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
 	    kamilsk/hugo:latest \
 	    hugo new $(CONTENT).md
 
 .PHONY: hugo-mount
 hugo-mount:
 	docker run --rm -it \
-	    -v '$(CWD)/site/$(SITE)':/opt \
-	    -w /opt \
-	    -p 127.0.0.1:8080:8080 \
-	    kamilsk/hugo:latest \
-	    /bin/sh
+	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
+	    -p $(HOST):1313 \
+	    kamilsk/hugo:latest /bin/sh
 
 .PHONY: hugo-start
 hugo-start:
 	docker run --rm -d \
-	    -v '$(CWD)/site/$(SITE)':/opt \
-	    -w /opt \
-	    -p 127.0.0.1:8080:8080 \
-	    kamilsk/hugo:latest \
-	    /bin/sh -c 'hugo server --baseURL=http://localhost:8080 --bind="" --port=8080 --buildDrafts $(strip $(ARGS))'
+	    --name hugo-$(SITE) \
+	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
+	    -p $(HOST):1313 \
+	    -e ARGS='$(strip $(ARGS))' \
+	    kamilsk/hugo:latest
 
 .PHONY: hugo-stop
 hugo-stop:
-	docker ps | grep "/bin/sh -c 'hugo" | awk '{print $$1}' | xargs docker stop
+	docker stop hugo-$(SITE)
 
 .PHONY: hugo-logs
 hugo-logs:
-	docker ps | grep "/bin/sh -c 'hugo" | awk '{print $$1}' | xargs docker logs -f
+	docker logs -f hugo-$(SITE)

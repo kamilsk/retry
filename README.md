@@ -196,13 +196,13 @@ See more details [here](cmd).
 ## Installation
 
 ```bash
-$ egg -version 2.x github.com/kamilsk/retry
+$ egg github.com/kamilsk/retry
 ```
 
 ### Mirror
 
 ```bash
-$ egg -version 2.x -fix-vanity-url bitbucket.org/kamilsk/retry 
+$ egg -fix-vanity-url bitbucket.org/kamilsk/retry 
 ```
 
 > [egg](https://github.com/kamilsk/egg) is an `extended go get`.
