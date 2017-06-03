@@ -318,7 +318,13 @@ func Test_usage(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
 	golden := "usage.golden"
 
-	usage(buf, "retry", "1.0.0")
+	{
+		before := Version
+		Version = "test"
+		usage(buf)
+		Version = before
+	}
+
 	actual := buf.Bytes()
 
 	if *update {

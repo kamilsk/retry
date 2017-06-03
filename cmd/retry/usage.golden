@@ -90,4 +90,4 @@ Full example:
     retry -tbackoff="lin{10s} full" --infinite -- curl https://example.com
     retry -timeout=500ms --infinite -- git pull
 
-Current version is 1.0.0.
+Current version is test.

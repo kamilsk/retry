@@ -52,14 +52,6 @@ func init() {
 		"ndist": generatedNormalDistributionTransformation,
 	}
 	usage = func(output io.Writer, args ...string) {
-		var cmd, version = "retry", Version
-		if len(args) > 1 {
-			cmd = args[0]
-			if len(args) >= 2 {
-				version = args[1]
-			}
-		}
-
 		fmt.Fprintf(output, `usage: %s [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
@@ -153,7 +145,7 @@ Full example:
     retry -timeout=500ms --infinite -- git pull
 
 Current version is %s.
-`, cmd, version)
+`, "retry", Version)
 	}
 }
 
