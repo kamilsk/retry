@@ -191,7 +191,7 @@ trying...
 [ERROR] error occurred: "exit status 1"
 ```
 
-See more details [here](cmd).
+See more details [here](cmd#retry).
 
 ## Installation
 

@@ -19,7 +19,7 @@ import:
 - package: github.com/drichardson/retry
   version: 30dabe13157e4a166adc0af4bd23f2f8e54f5cf2
 - package: github.com/eapache/go-resiliency
-  version: b86b1ec0dd4209a588dc1285cdd471e73525c0b3
+  version: b1fe83b5b03f624450823b751b662259ffc6af70
   subpackages:
   - retrier
 - package: github.com/everalbum/goworker-retry
@@ -27,7 +27,7 @@ import:
 - package: github.com/giantswarm/retry-go
   version: d78cea247d5e87d005ff7732f88bc52359afbe19
 - package: github.com/go-retry/retry
-  version: c09f6b86ba4d5d2cf5bdf0665364aec9fd4815db
+  version: 01631078ef2fdce601e38cfe5f527fab24c9a6d2
 - package: github.com/h2non/gentleman-retry
   version: 075a2da4557bd13331fb4bedce75d5951326f717
 - package: github.com/juju/retry
@@ -41,10 +41,10 @@ import:
 - package: github.com/matryer/try
   version: 9ac251b645a2628ef89dbd2986987cc1299408ff
 - package: github.com/mulib/retry
-  version: b302f9a0bcfc442472045150e769e196c2433f98
+  version: 38083434e0898e198313fd6da7edbd8521c630db
 - package: github.com/rogpeppe/retry
   version: feb1263b8bc9e4144204ee91edbe471750bf4b42
 - package: github.com/sethgrid/pester
-  version: 2c5fb962da6113d0968907fd81dba3ca35151d1c
+  version: 99271bb5a99e5769f688c483eabb3c22d71ebf93
 - package: github.com/technoweenie/httpretry
   version: 8b5e81f44aedb09f45acce2a60b367f1ac5a27cb

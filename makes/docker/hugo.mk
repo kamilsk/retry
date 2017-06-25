@@ -1,24 +1,28 @@
+HUGO_SITE ?= html
+HUGO_PORT ?= 8080
+HUGO_HOST ?= localhost:$(HUGO_PORT)
+
 .PHONY: hugo-init
 hugo-init:
-	mkdir -p site/$(SITE)/archetypes \
-	         site/$(SITE)/content \
-	         site/$(SITE)/data \
-	         site/$(SITE)/i18n \
-	         site/$(SITE)/layouts \
-	         site/$(SITE)/static \
-	         site/$(SITE)/themes
-	for file in $$(ls site/$(SITE)); do \
-	    if [[ -d site/$(SITE)/$$file ]]; then \
-	        export COUNT=$$(ls -a site/$(SITE)/$$file | wc -l); \
+	mkdir -p site/$(HUGO_SITE)/archetypes \
+	         site/$(HUGO_SITE)/content \
+	         site/$(HUGO_SITE)/data \
+	         site/$(HUGO_SITE)/i18n \
+	         site/$(HUGO_SITE)/layouts \
+	         site/$(HUGO_SITE)/static \
+	         site/$(HUGO_SITE)/themes
+	for file in $$(ls site/$(HUGO_SITE)); do \
+	    if [[ -d site/$(HUGO_SITE)/$$file ]]; then \
+	        export COUNT=$$(ls -a site/$(HUGO_SITE)/$$file | wc -l); \
 	        if [[ $$COUNT -lt 3 ]]; then \
-	            touch site/$(SITE)/$$file/.gitkeep; \
+	            touch site/$(HUGO_SITE)/$$file/.gitkeep; \
 	        fi; \
 	    fi; \
 	done;
-	if ! [ -e site/$(SITE)/config.yml ]; then \
-	    touch site/$(SITE)/config.yml; \
-	    echo 'baseURL:        https://$(SITE)/' >> site/$(SITE)/config.yml; \
-	    echo 'metaDataFormat: yaml'             >> site/$(SITE)/config.yml; \
+	if ! [ -e site/$(HUGO_SITE)/config.yml ]; then \
+	    touch site/$(HUGO_SITE)/config.yml; \
+	    echo 'baseURL:        https://$(HUGO_SITE)/' >> site/$(HUGO_SITE)/config.yml; \
+	    echo 'metaDataFormat: yaml'                  >> site/$(HUGO_SITE)/config.yml; \
 	fi;
 
 .PHONY: hugo-themes
@@ -31,42 +35,46 @@ hugo-site:
 	    -v '$(CWD)/site':/usr/share \
 	    -w /usr/share \
 	    kamilsk/hugo:latest \
-	    hugo new site $(SITE)
+	    hugo new site $(HUGO_SITE)
 
 .PHONY: hugo-theme
 hugo-theme:
 	docker run --rm \
-	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
+	    -v '$(CWD)/site/$(HUGO_SITE)':/usr/share/site \
 	    kamilsk/hugo:latest \
 	    hugo new theme $(THEME)
 
 .PHONY: hugo-content
 hugo-content:
 	docker run --rm \
-	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
+	    -v '$(CWD)/site/$(HUGO_SITE)':/usr/share/site \
 	    kamilsk/hugo:latest \
 	    hugo new $(CONTENT).md
 
 .PHONY: hugo-mount
 hugo-mount:
 	docker run --rm -it \
-	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
-	    -p $(HOST):1313 \
+	    -v '$(CWD)/site/$(HUGO_SITE)':/usr/share/site \
+	    -p $(HUGO_HOST):$(HUGO_PORT) \
+	    -e PORT=$(HUGO_PORT) \
+	    -e BASE_URL='http://$(HUGO_HOST)' \
 	    kamilsk/hugo:latest /bin/sh
 
 .PHONY: hugo-start
 hugo-start:
 	docker run --rm -d \
-	    --name hugo-$(SITE) \
-	    -v '$(CWD)/site/$(SITE)':/usr/share/site \
-	    -p $(HOST):1313 \
+	    --name hugo-$(HUGO_SITE) \
+	    -v '$(CWD)/site/$(HUGO_SITE)':/usr/share/site \
+	    -p $(HUGO_HOST):$(HUGO_PORT) \
+	    -e PORT=$(HUGO_PORT) \
+	    -e BASE_URL='http://$(HUGO_HOST)' \
 	    -e ARGS='$(strip $(ARGS))' \
 	    kamilsk/hugo:latest
 
 .PHONY: hugo-stop
 hugo-stop:
-	docker stop hugo-$(SITE)
+	docker stop hugo-$(HUGO_SITE)
 
 .PHONY: hugo-logs
 hugo-logs:
-	docker logs -f hugo-$(SITE)
+	docker logs -f hugo-$(HUGO_SITE)
