@@ -4,15 +4,27 @@ include makes/docker.mk
 
 OPEN_BROWSER =
 
-.PHONY: docker-bench
-docker-bench: ARGS = -benchmem
-docker-bench: docker-bench-1.7
-docker-bench: docker-bench-1.8
-docker-bench: docker-bench-latest
+.PHONY: check-code-quality
+check-code-quality: ARGS = --vendor --deadline=1m ./...
+check-code-quality: docker-tool-gometalinter
 
-.PHONY: docker-check
-docker-check: ARGS = --vendor --deadline=1m ./...
-docker-check: docker-tool-gometalinter
+.PHONY: complex-bench
+complex-bench: ARGS = -benchmem
+complex-bench: docker-bench-1.7
+complex-bench: docker-bench-1.8
+complex-bench: docker-bench-latest
+
+.PHONY: complex-tests
+complex-tests: ARGS = -timeout=1s
+complex-tests: docker-test-1.7
+complex-tests: docker-test-1.8
+complex-tests: docker-test-latest
+
+.PHONY: complex-tests-with-coverage
+complex-tests-with-coverage: ARGS = -timeout=1s
+complex-tests-with-coverage: docker-test-with-coverage-1.7
+complex-tests-with-coverage: docker-test-with-coverage-1.8
+complex-tests-with-coverage: docker-test-with-coverage-latest
 
 .PHONY: docker-pull
 docker-pull: docker-pull-1.7
@@ -22,23 +34,12 @@ docker-pull: docker-pull-tools
 docker-pull: PRUNE = --force
 docker-pull: docker-clean
 
-.PHONY: docker-test
-docker-test: ARGS = -timeout=1s
-docker-test: docker-test-1.7
-docker-test: docker-test-1.8
-docker-test: docker-test-latest
-
-.PHONY: docker-test-with-coverage
-docker-test-with-coverage: ARGS = -timeout=1s
-docker-test-with-coverage: docker-test-with-coverage-1.7
-docker-test-with-coverage: docker-test-with-coverage-1.8
-docker-test-with-coverage: docker-test-with-coverage-latest
-
 .PHONY: pull-github-tpl
 pull-github-tpl:
 	rm -rf .github
 	(git clone git@github.com:kamilsk/shared.git .github && cd .github && git checkout github-tpl-go-v1 \
 	  && echo 'github templates at revision' $$(git rev-parse HEAD) && rm -rf .git)
+	rm .github/README.md
 
 .PHONY: pull-makes
 pull-makes:
@@ -53,8 +54,8 @@ research: docker-tool-glide
 research:
 	rm -rf .glide
 
-.PHONY: cmd-test
-cmd-test:
+.PHONY: test-cmd
+test-cmd:
 	docker run --rm \
 	           -v '$(GOPATH)/src/$(GO_PACKAGE)':'/go/src/$(GO_PACKAGE)' \
 	           -w '/go/src/$(GO_PACKAGE)' \

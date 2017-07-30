@@ -2,6 +2,8 @@ package: github.com/kamilsk/retry
 import:
 - package: github.com/Rican7/retry
   version: 272ad122d6e5ce1be757544007cf8bcd1c9c9ab0
+- package: github.com/andrew-plunk/retry
+  version: ac83025292c86177c19a7bf633ab51d9a9a73b25
 - package: github.com/Songmu/retry
   version: 3d913ef13826a2183b18cbfb88925a7735bf3635
 - package: github.com/ae6rt/retry
