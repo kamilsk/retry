@@ -1,8 +1,8 @@
 language: go
 
 go:
-- 1.5.x
-- 1.6.x
+#- 1.5.x
+#- 1.6.x
 - 1.7.x
 - 1.8.x
 - 1.9.x
@@ -24,8 +24,8 @@ before_install:
 - export GO_TEST_COVERAGE_FILENAME='coverage.out'
 - export GO15VENDOREXPERIMENT=1
 
-install:
-- (cd cmd/semaphore && glide install -v)
+#install:
+#- (cd cmd/retry && glide install -v)
 
 script:
 - make test-with-coverage-profile ARGS='-timeout=1s'
