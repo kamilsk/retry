@@ -1,30 +1,37 @@
 language: go
 
 go:
-- 1.7
-- 1.8
-- tip
+- 1.5.x
+- 1.6.x
+- 1.7.x
+- 1.8.x
+- 1.9.x
+- 1.x
+- master
+
+matrix:
+  allow_failures:
+  - go: master
+  fast_finish: true
 
 sudo: false
 
 before_install:
+- wget https://github.com/Masterminds/glide/releases/download/v0.13.0/glide-v0.13.0-linux-amd64.tar.gz
+- tar -vxz -C "${GOPATH}"/bin --strip=1 -f glide-v0.13.0-linux-amd64.tar.gz
+
 - go get github.com/mattn/goveralls
 - export GO_TEST_COVERAGE_FILENAME='coverage.out'
+- export GO15VENDOREXPERIMENT=1
 
 install:
-- make install-deps
-- make build
+- (cd cmd/semaphore && glide install -v)
 
 script:
-- make test-with-coverage-profile ARGS='-timeout=1s' OPEN_BROWSER=
+- make test-with-coverage-profile ARGS='-timeout=1s'
 
 after_success:
 - goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILENAME}"
-
-matrix:
-  allow_failures:
-  - go: tip
-  fast_finish: true
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
@@ -33,4 +40,4 @@ notifications:
     - https://webhooks.gitter.im/e/63f69d732d88862909a2
     on_success: change
     on_failure: always
-    on_start: never
+    on_start:   never

@@ -1,7 +1,9 @@
-/.glide/
-/vendor/
-glide.lock
+# glide
+.glide
+vendor
 
+# goreleaser
 /dist/
 
+# go test
 *coverage*.out

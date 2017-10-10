@@ -6,7 +6,6 @@
 // to perform actions repetitively until successful.
 //
 // This package is an extended version of https://godoc.org/github.com/Rican7/retry.
-//
 // Copyright © 2016 Trevor N. Suarez (Rican7)
 package retry // import "github.com/kamilsk/retry"
 

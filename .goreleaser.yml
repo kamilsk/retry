@@ -1,6 +1,3 @@
-homepage:    &home https://github.com/kamilsk/retry
-description: &desc Functional mechanism based on context to perform actions repetitively until successful.
-
 archive:
   files:
   - LICENSE
@@ -23,8 +20,8 @@ brew:
   github:
     name:  homebrew-tap
     owner: kamilsk
-  homepage:    *home
-  description: *desc
+  homepage:    https://github.com/kamilsk/retry
+  description: Functional mechanism based on context to perform actions repetitively until successful.
 
 build:
   binary: retry
@@ -37,7 +34,7 @@ build:
   - darwin
   - linux
   - windows
-  ldflags: -s -w -X 'main.Version="{{.Version}} ({{.Date}})"'
+  ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
   main:    ./cmd/retry
 
 release:

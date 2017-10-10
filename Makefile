@@ -2,7 +2,8 @@ include makes/env.mk
 include makes/local.mk
 include makes/docker.mk
 
-OPEN_BROWSER =
+OPEN_BROWSER        =
+SUPPORTED_VERSIONS ?= 1.5 1.6 1.7 1.8 latest
 
 .PHONY: check-code-quality
 check-code-quality: ARGS = --vendor --deadline=1m ./...
@@ -10,23 +11,31 @@ check-code-quality: docker-tool-gometalinter
 
 .PHONY: complex-bench
 complex-bench: ARGS = -benchmem
+complex-bench: docker-bench-1.5
+complex-bench: docker-bench-1.6
 complex-bench: docker-bench-1.7
 complex-bench: docker-bench-1.8
 complex-bench: docker-bench-latest
 
 .PHONY: complex-tests
 complex-tests: ARGS = -timeout=1s
+complex-tests: docker-test-1.5
+complex-tests: docker-test-1.6
 complex-tests: docker-test-1.7
 complex-tests: docker-test-1.8
 complex-tests: docker-test-latest
 
 .PHONY: complex-tests-with-coverage
 complex-tests-with-coverage: ARGS = -timeout=1s
+complex-tests-with-coverage: docker-test-with-coverage-1.5
+complex-tests-with-coverage: docker-test-with-coverage-1.6
 complex-tests-with-coverage: docker-test-with-coverage-1.7
 complex-tests-with-coverage: docker-test-with-coverage-1.8
 complex-tests-with-coverage: docker-test-with-coverage-latest
 
 .PHONY: docker-pull
+docker-pull: docker-pull-1.5
+docker-pull: docker-pull-1.6
 docker-pull: docker-pull-1.7
 docker-pull: docker-pull-1.8
 docker-pull: docker-pull-latest
