@@ -10,14 +10,6 @@
 [![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE)
 
-## Code of Conduct
-
-The project team follows [Contributor Covenant v1.4](http://contributor-covenant.org/version/1/4/).
-Instances of abusive, harassing or otherwise unacceptable behavior may be reported by contacting
-the project team at feedback@octolab.org.
-
----
-
 ## Differences from [Rican7/retry](https://github.com/Rican7/retry)
 
 - Fixed [bug](https://github.com/Rican7/retry/pull/2) with an unexpected infinite loop.
@@ -32,7 +24,7 @@ the project team at feedback@octolab.org.
 ## Installation
 
 ```bash
-$ egg github.com/kamilsk/retry
+$ go get github.com/kamilsk/retry
 ```
 
 ### Mirror
@@ -45,36 +37,9 @@ $ egg bitbucket.org/kamilsk/retry
 
 ### Update
 
-This library is using [SemVer](http://semver.org) for versioning and it is not
+This library is using [SemVer](http://semver.org) for versioning, and it is not
 [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
 Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or something similar for this purpose.
-
-## Contributing workflow
-
-### Code quality checking
-
-```bash
-$ make docker-pull-tools
-$ make check-code-quality
-```
-
-### Testing
-
-#### Local
-
-```bash
-$ make install-deps
-$ make test # or test-with-coverage
-$ make bench
-```
-
-#### Docker
-
-```bash
-$ make docker-pull
-$ make complex-tests # or complex-tests-with-coverage
-$ make complex-bench
-```
 
 ## Feedback
 
@@ -83,5 +48,6 @@ $ make complex-bench
 
 ## Notes
 
-- tested on Go 1.7 and 1.8, use 1.x version for 1.5 and 1.6
-- [research](RESEARCH.md)
+- tested on Go 1.5, 1.6, 1.7, 1.8 and 1.9
+- [research](../../tree/research)
+- made with ❤️ by [OctoLab](http://www.octolab.org)
