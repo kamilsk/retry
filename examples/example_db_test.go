@@ -78,7 +78,7 @@ func Example_dbConnectionRestore() {
 		}
 
 		for {
-			if err := retry.Retry(ctx, ping, strategies...); err != nil {
+			if err := retry.Retry(ctx.Done(), ping, strategies...); err != nil {
 				panic(err)
 			}
 			time.Sleep(frequency)

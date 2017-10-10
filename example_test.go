@@ -1,7 +1,6 @@
 package retry_test
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -18,7 +17,7 @@ import (
 )
 
 func Example() {
-	_ = retry.Retry(context.Background(), func(attempt uint) error {
+	_ = retry.Retry(nil, func(attempt uint) error {
 		return nil // Do something that may or may not cause an error
 	})
 }
@@ -28,7 +27,7 @@ func Example_fileOpen() {
 
 	var logFile *os.File
 
-	err := retry.Retry(context.Background(), func(attempt uint) error {
+	err := retry.Retry(nil, func(attempt uint) error {
 		var err error
 
 		logFile, err = os.Open(logFilePath)
@@ -61,13 +60,7 @@ func Example_httpGetWithStrategies() {
 		return err
 	}
 
-	err := retry.Retry(
-		context.Background(),
-		action,
-		strategy.Limit(5),
-		strategy.Backoff(backoff.Fibonacci(10*time.Millisecond)),
-	)
-
+	err := retry.Retry(nil, action, strategy.Limit(5), strategy.Backoff(backoff.Fibonacci(10*time.Millisecond)))
 	if nil != err {
 		log.Fatalf("Failed to fetch repository with error %q", err)
 	}
@@ -82,7 +75,7 @@ func Example_withBackoffJitter() {
 	random := rand.New(rand.NewSource(seed))
 
 	_ = retry.Retry(
-		context.Background(),
+		nil,
 		action,
 		strategy.Limit(5),
 		strategy.BackoffWithJitter(

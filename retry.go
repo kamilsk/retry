@@ -1,7 +1,7 @@
 // Copyright (c) 2017 OctoLab. All rights reserved.
 // Use of this source code is governed by the MIT license
 // that can be found in the LICENSE file.
-//
+
 // Package retry provides functional mechanism based on context
 // to perform actions repetitively until successful.
 //
@@ -10,7 +10,7 @@
 package retry // import "github.com/kamilsk/retry"
 
 import (
-	"context"
+	"errors"
 
 	"github.com/kamilsk/retry/strategy"
 )
@@ -22,12 +22,8 @@ type Action func(attempt uint) error
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
-func Retry(ctx context.Context, action Action, strategies ...strategy.Strategy) error {
+func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strategy) error {
 	var attempt uint
-
-	if ctx.Err() != nil {
-		return ctx.Err()
-	}
 
 	if len(strategies) == 0 {
 		return action(attempt)
@@ -36,19 +32,22 @@ func Retry(ctx context.Context, action Action, strategies ...strategy.Strategy) 
 	var err error
 	done := make(chan struct{})
 	go func() {
-		for ; (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...) && ctx.Err() == nil; attempt++ {
+		// TODO ctx.Err() should be replaced correctly, atomic is good candidate
+		for ; (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...); attempt++ {
 			err = action(attempt)
 		}
 		close(done)
 	}()
 
 	select {
-	case <-ctx.Done():
-		return ctx.Err()
+	case <-deadline:
+		return errTimeout
 	case <-done:
 		return err
 	}
 }
+
+var errTimeout = errors.New("operation timeout")
 
 // shouldAttempt evaluates the provided strategies with the given attempt to
 // determine if the Retry loop should make another attempt.

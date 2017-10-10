@@ -1,7 +1,8 @@
+// +build go1.6
+
 package examples
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -90,7 +91,6 @@ func Example_autologin() {
 
 		return nil
 	}
-	ctx := context.Background()
 	login := func() {
 		req, err := http.NewRequest(http.MethodGet, ts.URL+"/login", nil)
 		if err != nil {
@@ -106,7 +106,7 @@ func Example_autologin() {
 		defer resp.Body.Close()
 	}
 
-	if err := retry.Retry(ctx, action, Callback(AuthChecker, login), strategy.Limit(10)); err != nil {
+	if err := retry.Retry(nil, action, Callback(AuthChecker, login), strategy.Limit(10)); err != nil {
 		fmt.Println(err)
 	}
 }

@@ -17,9 +17,11 @@
 - Added `context` support to cancellation.
 - Added `error` transmission between attempts.
   - Added `classifier` to handle them (see [classifier](classifier) package).
-- Added CLI tool `retry` which provides functionality for repeating terminal commands (see [cmd/retry](cmd)).
+- Added CLI tool `retry` which provides functionality for repeating terminal commands (see [cmd/retry](cmd/retry)).
 
-## [Usage](examples#Usage)
+## Usage
+
+... will be ported from [examples](examples) soon
 
 ## Installation
 

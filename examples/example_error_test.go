@@ -1,7 +1,6 @@
 package examples
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -68,9 +67,8 @@ func Example_handleErrors() {
 		}
 		return nil
 	}
-	ctx := context.Background()
 
-	if err := retry.Retry(ctx, action, checkNetworkError, checkStatusCode, strategy.Limit(2)); err != nil {
+	if err := retry.Retry(nil, action, checkNetworkError, checkStatusCode, strategy.Limit(2)); err != nil {
 		fmt.Printf("repeat: %d, err: %q \n", repeat, err)
 	}
 

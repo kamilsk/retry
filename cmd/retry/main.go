@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -65,10 +64,8 @@ func main() {
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, &buf{c: done, w: os.Stderr}
 		return cmd.Run()
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	if err := retry.Retry(ctx, action, strategies...); err != nil {
+	if err := retry.Retry(retry.WithTimeout(timeout), action, strategies...); err != nil {
 		l.Errorf("error occurred: %q", err)
 		close(done)
 	}
-	cancel()
 }
