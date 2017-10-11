@@ -11,6 +11,7 @@ package retry // import "github.com/kamilsk/retry"
 
 import (
 	"errors"
+	"sync/atomic"
 
 	"github.com/kamilsk/retry/strategy"
 )
@@ -29,11 +30,13 @@ func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strat
 		return action(attempt)
 	}
 
-	var err error
+	var (
+		err       error
+		interrupt uint32
+	)
 	done := make(chan struct{})
 	go func() {
-		// TODO ctx.Err() should be replaced correctly, atomic is good candidate
-		for ; (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...); attempt++ {
+		for ; (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...) && atomic.LoadUint32(&interrupt) == 0; attempt++ {
 			err = action(attempt)
 		}
 		close(done)
@@ -41,10 +44,16 @@ func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strat
 
 	select {
 	case <-deadline:
+		atomic.AddUint32(&interrupt, 1)
 		return errTimeout
 	case <-done:
 		return err
 	}
+}
+
+// IsTimeout checks if passed error is related to the incident deadline on Retry call.
+func IsTimeout(err error) bool {
+	return err == errTimeout
 }
 
 var errTimeout = errors.New("operation timeout")

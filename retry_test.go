@@ -3,6 +3,7 @@ package retry
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/kamilsk/retry/strategy"
 )
@@ -49,29 +50,26 @@ func TestRetry_RetriesUntilNoErrorReturned(t *testing.T) {
 	}
 }
 
-// TODO ctx.Err() should be replaced correctly, atomic is good candidate
-//func TestRetry_RetriesWithAlreadyDoneContext(t *testing.T) {
-//	deadline := WithTimeout(0)
-//
-//	if err := Retry(deadline, func(uint) error { return nil }, strategy.Infinite()); err != ctx.Err() {
-//		t.Errorf("expected context done error, obtained %+v", err)
-//	}
-//}
+func TestRetry_RetriesWithAlreadyDoneContext(t *testing.T) {
+	deadline, expected := WithTimeout(0), "operation timeout"
 
-// TODO ctx.Err() should be replaced correctly, atomic is good candidate
-//func TestRetry_RetriesWithDeadline(t *testing.T) {
-//	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-//	defer cancel()
-//
-//	action := func(uint) error {
-//		time.Sleep(110 * time.Millisecond)
-//		return nil
-//	}
-//
-//	if err := Retry(ctx, action, strategy.Infinite()); err != ctx.Err() {
-//		t.Errorf("expected context done error, obtained %+v", err)
-//	}
-//}
+	if err := Retry(deadline, func(uint) error { return nil }, strategy.Infinite()); !IsTimeout(err) {
+		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
+	}
+}
+
+func TestRetry_RetriesWithDeadline(t *testing.T) {
+	deadline, expected := WithTimeout(100*time.Millisecond), "operation timeout"
+
+	action := func(uint) error {
+		time.Sleep(110 * time.Millisecond)
+		return nil
+	}
+
+	if err := Retry(deadline, action, strategy.Infinite()); !IsTimeout(err) {
+		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
+	}
+}
 
 func TestShouldAttempt(t *testing.T) {
 	shouldAttempt := shouldAttempt(1, nil)
