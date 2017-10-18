@@ -52,4 +52,4 @@ Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or
 
 - tested on Go 1.5, 1.6, 1.7, 1.8 and 1.9
 - [research](../../tree/research)
-- made with ❤️ by [OctoLab](http://www.octolab.org)
+- made with ❤️ by [OctoLab](https://www.octolab.org/)
