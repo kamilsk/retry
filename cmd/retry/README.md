@@ -8,49 +8,9 @@
 $ retry -limit=3 -backoff=lin[10ms] -- curl example.com
 ```
 
-## Installation
+## Documentation
 
-### macOS
-
-```bash
-$ brew install kamilsk/tap/retry
 ```
-
-### Download binary
-
-```bash
-$ export version=...
-# see available releases https://github.com/kamilsk/retry/releases
-$ export os=...
-$ export arch=...
-# see uname -a for details
-$ wget -q -O /tmp/goreleaser.tar.gz \
-    https://github.com/kamilsk/retry/releases/download/${version}/retry_${os}_${arch}.tar.gz
-```
-
-### From source
-
-```bash
-$ export PATH=$GOPATH/bin:$PATH
-$ export version=...
-# see available releases https://github.com/kamilsk/retry/releases
-$ go get -d github.com/kamilsk/retry
-$ cd $GOPATH/src/github.com/kamilsk/retry
-$ git checkout ${version}
-$ go install ./cmd/retry
-```
-
-```bash
-$ export PATH=$GOPATH/bin:$PATH
-$ export version=...
-# see available releases https://github.com/kamilsk/retry/releases
-$ egg install github.com/kamilsk/retry ${version} cmd/retry
-```
-
-## Usage
-
-```bash
-$ retry help
 usage: retry [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
@@ -137,14 +97,11 @@ The strategy flags
 
         The given generator is what is used to determine the random transformation.
         If a nil generator is passed, a default one will be provided.
+```
 
-Full example:
-    retry -limit=3 -backoff=lin{10ms} -- curl http://example.com
-    retry -tbackoff="lin{10s} full" --infinite -- curl https://example.com
-    retry -timeout=500ms --infinite -- git pull
+### Complex example
 
-Current version is 1.0.0.
-
+```
 $ retry -limit=3 -backoff=lin[10ms] -- /bin/sh -c 'echo "trying..."; exit 1'
 trying...
 [INFO] #2 attempt at 17.636458ms...
@@ -152,7 +109,6 @@ trying...
 [INFO] #3 attempt at 48.287964ms...
 trying...
 [ERROR] error occurred: "exit status 1"
-
 $ retry -timeout=500ms --infinite -- /bin/sh -c 'echo "trying..."; exit 1'
 trying...
 ...
@@ -160,3 +116,47 @@ trying...
 [INFO] #N attempt at 499.691521ms...
 [ERROR] error occurred: "context deadline exceeded"
 ```
+
+## Installation
+
+### Brew
+
+```bash
+$ brew install kamilsk/tap/retry
+```
+
+### Binary
+
+```bash
+$ export SEM_V=3.0.0    # all available versions are on https://github.com/kamilsk/retry/releases
+$ export REQ_OS=Linux   # macOS and Windows are also available
+$ export REQ_ARCH=64bit # 32bit is also available
+$ wget -q -O retry.tar.gz \
+      https://github.com/kamilsk/retry/releases/download/${SEM_V}/retry_${SEM_V}_${REQ_OS}-${REQ_ARCH}.tar.gz
+$ tar xf retry.tar.gz -C "${GOPATH}"/bin/
+$ rm retry.tar.gz
+```
+
+### From source code
+
+```bash
+$ go get -d github.com/kamilsk/retry
+$ cd "${GOPATH}"/src/github.com/kamilsk/retry
+$ make cmd-deps-local # or cmd-deps, if you don't have the dep binary but have the docker
+$ make cmd-install
+```
+
+## Command-line completion
+
+### Useful articles
+
+- [Command-line completion | Docker Documentation](https://docs.docker.com/compose/completion/)
+
+### Bash
+
+coming soon...
+
+
+### Zsh
+
+coming soon...

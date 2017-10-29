@@ -5,8 +5,8 @@
 .goreleaser.yml export-ignore
 .travis.yml     export-ignore
 
-/makes          export-ignore
-Makefile        export-ignore
+/makes/         export-ignore
+/Makefile       export-ignore
 
-**/*.md         export-ignore
-**/*_test.go    export-ignore
+*.md            export-ignore
+*_test.go       export-ignore

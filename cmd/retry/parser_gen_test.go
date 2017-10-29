@@ -316,7 +316,7 @@ func Test_parseTransform_generated(t *testing.T) {
 
 func Test_usage(t *testing.T) {
 	buf := bytes.NewBuffer(nil)
-	golden := "usage.golden"
+	golden := "fixtures/usage.golden"
 
 	{
 		before := Version

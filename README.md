@@ -40,8 +40,8 @@ $ egg bitbucket.org/kamilsk/retry
 ### Update
 
 This library is using [SemVer](http://semver.org) for versioning, and it is not
-[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
-Therefore, do not use `go get -u` to update it, use [Glide](https://glide.sh) or something similar for this purpose.
+[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. Therefore, do not use `go get -u` to update it,
+use [dep](https://github.com/golang/dep) or something similar for this purpose.
 
 ## Feedback
 

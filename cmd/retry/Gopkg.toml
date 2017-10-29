@@ -1,0 +1,11 @@
+[[constraint]]
+  name = "github.com/cheggaaa/pb"
+  version = "^1.0.0"
+
+[[constraint]]
+  name = "github.com/fatih/color"
+  version = "^1.5.0"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "^0.8.0"
