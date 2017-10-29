@@ -15,13 +15,16 @@ archive:
     windows: Windows
 
 brew:
-  caveats: retry -h
+  caveats: Use `retry help` to see detailed help message
+  commit_author:
+    name:  Kamil Samigullin
+    email: kamil@samigullin.info
+  description: Functional mechanism based on context to perform actions repetitively until successful.
   folder: Formula
   github:
     name:  homebrew-tap
     owner: kamilsk
   homepage:    https://github.com/kamilsk/retry
-  description: Functional mechanism based on context to perform actions repetitively until successful.
 
 build:
   binary: retry
@@ -37,11 +40,10 @@ build:
   ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
   main:    ./cmd/retry
 
+checksum: { name_template: checksums.txt }
+
 release:
   draft: false
   github:
     name:  retry
     owner: kamilsk
-
-snapshot:
-  name_template: "{{.Commit}}_{{.Timestamp}}"
