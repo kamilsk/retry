@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -52,7 +53,8 @@ func init() {
 		"ndist": generatedNormalDistributionTransformation,
 	}
 	usage = func(output io.Writer, args ...string) {
-		fmt.Fprintf(output, `usage: %s [-timeout timeout] [strategy flags] -- command
+		fmt.Fprintf(output, `
+Usage: %s [-timeout timeout] [strategy flags] -- command
 
 The strategy flags
     --infinite
@@ -144,8 +146,8 @@ Full example:
     retry -tbackoff="lin{10s} full" --infinite -- curl https://example.com
     retry -timeout=500ms --infinite -- git pull
 
-Current version is %s.
-`, "retry", Version)
+Version %s (commit: %s, build date: %s, go version: %s, compiler: %s, platform: %s)
+`, "retry", version, commit, date, runtime.Version(), runtime.Compiler, runtime.GOOS+"/"+runtime.GOARCH)
 	}
 }
 
