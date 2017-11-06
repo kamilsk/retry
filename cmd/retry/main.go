@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/kamilsk/retry"
 )
 
@@ -15,15 +16,9 @@ var (
 	// Can be changed by `-ldflags "-X" 'main.Debug=..."'`
 	// or `-v` parameter.
 	Debug = false
-	// Timeout is a timeout of retried operation.
-	// Can be changed by `-ldflags "-X 'main.Timeout=...'"`
-	// or `-timeout ...` parameter.
-	Timeout = "1m"
 	// NoColor deprecates colorize logger' output.
 	// Can be changed by `-ldflags "-X 'main.NoColor=...'"`.
 	NoColor = false
-	// Version will always be the name of the current Git tag.
-	Version string
 )
 
 func main() {
@@ -51,8 +46,20 @@ func main() {
 		started bool
 	)
 
-	done := make(chan struct{})
-	timeout, args, strategies := parse(os.Args[1:]...)
+	result, err := parse(os.Args[0], os.Args[1:]...)
+	if err != nil {
+		l.Errorf("error occurred: %q", err)
+		os.Exit(1)
+	}
+	defer func() {
+		if result.Notify {
+			// TODO try to find or implement by myself
+			// - https://github.com/variadico/noti
+			// - https://github.com/jolicode/JoliNotif
+			color.New(color.FgYellow).Fprintln(os.Stderr, "notify component is not ready yet")
+		}
+	}()
+
 	action := func(attempt uint) error {
 		if !started {
 			start = time.Now()
@@ -60,12 +67,16 @@ func main() {
 		} else {
 			l.Infof("#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
 		}
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, &buf{c: done, w: os.Stderr}
+		cmd := exec.Command(result.Args[0], result.Args[1:]...)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		return cmd.Run()
 	}
-	if err := retry.Retry(retry.WithTimeout(timeout), action, strategies...); err != nil {
+	deadline := retry.Multiplex(
+		retry.WithTimeout(result.Timeout),
+		retry.WithSignal(os.Interrupt),
+	)
+	if err := retry.Retry(deadline, action, result.Strategies...); err != nil {
 		l.Errorf("error occurred: %q", err)
-		close(done)
+		os.Exit(1)
 	}
 }

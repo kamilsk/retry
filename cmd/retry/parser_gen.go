@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -52,9 +51,10 @@ func init() {
 		"dev":   generatedDeviationTransformation,
 		"ndist": generatedNormalDistributionTransformation,
 	}
-	usage = func(output io.Writer, args ...string) {
-		fmt.Fprintf(output, `
-Usage: %s [-timeout timeout] [strategy flags] -- command
+	usage = func(output io.Writer, md Metadata) func() {
+		return func() {
+			fmt.Fprintf(output, `
+Usage: %s [-timeout Timeout] [--notify] [strategy flags] -- command
 
 The strategy flags
     --infinite
@@ -141,13 +141,14 @@ The strategy flags
         The given generator is what is used to determine the random transformation.
         If a nil generator is passed, a default one will be provided.
 
-Full example:
-    retry -limit=3 -backoff=lin{10ms} -- curl http://example.com
-    retry -tbackoff="lin{10s} full" --infinite -- curl https://example.com
-    retry -timeout=500ms --infinite -- git pull
+Examples:
+    %[1]s -limit=3 -backoff=lin{10ms} -- curl http://example.com
+    %[1]s -tbackoff="lin{10s} full" --infinite -- curl https://example.com
+    %[1]s -timeout=500ms --notify --infinite -- git pull
 
 Version %s (commit: %s, build date: %s, go version: %s, compiler: %s, platform: %s)
-`, "retry", version, commit, date, runtime.Version(), runtime.Compiler, runtime.GOOS+"/"+runtime.GOARCH)
+`, md.BinName, md.Version, md.Commit, md.BuildDate, md.GoVersion, md.Compiler, md.Platform)
+		}
 	}
 }
 

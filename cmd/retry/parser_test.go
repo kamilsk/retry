@@ -1,34 +1,18 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"fmt"
+	"io"
 	"testing"
 
 	"github.com/kamilsk/retry/strategy"
 )
 
-func safe(arguments ...string) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			switch v := r.(type) {
-			case string:
-				err = errors.New(r.(string))
-			case error:
-				err = v
-			default:
-				err = fmt.Errorf("unexpected panic type %T", v)
-			}
-		}
-	}()
-
-	parse(arguments...)
-
-	return
-}
-
 func Test_parse(t *testing.T) {
+	before := usage
+	usage = func(output io.Writer, metadata Metadata) func() { return func() {} }
+	defer func() { usage = before }()
+
 	for i, tc := range []struct {
 		name   string
 		before func()
@@ -48,8 +32,8 @@ func Test_parse(t *testing.T) {
 				}
 			},
 			do: func() (obtained, expected string) {
-				expected = "an unsupported cursor type *int"
-				if err := safe(); err != nil {
+				expected = "init: an unsupported cursor type *int"
+				if _, err := parse("test"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -61,8 +45,8 @@ func Test_parse(t *testing.T) {
 		{
 			name: "invalid arguments",
 			do: func() (obtained, expected string) {
-				expected = "flag provided but not defined: -test"
-				if err := safe("-test=invalid"); err != nil {
+				expected = "parse: flag provided but not defined: -test"
+				if _, err := parse("test", "-test=invalid"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -71,8 +55,8 @@ func Test_parse(t *testing.T) {
 		{
 			name: "invalid timeout",
 			do: func() (obtained, expected string) {
-				expected = "time: invalid duration timeout"
-				if err := safe("-timeout=timeout"); err != nil {
+				expected = `parse: invalid value "Timeout" for flag -timeout: time: invalid duration Timeout`
+				if _, err := parse("test", "-timeout=Timeout"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -81,8 +65,8 @@ func Test_parse(t *testing.T) {
 		{
 			name: "invalid strategy",
 			do: func() (obtained, expected string) {
-				expected = "time: invalid duration duration"
-				if err := safe("-delay=duration"); err != nil {
+				expected = "parse: handle: time: invalid duration duration"
+				if _, err := parse("test", "-delay=duration"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -92,7 +76,7 @@ func Test_parse(t *testing.T) {
 			name: "nothing to do",
 			do: func() (obtained, expected string) {
 				expected = "please provide a command to retry"
-				if err := safe("-delay=1s"); err != nil {
+				if _, err := parse("test", "-delay=1s"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -102,7 +86,7 @@ func Test_parse(t *testing.T) {
 			name: "success",
 			do: func() (obtained, expected string) {
 				expected = ""
-				if err := safe("-delay=1s", "--", "whoami"); err != nil {
+				if _, err := parse("test", "-delay=1s", "--", "whoami"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -114,7 +98,7 @@ func Test_parse(t *testing.T) {
 		}
 
 		if obtained, expected := tc.do(); obtained != expected {
-			t.Errorf("expected panic with message %q, obtained %q at {%s:%d}", expected, obtained, tc.name, i)
+			t.Errorf("expected error with message %q, obtained %q at {%s:%d}", expected, obtained, tc.name, i)
 		}
 
 		if tc.after != nil {
@@ -162,12 +146,12 @@ func Test_parseAlgorithm(t *testing.T) {
 		{
 			name:  "not matched",
 			args:  "~",
-			error: "invalid argument ~",
+			error: "parse algorithm: invalid argument ~",
 		},
 		{
 			name:  "unknown algorithm",
 			args:  "x",
-			error: "unknown algorithm x",
+			error: "parse algorithm: unknown algorithm x",
 		},
 	} {
 		alg, err := parseAlgorithm(tc.args)
@@ -196,12 +180,12 @@ func Test_parseTransform(t *testing.T) {
 		{
 			name:  "not matched",
 			args:  "~",
-			error: "invalid argument ~",
+			error: "parse transformation: invalid argument ~",
 		},
 		{
 			name:  "unknown transformation",
 			args:  "x",
-			error: "unknown transformation x",
+			error: "parse transformation: unknown transformation x",
 		},
 	} {
 		tr, err := parseTransform(tc.args)

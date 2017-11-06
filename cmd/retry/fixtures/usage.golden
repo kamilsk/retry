@@ -1,4 +1,5 @@
-usage: retry [-timeout timeout] [strategy flags] -- command
+
+Usage: test [-timeout Timeout] [--notify] [strategy flags] -- command
 
 The strategy flags
     --infinite
@@ -85,9 +86,9 @@ The strategy flags
         The given generator is what is used to determine the random transformation.
         If a nil generator is passed, a default one will be provided.
 
-Full example:
-    retry -limit=3 -backoff=lin{10ms} -- curl http://example.com
-    retry -tbackoff="lin{10s} full" --infinite -- curl https://example.com
-    retry -timeout=500ms --infinite -- git pull
+Examples:
+    test -limit=3 -backoff=lin{10ms} -- curl http://example.com
+    test -tbackoff="lin{10s} full" --infinite -- curl https://example.com
+    test -timeout=500ms --notify --infinite -- git pull
 
-Current version is test.
+Version dev (commit: none, build date: unknown, go version: test, compiler: test, platform: test)

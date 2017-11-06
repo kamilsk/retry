@@ -55,7 +55,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("attemptLimit"),
 				},
 			},
-			error: `strconv.ParseUint: parsing "attemptLimit": invalid syntax`,
+			error: `handle: strconv.ParseUint: parsing "attemptLimit": invalid syntax`,
 		},
 		{
 			name: "delay",
@@ -75,7 +75,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("duration"),
 				},
 			},
-			error: "time: invalid duration duration",
+			error: "handle: time: invalid duration duration",
 		},
 		{
 			name: "wait",
@@ -95,7 +95,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("1s,1s,duration,1s,1s"),
 				},
 			},
-			error: "time: invalid duration duration",
+			error: "handle: time: invalid duration duration",
 		},
 		{
 			name: "backoff",
@@ -115,7 +115,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("x"),
 				},
 			},
-			error: "unknown algorithm x",
+			error: "handle: parse algorithm: unknown algorithm x",
 		},
 		{
 			name: "backoff with jitter",
@@ -135,7 +135,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("inc{1s,1s}"),
 				},
 			},
-			error: "invalid argument count",
+			error: "handle: invalid argument count",
 		},
 		{
 			name: "backoff with jitter: unknown algorithm",
@@ -145,7 +145,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("x full"),
 				},
 			},
-			error: "unknown algorithm x",
+			error: "handle: parse algorithm: unknown algorithm x",
 		},
 		{
 			name: "backoff with jitter: unknown transformation",
@@ -155,7 +155,7 @@ func Test_handle_generated(t *testing.T) {
 					Value: value("inc{1s,1s} x"),
 				},
 			},
-			error: "unknown transformation x",
+			error: "handle: parse transformation: unknown transformation x",
 		},
 	} {
 		strategies, err := handle(tc.flags)
@@ -319,10 +319,11 @@ func Test_usage(t *testing.T) {
 	golden := "fixtures/usage.golden"
 
 	{
-		before := Version
-		Version = "test"
-		usage(buf)
-		Version = before
+		usage(buf, Metadata{
+			BinName: "test",
+			Commit:  commit, BuildDate: date, Version: version,
+			Compiler: "test", Platform: "test", GoVersion: "test",
+		})()
 	}
 
 	actual := buf.Bytes()
