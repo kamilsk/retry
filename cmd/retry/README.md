@@ -5,13 +5,13 @@
 ## Concept
 
 ```bash
-$ retry -limit=3 -backoff=lin[10ms] -- curl example.com
+$ retry -limit=3 -backoff=lin:10ms -- curl example.com
 ```
 
 ## Documentation
 
 ```
-usage: retry [-timeout timeout] [strategy flags] -- command
+Usage: retry [-timeout 1m] [--notify] [strategy flags] -- command
 
 The strategy flags
     --infinite
@@ -39,25 +39,25 @@ The strategy flags
         duration as defined by the given backoff.Algorithm and jitter.Transformation.
 
 :algorithm
-    inc{Xs,Ys}
+    inc:Xs,Ys
         Incremental creates a Algorithm that increments the initial duration
         by the given increment for each attempt.
 
-    lin{Xs}
+    lin:Xs
         Linear creates a Algorithm that linearly multiplies the factor
         duration by the attempt number for each attempt.
 
-    exp{Xs,Y}
+    exp:Xs,Y
         Exponential creates a Algorithm that multiplies the factor duration by
         an exponentially increasing factor for each attempt, where the factor is
         calculated as the given base raised to the attempt number.
 
-    binexp{Xs}
+    binexp:Xs
         BinaryExponential creates a Algorithm that multiplies the factor
         duration by an exponentially increasing factor for each attempt, where the
         factor is calculated as "2" raised to the attempt number (2^attempt).
 
-    fib{Xs}
+    fib:Xs
         Fibonacci creates a Algorithm that multiplies the factor duration by
         an increasing factor for each attempt, where the factor is the Nth number in
         the Fibonacci sequence.
@@ -81,7 +81,7 @@ The strategy flags
 
         Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
 
-    dev{X}
+    dev:X
         Deviation creates a Transformation that transforms a duration into a result
         duration that deviates from the input randomly by a given factor.
 
@@ -90,7 +90,7 @@ The strategy flags
 
         Inspired by https://developers.google.com/api-client-library/java/google-http-java-client/backoff
 
-    ndist{X}
+    ndist:X
         NormalDistribution creates a Transformation that transforms a duration into a
         result duration based on a normal distribution of the input and the given
         standard deviation.
@@ -102,7 +102,7 @@ The strategy flags
 ### Complex example
 
 ```
-$ retry -limit=3 -backoff=lin[10ms] -- /bin/sh -c 'echo "trying..."; exit 1'
+$ retry -limit=3 -backoff=lin:10ms -- /bin/sh -c 'echo "trying..."; exit 1'
 trying...
 [INFO] #2 attempt at 17.636458ms...
 trying...

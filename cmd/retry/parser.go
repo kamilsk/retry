@@ -29,7 +29,7 @@ type Result struct {
 }
 
 var (
-	re = regexp.MustCompile(`^(\w+)(?:\{((?:[\w\.]+,?)+)\})?$`)
+	re = regexp.MustCompile(`^(\w+)(?::((?:[\w\.]+,?)+))?$`)
 
 	compliance map[string]struct {
 		cursor  interface{}

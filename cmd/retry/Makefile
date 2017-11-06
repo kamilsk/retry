@@ -14,7 +14,7 @@ cmd-test-1:
 	           -e GO15VENDOREXPERIMENT=1 \
 	           golang:1.5 \
 	           /bin/sh -c 'go install -ldflags "-X 'main.Version=test'" ./cmd/retry \
-	                       && retry -limit=3 -backoff=lin{10ms} -- /bin/sh -c "echo 'trying...'; exit 1"'
+	                       && retry -limit=3 -backoff=lin:10ms -- /bin/sh -c "echo 'trying...'; exit 1"'
 
 .PHONY: cmd-deps-local
 cmd-deps-local:
@@ -27,4 +27,4 @@ cmd-install:
 .PHONY: cmd-test-1-local
 cmd-test-1-local: cmd-install
 cmd-test-1-local:
-	'${GOPATH}'/bin/retry -limit=3 -backoff=lin{10ms} -- /bin/sh -c "echo 'trying...'
+	'${GOPATH}'/bin/retry -limit=3 -backoff=lin:10ms -- /bin/sh -c "echo 'trying...'; exit 1"
