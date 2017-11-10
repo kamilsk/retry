@@ -1,6 +1,6 @@
 // +build go1.6
 
-package examples
+package retry_test
 
 import (
 	"fmt"

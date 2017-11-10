@@ -1,4 +1,4 @@
-package examples
+package retry_test
 
 import (
 	"fmt"
