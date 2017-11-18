@@ -47,10 +47,11 @@ use [dep](https://github.com/golang/dep) or something similar for this purpose.
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retry)
 [![@ikamilsk](https://img.shields.io/badge/author-%40ikamilsk-blue.svg)](https://twitter.com/ikamilsk)
-[![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/readme)](https://github.com/igrigorik/ga-beacon)
 
 ## Notes
 
 - tested on Go 1.5, 1.6, 1.7, 1.8 and 1.9
 - [research](../../tree/research)
 - made with ❤️ by [OctoLab](https://www.octolab.org/)
+
+[![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/readme)](https://github.com/igrigorik/ga-beacon)
