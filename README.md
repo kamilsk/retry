@@ -46,7 +46,8 @@ use [dep](https://github.com/golang/dep) or something similar for this purpose.
 ## Feedback
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retry)
-[![@ikamilsk](https://img.shields.io/badge/author-%40ikamilsk-blue.svg)](https://twitter.com/ikamilsk)
+[![@kamilsk](https://img.shields.io/badge/author-%40kamilsk-blue.svg)](https://twitter.com/ikamilsk)
+[![@octolab](https://img.shields.io/badge/sponsor-%40octolab-blue.svg)](https://twitter.com/octolab_inc)
 
 ## Notes
 
@@ -54,4 +55,4 @@ use [dep](https://github.com/golang/dep) or something similar for this purpose.
 - [research](../../tree/research)
 - made with ❤️ by [OctoLab](https://www.octolab.org/)
 
-[![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/readme)](https://github.com/igrigorik/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/dev)](https://github.com/igrigorik/ga-beacon)
