@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"time"
@@ -9,23 +10,38 @@ import (
 	"github.com/kamilsk/retry"
 )
 
-func main() {
+const (
+	Success = 0
+	Failed  = 1
+)
+
+func main() { application{Args: os.Args, Stderr: os.Stderr, Stdout: os.Stdout, Shutdown: os.Exit}.Run() }
+
+type application struct {
+	Args           []string
+	Stderr, Stdout io.Writer
+	Shutdown       func(code int)
+}
+
+// Run executes the application logic.
+func (app application) Run() {
 	var (
 		start   time.Time
 		started bool
 	)
 
-	result, err := parse(os.Args[0], os.Args[1:]...)
+	result, err := parse(app.Args[0], app.Args[1:]...)
 	if err != nil {
 		//l.Errorf("error occurred: %q", err)
-		os.Exit(1)
+		app.Shutdown(Failed)
+		return
 	}
 	defer func() {
 		if result.Notify {
 			// TODO try to find or implement by myself
 			// - https://github.com/variadico/noti
 			// - https://github.com/jolicode/JoliNotif
-			color.New(color.FgYellow).Fprintln(os.Stderr, "notify component is not ready yet")
+			color.New(color.FgYellow).Fprintln(app.Stderr, "notify component is not ready yet")
 		}
 	}()
 
@@ -37,7 +53,7 @@ func main() {
 			//l.Infof("#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
 		}
 		cmd := exec.Command(result.Args[0], result.Args[1:]...)
-		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		cmd.Stdout, cmd.Stderr = app.Stdout, app.Stderr
 		return cmd.Run()
 	}
 	deadline := retry.Multiplex(
@@ -46,6 +62,9 @@ func main() {
 	)
 	if err := retry.Retry(deadline, action, result.Strategies...); err != nil {
 		//l.Errorf("error occurred: %q", err)
-		os.Exit(1)
+		app.Shutdown(Failed)
+		return
 	}
+	app.Shutdown(Success)
+	return
 }
