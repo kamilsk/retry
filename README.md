@@ -33,6 +33,37 @@ $ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..
 
 See more details [here](cmd/retry).
 
+### Create HTTP client with retry
+
+This example shows how to extend standard http.Client with retry under the hood.
+
+```go
+type client struct {
+	base       *http.Client
+	strategies []strategy.Strategy
+}
+
+func New(timeout time.Duration, strategies ...strategy.Strategy) *client {
+	return &client{
+		base:       &http.Client{Timeout: timeout},
+		strategies: strategies,
+	}
+}
+
+func (c *client) Get(deadline <-chan struct{}, url string) (*http.Response, error) {
+	var response *http.Response
+	err := retry.Retry(deadline, func(uint) error {
+		resp, err := c.base.Get(url)
+		if err != nil {
+			return err
+		}
+		response = resp
+		return nil
+	}, c.strategies...)
+	return response, err
+}
+```
+
 ### Use context for cancellation
 
 This example shows how to use context and retry together.

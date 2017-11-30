@@ -16,7 +16,7 @@ import (
 func Example_retryWithContext() {
 	const expected = 3
 
-	attempts := 3
+	attempts := expected
 	communication := make(chan error)
 	go func() {
 		for {
