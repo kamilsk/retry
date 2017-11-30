@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	Success = 0
-	Failed  = 1
+	success = 0
+	failed  = 1
 )
 
 // DefaultReport is a default template for report.
@@ -65,10 +65,10 @@ func (app application) Run() {
 	if err != nil {
 		if err != flag.ErrHelp {
 			color.New(color.FgRed).Fprintf(app.Stderr, format, err)
-			app.Shutdown(Failed)
+			app.Shutdown(failed)
 			return
 		}
-		app.Shutdown(Success)
+		app.Shutdown(success)
 		return
 	}
 	command := result.Args[0]
@@ -125,9 +125,9 @@ func (app application) Run() {
 		retry.WithSignal(os.Interrupt),
 	)
 	if err = retry.Retry(deadline, action, result.Strategies...); err != nil {
-		app.Shutdown(Failed)
+		app.Shutdown(failed)
 		return
 	}
-	app.Shutdown(Success)
+	app.Shutdown(success)
 	return
 }
