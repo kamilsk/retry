@@ -13,7 +13,7 @@
 ## Concept
 
 ```bash
-$ retry -limit=3 -backoff=lin:10ms -- curl example.com
+$ retry -limit=3 -backoff=lin:500ms -- curl example.com
 ```
 
 ## Documentation
@@ -169,12 +169,65 @@ $ make cmd-install
 
 ### Bash
 
-coming soon...
+Make sure [bash completion](https://github.com/scop/bash-completion) is installed.
 
+- On a current Linux (in a non-minimal installation), bash completion should be available.
+- On a macOS, install by the command `brew install bash-completion`.
+
+Place the completion script in `/etc/bash_completion.d/` (or `$(brew --prefix)/etc/bash_completion.d/` on a macOS):
+
+```bash
+$ sudo curl -L https://raw.githubusercontent.com/kamilsk/shared/dotfiles/bash_completion.d/retry.sh \
+            -o /etc/bash_completion.d/retry
+```
+
+On a macOS, add the following to your `~/.bash_profile`:
+
+```bash
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    source $(brew --prefix)/etc/bash_completion
+fi
+```
+
+If you're using MacPorts instead of brew you'll need to slightly modify your steps to the following:
+
+- Run `sudo port install bash-completion` to install bash completion.
+- Add the following lines to `~/.bash_profile`:
+```bash
+if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
+    source /opt/local/etc/profile.d/bash_completion.sh
+fi
+```
+
+You can source your `~/.bash_profile` or launch a new terminal to utilize completion.
 
 ### Zsh
 
-coming soon...
+Place the completion script in your `/path/to/zsh/completion`, using, e.g., `~/.zsh/completion/`:
+
+```bash
+$ mkdir -p ~/.zsh/completion
+$ curl -L https://raw.githubusercontent.com/kamilsk/shared/dotfiles/bash_completion.d/retry.zsh \
+       -o ~/.zsh/completion/_retry
+```
+
+Include the directory in your `$fpath`, e.g., by adding in `~/.zshrc`:
+
+```bash
+fpath=(~/.zsh/completion $fpath)
+```
+
+Make sure `compinit` is loaded or do it by adding in `~/.zshrc`:
+
+```bash
+autoload -Uz compinit && compinit -i
+```
+
+Then reload your shell:
+
+```bash
+exec $SHELL -l
+```
 
 ## Feedback
 

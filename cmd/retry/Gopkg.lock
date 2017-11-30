@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/briandowns/spinner"
+  packages = ["."]
+  revision = "48dbb65d7bd5c74ab50d53d04c949f20e3d14944"
+  version = "1.0"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -52,6 +58,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0739f9eedcedc08886e53fc39ac856b4a5095ce2cf78182f7cdee222d1d06e4e"
+  inputs-digest = "503df0e2aee48704682dbb65b3bbf220e2c2b7b27587d0e7c83acda97e30e161"
   solver-name = "gps-cdcl"
   solver-version = 1

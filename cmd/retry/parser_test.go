@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/kamilsk/retry/strategy"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_parse(t *testing.T) {
@@ -14,12 +15,22 @@ func Test_parse(t *testing.T) {
 	usage = func(output io.Writer, metadata Metadata) func() { return func() {} }
 	defer func() { usage = before }()
 
-	for i, tc := range []struct {
+	for _, tc := range []struct {
 		name   string
 		before func()
 		do     func() (obtained, expected string)
 		after  func()
 	}{
+		{
+			name: "help call",
+			do: func() (obtained, expected string) {
+				expected = flag.ErrHelp.Error()
+				if _, err := parse(ioutil.Discard, "test", "-h"); err != nil {
+					obtained = err.Error()
+				}
+				return
+			},
+		},
 		{
 			name: "unsupported cursor",
 			before: func() {
@@ -98,9 +109,8 @@ func Test_parse(t *testing.T) {
 			tc.before()
 		}
 
-		if obtained, expected := tc.do(); obtained != expected {
-			t.Errorf("expected error with message %q, obtained %q at {%s:%d}", expected, obtained, tc.name, i)
-		}
+		obtained, expected := tc.do()
+		assert.Equal(t, expected, obtained)
 
 		if tc.after != nil {
 			tc.after()
