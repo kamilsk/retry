@@ -50,7 +50,7 @@ cmd-install:
 .PHONY: cmd-test-1-local
 cmd-test-1-local: cmd-install
 cmd-test-1-local:
-	'${GOPATH}'/bin/retry -limit=3 -backoff=lin:10ms -- /bin/sh -c "echo 'trying...'; exit 1"
+	'${GOPATH}'/bin/retry -limit=3 -backoff=lin:500ms -- /bin/sh -c "echo 'trying...'; exit 1"
 
 .PHONY: cmd-test-2-local
 cmd-test-2-local: cmd-install

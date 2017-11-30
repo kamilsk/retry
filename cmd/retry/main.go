@@ -23,7 +23,9 @@ const (
 )
 
 // DefaultReport is a default template for report.
-var DefaultReport = `---
+var DefaultReport = `
+
+---
 
 command: {{ .Name }}
   error: {{ .Error }}
