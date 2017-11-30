@@ -64,6 +64,41 @@ func (c *client) Get(deadline <-chan struct{}, url string) (*http.Response, erro
 }
 ```
 
+### Control database connection
+
+This example shows how to use retry to restore database connection by `database/sql/driver.Pinger`.
+
+```go
+MustOpen := func() *sql.DB {
+	db, err := sql.Open("stub", "stub://test")
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, frequency time.Duration,
+	strategies ...strategy.Strategy) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			shutdown <- struct{}{}
+		}
+	}()
+
+	ping := func(uint) error {
+		return db.Ping()
+	}
+
+	for {
+		if err := retry.Retry(ctx.Done(), ping, strategies...); err != nil {
+			panic(err)
+		}
+		time.Sleep(frequency)
+	}
+}(MustOpen(), context.Background(), shutdown, time.Millisecond, strategy.Limit(1))
+```
+
 ### Use context for cancellation
 
 This example shows how to use context and retry together.
