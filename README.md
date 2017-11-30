@@ -21,7 +21,117 @@
 
 ## Usage
 
-... will be ported from [examples](examples) soon
+### Console tool for command execution with retries
+
+This example shows how to repeat console command until successful.
+
+```bash
+$ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..."; exit $((1 + RANDOM % 10 > 5))'
+```
+
+[![asciicast](https://asciinema.org/a/150367.png)](https://asciinema.org/a/150367)
+
+See more details [here](cmd/retry).
+
+### Create HTTP client with retry
+
+This example shows how to extend standard http.Client with retry under the hood.
+
+```go
+type client struct {
+	base       *http.Client
+	strategies []strategy.Strategy
+}
+
+func New(timeout time.Duration, strategies ...strategy.Strategy) *client {
+	return &client{
+		base:       &http.Client{Timeout: timeout},
+		strategies: strategies,
+	}
+}
+
+func (c *client) Get(deadline <-chan struct{}, url string) (*http.Response, error) {
+	var response *http.Response
+	err := retry.Retry(deadline, func(uint) error {
+		resp, err := c.base.Get(url)
+		if err != nil {
+			return err
+		}
+		response = resp
+		return nil
+	}, c.strategies...)
+	return response, err
+}
+```
+
+### Control database connection
+
+This example shows how to use retry to restore database connection by `database/sql/driver.Pinger`.
+
+```go
+MustOpen := func() *sql.DB {
+	db, err := sql.Open("stub", "stub://test")
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, frequency time.Duration,
+	strategies ...strategy.Strategy) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			shutdown <- struct{}{}
+		}
+	}()
+
+	ping := func(uint) error {
+		return db.Ping()
+	}
+
+	for {
+		if err := retry.Retry(ctx.Done(), ping, strategies...); err != nil {
+			panic(err)
+		}
+		time.Sleep(frequency)
+	}
+}(MustOpen(), context.Background(), shutdown, time.Millisecond, strategy.Limit(1))
+```
+
+### Use context for cancellation
+
+This example shows how to use context and retry together.
+
+```go
+communication := make(chan error)
+
+go service.Listen(communication)
+
+action := func(uint) error {
+	communication <- nil   // ping
+	return <-communication // pong
+}
+ctx := retry.WithContext(context.Background(), retry.WithTimeout(time.Second))
+if err := retry.Retry(ctx.Done(), action, strategy.Delay(time.Millisecond)); err != nil {
+	// the service does not respond within one second
+}
+```
+
+See more details [here](https://godoc.org/github.com/kamilsk/retry#example-package--RetryWithContext).
+
+### Interrupt execution
+
+```go
+interrupter := retry.Multiplex(
+	retry.WithTimeout(time.Second),
+	retry.WithSignal(os.Interrupt),
+)
+if err := retry.Retry(interrupter, func(uint) error { time.Sleep(time.Second); return nil }); err == nil {
+	panic("press Ctrl+C")
+}
+// successful interruption
+```
 
 ## Installation
 

@@ -8,73 +8,66 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/kamilsk/retry"
-	"github.com/kamilsk/retry/backoff"
-	"github.com/kamilsk/retry/jitter"
 	"github.com/kamilsk/retry/strategy"
 )
 
-type dummyDriver struct {
-	conn *dummyConn
+type drv struct {
+	conn *conn
 }
 
-func (d *dummyDriver) Open(name string) (driver.Conn, error) {
+func (d *drv) Open(name string) (driver.Conn, error) {
 	return d.conn, nil
 }
 
-type dummyConn struct {
+type conn struct {
 	counter int
 	ping    chan error
 }
 
-func (c *dummyConn) Prepare(string) (driver.Stmt, error) { return nil, nil }
+func (c *conn) Prepare(string) (driver.Stmt, error) { return nil, nil }
 
-func (c *dummyConn) Close() error { return nil }
+func (c *conn) Close() error { return nil }
 
-func (c *dummyConn) Begin() (driver.Tx, error) { return nil, nil }
+func (c *conn) Begin() (driver.Tx, error) { return nil, nil }
 
-func (c *dummyConn) Ping(context.Context) error {
+func (c *conn) Ping(context.Context) error {
 	c.counter++
 	return <-c.ping
 }
 
-// This example shows how to use the library to restore database connection.
+// This example shows how to use retry to restore database connection by `database/sql/driver.Pinger`.
 func Example_dbConnectionRestore() {
-	d := &dummyDriver{conn: &dummyConn{ping: make(chan error, 10)}}
+	const total = 10
+
+	d := &drv{conn: &conn{ping: make(chan error, total)}}
 	for i := 0; i < cap(d.conn.ping); i++ {
 		d.conn.ping <- nil
 	}
-	sql.Register("sqlite", d)
-
-	shutdown := make(chan struct{})
+	sql.Register("stub", d)
 
 	MustOpen := func() *sql.DB {
-		db, err := sql.Open("sqlite", "./sqlite.db")
+		db, err := sql.Open("stub", "stub://test")
 		if err != nil {
 			panic(err)
 		}
 		return db
 	}
 
-	go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, attempt uint, frequency time.Duration) {
+	shutdown := make(chan struct{})
+	go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, frequency time.Duration,
+		strategies ...strategy.Strategy) {
+
 		defer func() {
 			if r := recover(); r != nil {
 				shutdown <- struct{}{}
 			}
 		}()
 
-		ping := func(attempt uint) error {
+		ping := func(uint) error {
 			return db.Ping()
-		}
-		strategies := []strategy.Strategy{
-			strategy.Limit(attempt),
-			strategy.BackoffWithJitter(
-				backoff.Incremental(time.Millisecond, time.Millisecond),
-				jitter.NormalDistribution(rand.New(rand.NewSource(time.Now().UnixNano())), 2.0),
-			),
 		}
 
 		for {
@@ -83,7 +76,7 @@ func Example_dbConnectionRestore() {
 			}
 			time.Sleep(frequency)
 		}
-	}(MustOpen(), context.Background(), shutdown, 1, time.Millisecond)
+	}(MustOpen(), context.Background(), shutdown, time.Millisecond, strategy.Limit(1))
 
 	d.conn.ping <- errors.New("done")
 	<-shutdown

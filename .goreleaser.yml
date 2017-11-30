@@ -15,7 +15,7 @@ archive:
     windows: Windows
 
 brew:
-  caveats: Use `retry help` to see detailed help message
+  caveats: Use `retry --help` to see detailed help message
   commit_author:
     name:  Kamil Samigullin
     email: kamil@samigullin.info
