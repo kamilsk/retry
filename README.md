@@ -33,6 +33,27 @@ $ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..
 
 See more details [here](cmd/retry).
 
+### Use context for cancellation
+
+This example shows how to use context and retry together.
+
+```go
+communication := make(chan error)
+
+go service.Listen(communication)
+
+action := func(uint) error {
+	communication <- nil   // ping
+	return <-communication // pong
+}
+ctx := retry.WithContext(context.Background(), retry.WithTimeout(time.Second))
+if err := retry.Retry(ctx.Done(), action, strategy.Delay(time.Millisecond)); err != nil {
+	// the service does not respond within one second
+}
+```
+
+See more details [here](https://godoc.org/github.com/kamilsk/retry#example-package--RetryWithContext).
+
 ### Interrupt execution
 
 ```go
