@@ -66,6 +66,9 @@ func parse(output io.Writer, binary string, arguments ...string) (Result, error)
 	cl.BoolVar(&r.Notify, "notify", false, "show notification at the end (not implemented yet)")
 
 	if err := cl.Parse(arguments); err != nil {
+		if err == flag.ErrHelp {
+			return r, err
+		}
 		return r, errors.Wrap(err, "parse")
 	}
 

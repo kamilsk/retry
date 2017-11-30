@@ -14,7 +14,7 @@ cmd-test-1:
 	           -e GO15VENDOREXPERIMENT=1 \
 	           golang:1.5 \
 	           /bin/sh -c 'go install ./cmd/retry \
-	                       && retry -limit=3 -backoff=lin:10ms --notify -- /bin/sh -c "echo 'trying...'; exit 1"'
+	                       && retry -limit=3 -backoff=lin:500ms --notify -- /bin/sh -c "echo 'trying...'; exit 1"'
 
 .PHONY: cmd-test-2
 cmd-test-2:
