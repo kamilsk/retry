@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"io"
+	"io/ioutil"
 	"testing"
 
 	"github.com/kamilsk/retry/strategy"
@@ -33,7 +34,7 @@ func Test_parse(t *testing.T) {
 			},
 			do: func() (obtained, expected string) {
 				expected = "init: an unsupported cursor type *int"
-				if _, err := parse("test"); err != nil {
+				if _, err := parse(ioutil.Discard, "test"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -46,7 +47,7 @@ func Test_parse(t *testing.T) {
 			name: "invalid arguments",
 			do: func() (obtained, expected string) {
 				expected = "parse: flag provided but not defined: -test"
-				if _, err := parse("test", "-test=invalid"); err != nil {
+				if _, err := parse(ioutil.Discard, "test", "-test=invalid"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -56,7 +57,7 @@ func Test_parse(t *testing.T) {
 			name: "invalid timeout",
 			do: func() (obtained, expected string) {
 				expected = `parse: invalid value "Timeout" for flag -timeout: time: invalid duration Timeout`
-				if _, err := parse("test", "-timeout=Timeout"); err != nil {
+				if _, err := parse(ioutil.Discard, "test", "-timeout=Timeout"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -66,7 +67,7 @@ func Test_parse(t *testing.T) {
 			name: "invalid strategy",
 			do: func() (obtained, expected string) {
 				expected = "parse: handle: time: invalid duration duration"
-				if _, err := parse("test", "-delay=duration"); err != nil {
+				if _, err := parse(ioutil.Discard, "test", "-delay=duration"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -76,7 +77,7 @@ func Test_parse(t *testing.T) {
 			name: "nothing to do",
 			do: func() (obtained, expected string) {
 				expected = "please provide a command to retry"
-				if _, err := parse("test", "-delay=1s"); err != nil {
+				if _, err := parse(ioutil.Discard, "test", "-delay=1s"); err != nil {
 					obtained = err.Error()
 				}
 				return
@@ -86,7 +87,7 @@ func Test_parse(t *testing.T) {
 			name: "success",
 			do: func() (obtained, expected string) {
 				expected = ""
-				if _, err := parse("test", "-delay=1s", "--", "whoami"); err != nil {
+				if _, err := parse(ioutil.Discard, "test", "-delay=1s", "--", "whoami"); err != nil {
 					obtained = err.Error()
 				}
 				return

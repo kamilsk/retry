@@ -30,9 +30,13 @@ func (app application) Run() {
 		started bool
 	)
 
-	result, err := parse(app.Args[0], app.Args[1:]...)
+	result, err := parse(app.Stderr, app.Args[0], app.Args[1:]...)
+	format := "an error occurred: %v\n"
+	if result.Debug {
+		format = "an error occurred: %+v\n"
+	}
 	if err != nil {
-		//l.Errorf("error occurred: %q", err)
+		color.New(color.FgRed).Fprintf(app.Stderr, format, err)
 		app.Shutdown(Failed)
 		return
 	}
@@ -50,7 +54,7 @@ func (app application) Run() {
 			start = time.Now()
 			started = true
 		} else {
-			//l.Infof("#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
+			color.New(color.FgYellow).Fprintf(app.Stderr, "#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
 		}
 		cmd := exec.Command(result.Args[0], result.Args[1:]...)
 		cmd.Stdout, cmd.Stderr = app.Stdout, app.Stderr
@@ -61,7 +65,7 @@ func (app application) Run() {
 		retry.WithSignal(os.Interrupt),
 	)
 	if err := retry.Retry(deadline, action, result.Strategies...); err != nil {
-		//l.Errorf("error occurred: %q", err)
+		color.New(color.FgRed).Fprintf(app.Stderr, format, err)
 		app.Shutdown(Failed)
 		return
 	}

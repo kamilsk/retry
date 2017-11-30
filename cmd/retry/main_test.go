@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,8 @@ import (
 func TestMain_Exec_Fails(t *testing.T) {
 	var status int
 	application{
-		Args:     []string{"cmd", "unknown"},
+		Args:   []string{"cmd", "unknown"},
+		Stderr: ioutil.Discard, Stdout: ioutil.Discard,
 		Shutdown: func(code int) { status = code },
 	}.Run()
 
