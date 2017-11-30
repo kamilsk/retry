@@ -1,8 +1,10 @@
-package classifier
+package classifier_test
 
 import (
 	"errors"
 	"testing"
+
+	"github.com/kamilsk/retry/classifier"
 )
 
 func TestBlacklistClassifier_Classify(t *testing.T) {
@@ -10,17 +12,17 @@ func TestBlacklistClassifier_Classify(t *testing.T) {
 		errInBlacklist    = errors.New("is in blacklist")
 		errNotInBlacklist = errors.New("is not in blacklist")
 	)
-	list := BlacklistClassifier([]error{errInBlacklist})
+	list := classifier.BlacklistClassifier([]error{errInBlacklist})
 
-	if list.Classify(nil) != Succeed {
+	if list.Classify(nil) != classifier.Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if list.Classify(errNotInBlacklist) != Retry {
+	if list.Classify(errNotInBlacklist) != classifier.Retry {
 		t.Error("retry is expected")
 	}
 
-	if list.Classify(errInBlacklist) != Fail {
+	if list.Classify(errInBlacklist) != classifier.Fail {
 		t.Error("fail is expected")
 	}
 }

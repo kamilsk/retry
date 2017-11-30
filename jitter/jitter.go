@@ -87,7 +87,5 @@ func fallbackNewRandom(random *rand.Rand) *rand.Rand {
 		return random
 	}
 
-	seed := time.Now().UnixNano()
-
-	return rand.New(rand.NewSource(seed))
+	return rand.New(rand.NewSource(time.Now().UnixNano()))
 }

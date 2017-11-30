@@ -1,9 +1,11 @@
-package strategy
+package strategy_test
 
 import (
 	"math"
 	"testing"
 	"time"
+
+	"github.com/kamilsk/retry/strategy"
 )
 
 // timeMarginOfError represents the acceptable amount of time that may pass for
@@ -11,13 +13,13 @@ import (
 const timeMarginOfError = time.Millisecond
 
 func TestInfinite(t *testing.T) {
-	strategy := Infinite()
+	policy := strategy.Infinite()
 
-	if !strategy(0, nil) {
+	if !policy(0, nil) {
 		t.Error("strategy expected to return true")
 	}
 
-	if !strategy(math.MaxUint32, nil) {
+	if !policy(math.MaxUint32, nil) {
 		t.Error("strategy expected to return true")
 	}
 }
@@ -25,21 +27,21 @@ func TestInfinite(t *testing.T) {
 func TestLimit(t *testing.T) {
 	const attemptLimit = 3
 
-	strategy := Limit(attemptLimit)
+	policy := strategy.Limit(attemptLimit)
 
-	if !strategy(0, nil) {
+	if !policy(0, nil) {
 		t.Error("strategy expected to return true")
 	}
 
-	if !strategy(1, nil) {
+	if !policy(1, nil) {
 		t.Error("strategy expected to return true")
 	}
 
-	if !strategy(2, nil) {
+	if !policy(2, nil) {
 		t.Error("strategy expected to return true")
 	}
 
-	if strategy(3, nil) {
+	if policy(3, nil) {
 		t.Error("strategy expected to return false")
 	}
 }
@@ -47,28 +49,25 @@ func TestLimit(t *testing.T) {
 func TestDelay(t *testing.T) {
 	const delayDuration = time.Duration(10 * timeMarginOfError)
 
-	strategy := Delay(delayDuration)
+	policy := strategy.Delay(delayDuration)
 
-	if now := time.Now(); !strategy(0, nil) || delayDuration > time.Since(now) {
-		t.Errorf(
-			"strategy expected to return true in %s",
-			time.Duration(delayDuration),
-		)
+	if now := time.Now(); !policy(0, nil) || delayDuration > time.Since(now) {
+		t.Errorf("strategy expected to return true in %s", time.Duration(delayDuration))
 	}
 
-	if now := time.Now(); !strategy(5, nil) || (delayDuration/10) < time.Since(now) {
+	if now := time.Now(); !policy(5, nil) || (delayDuration/10) < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 }
 
 func TestWait(t *testing.T) {
-	strategy := Wait()
+	policy := strategy.Wait()
 
-	if now := time.Now(); !strategy(0, nil) || timeMarginOfError < time.Since(now) {
+	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 
-	if now := time.Now(); !strategy(999, nil) || timeMarginOfError < time.Since(now) {
+	if now := time.Now(); !policy(999, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 }
@@ -76,17 +75,14 @@ func TestWait(t *testing.T) {
 func TestWaitWithDuration(t *testing.T) {
 	const waitDuration = time.Duration(10 * timeMarginOfError)
 
-	strategy := Wait(waitDuration)
+	policy := strategy.Wait(waitDuration)
 
-	if now := time.Now(); !strategy(0, nil) || timeMarginOfError < time.Since(now) {
+	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 
-	if now := time.Now(); !strategy(1, nil) || waitDuration > time.Since(now) {
-		t.Errorf(
-			"strategy expected to return true in %s",
-			time.Duration(waitDuration),
-		)
+	if now := time.Now(); !policy(1, nil) || waitDuration > time.Since(now) {
+		t.Errorf("strategy expected to return true in %s", time.Duration(waitDuration))
 	}
 }
 
@@ -98,31 +94,22 @@ func TestWaitWithMultipleDurations(t *testing.T) {
 		time.Duration(40 * timeMarginOfError),
 	}
 
-	strategy := Wait(waitDurations...)
+	policy := strategy.Wait(waitDurations...)
 
-	if now := time.Now(); !strategy(0, nil) || timeMarginOfError < time.Since(now) {
+	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 
-	if now := time.Now(); !strategy(1, nil) || waitDurations[0] > time.Since(now) {
-		t.Errorf(
-			"strategy expected to return true in %s",
-			time.Duration(waitDurations[0]),
-		)
+	if now := time.Now(); !policy(1, nil) || waitDurations[0] > time.Since(now) {
+		t.Errorf("strategy expected to return true in %s", time.Duration(waitDurations[0]))
 	}
 
-	if now := time.Now(); !strategy(3, nil) || waitDurations[2] > time.Since(now) {
-		t.Errorf(
-			"strategy expected to return true in %s",
-			waitDurations[2],
-		)
+	if now := time.Now(); !policy(3, nil) || waitDurations[2] > time.Since(now) {
+		t.Errorf("strategy expected to return true in %s", waitDurations[2])
 	}
 
-	if now := time.Now(); !strategy(999, nil) || waitDurations[len(waitDurations)-1] > time.Since(now) {
-		t.Errorf(
-			"strategy expected to return true in %s",
-			waitDurations[len(waitDurations)-1],
-		)
+	if now := time.Now(); !policy(999, nil) || waitDurations[len(waitDurations)-1] > time.Since(now) {
+		t.Errorf("strategy expected to return true in %s", waitDurations[len(waitDurations)-1])
 	}
 }
 
@@ -134,20 +121,17 @@ func TestBackoff(t *testing.T) {
 		return backoffDuration - (algorithmDurationBase * time.Duration(attempt))
 	}
 
-	strategy := Backoff(algorithm)
+	policy := strategy.Backoff(algorithm)
 
-	if now := time.Now(); !strategy(0, nil) || timeMarginOfError < time.Since(now) {
+	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 
 	for i := uint(1); i < 10; i++ {
 		expectedResult := algorithm(i)
 
-		if now := time.Now(); !strategy(i, nil) || expectedResult > time.Since(now) {
-			t.Errorf(
-				"strategy expected to return true in %s",
-				expectedResult,
-			)
+		if now := time.Now(); !policy(i, nil) || expectedResult > time.Since(now) {
+			t.Errorf("strategy expected to return true in %s", expectedResult)
 		}
 	}
 }
@@ -164,34 +148,17 @@ func TestBackoffWithJitter(t *testing.T) {
 		return duration - time.Duration(10*timeMarginOfError)
 	}
 
-	strategy := BackoffWithJitter(algorithm, transformation)
+	policy := strategy.BackoffWithJitter(algorithm, transformation)
 
-	if now := time.Now(); !strategy(0, nil) || timeMarginOfError < time.Since(now) {
+	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
 	}
 
 	for i := uint(1); i < 10; i++ {
 		expectedResult := transformation(algorithm(i))
 
-		if now := time.Now(); !strategy(i, nil) || expectedResult > time.Since(now) {
-			t.Errorf(
-				"strategy expected to return true in %s",
-				expectedResult,
-			)
-		}
-	}
-}
-
-func TestNoJitter(t *testing.T) {
-	transformation := noJitter()
-
-	for i := uint(0); i < 10; i++ {
-		duration := time.Duration(i) * timeMarginOfError
-		result := transformation(duration)
-		expected := duration
-
-		if result != expected {
-			t.Errorf("transformation expected to return a %s duration, but received %s instead", expected, result)
+		if now := time.Now(); !policy(i, nil) || expectedResult > time.Since(now) {
+			t.Errorf("strategy expected to return true in %s", expectedResult)
 		}
 	}
 }

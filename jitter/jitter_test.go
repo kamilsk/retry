@@ -1,9 +1,11 @@
-package jitter
+package jitter_test
 
 import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/kamilsk/retry/jitter"
 )
 
 func TestFull(t *testing.T) {
@@ -12,7 +14,7 @@ func TestFull(t *testing.T) {
 
 	generator := rand.New(rand.NewSource(seed))
 
-	transformation := Full(generator)
+	transformation := jitter.Full(generator)
 
 	// Based on constant seed
 	expectedDurations := []time.Duration{165505, 393152, 995827, 197794, 376202}
@@ -32,7 +34,7 @@ func TestEqual(t *testing.T) {
 
 	generator := rand.New(rand.NewSource(seed))
 
-	transformation := Equal(generator)
+	transformation := jitter.Equal(generator)
 
 	// Based on constant seed
 	expectedDurations := []time.Duration{582752, 696576, 997913, 598897, 688101}
@@ -53,7 +55,7 @@ func TestDeviation(t *testing.T) {
 
 	generator := rand.New(rand.NewSource(seed))
 
-	transformation := Deviation(generator, factor)
+	transformation := jitter.Deviation(generator, factor)
 
 	// Based on constant seed
 	expectedDurations := []time.Duration{665505, 893152, 1495827, 697794, 876202}
@@ -74,7 +76,7 @@ func TestNormalDistribution(t *testing.T) {
 
 	generator := rand.New(rand.NewSource(seed))
 
-	transformation := NormalDistribution(generator, standardDeviation)
+	transformation := jitter.NormalDistribution(generator, standardDeviation)
 
 	// Based on constant seed
 	expectedDurations := []time.Duration{859207, 1285466, 153990, 1099811, 1959759}
@@ -88,14 +90,34 @@ func TestNormalDistribution(t *testing.T) {
 	}
 }
 
-func TestFallbackNewRandom(t *testing.T) {
-	generator := rand.New(rand.NewSource(0))
+func TestNilGenerator(t *testing.T) {
+	const duration = time.Millisecond
 
-	if result := fallbackNewRandom(generator); generator != result {
-		t.Errorf("result expected to match parameter, received %+v instead", result)
+	var transformation jitter.Transformation
+	{
+		transformation = jitter.Full(nil)
+		if obtained := transformation(duration); duration == obtained {
+			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
+		}
 	}
-
-	if result := fallbackNewRandom(nil); nil == result {
-		t.Error("received unexpected nil result")
+	{
+		transformation = jitter.Equal(nil)
+		if obtained := transformation(duration); duration == obtained {
+			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
+		}
+	}
+	{
+		const factor = 0.5
+		transformation = jitter.Deviation(nil, factor)
+		if obtained := transformation(duration); duration == obtained {
+			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
+		}
+	}
+	{
+		const standardDeviation = float64(duration / 2)
+		transformation = jitter.NormalDistribution(nil, standardDeviation)
+		if obtained := transformation(duration); duration == obtained {
+			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
+		}
 	}
 }

@@ -1,38 +1,40 @@
-package classifier
+package classifier_test
 
 import (
 	"encoding/json"
 	"errors"
 	"net"
 	"testing"
+
+	"github.com/kamilsk/retry/classifier"
 )
 
 func TestFunctionalClassifier_Classify(t *testing.T) {
 	var (
 		errClassified       = &json.SyntaxError{}
 		errNotClassified    = errors.New("is unknown error")
-		jsonErrorClassifier = FunctionalClassifier(func(err error) Action {
+		jsonErrorClassifier = classifier.FunctionalClassifier(func(err error) classifier.Action {
 			if err == nil {
-				return Succeed
+				return classifier.Succeed
 			}
 
 			if _, is := err.(*json.SyntaxError); is {
-				return Retry
+				return classifier.Retry
 			}
 
-			return Unknown
+			return classifier.Unknown
 		})
 	)
 
-	if jsonErrorClassifier.Classify(nil) != Succeed {
+	if jsonErrorClassifier.Classify(nil) != classifier.Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if jsonErrorClassifier.Classify(errClassified) != Retry {
+	if jsonErrorClassifier.Classify(errClassified) != classifier.Retry {
 		t.Error("retry is expected")
 	}
 
-	if jsonErrorClassifier.Classify(errNotClassified) != Unknown {
+	if jsonErrorClassifier.Classify(errNotClassified) != classifier.Unknown {
 		t.Error("unknown is expected")
 	}
 }
@@ -44,19 +46,19 @@ func TestFunctionalClassifier_NetworkErrorClassifier_Classify(t *testing.T) {
 		errOther          = errors.New("is not network error")
 	)
 
-	if NetworkErrorClassifier.Classify(nil) != Succeed {
+	if classifier.NetworkErrorClassifier.Classify(nil) != classifier.Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if NetworkErrorClassifier.Classify(errNetworkTimeout) != Retry {
+	if classifier.NetworkErrorClassifier.Classify(errNetworkTimeout) != classifier.Retry {
 		t.Error("retry is expected")
 	}
 
-	if NetworkErrorClassifier.Classify(errNetworkOther) != Fail {
+	if classifier.NetworkErrorClassifier.Classify(errNetworkOther) != classifier.Fail {
 		t.Error("fail is expected")
 	}
 
-	if NetworkErrorClassifier.Classify(errOther) != Unknown {
+	if classifier.NetworkErrorClassifier.Classify(errOther) != classifier.Unknown {
 		t.Error("unknown is expected")
 	}
 }

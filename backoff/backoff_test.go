@@ -1,16 +1,18 @@
-package backoff
+package backoff_test
 
 import (
 	"math"
 	"testing"
 	"time"
+
+	"github.com/kamilsk/retry/backoff"
 )
 
 func TestIncremental(t *testing.T) {
 	const duration = time.Millisecond
 	const increment = time.Nanosecond
 
-	algorithm := Incremental(duration, increment)
+	algorithm := backoff.Incremental(duration, increment)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -25,7 +27,7 @@ func TestIncremental(t *testing.T) {
 func TestLinear(t *testing.T) {
 	const duration = time.Millisecond
 
-	algorithm := Linear(duration)
+	algorithm := backoff.Linear(duration)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -41,7 +43,7 @@ func TestExponential(t *testing.T) {
 	const duration = time.Second
 	const base = 3
 
-	algorithm := Exponential(duration, base)
+	algorithm := backoff.Exponential(duration, base)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -56,7 +58,7 @@ func TestExponential(t *testing.T) {
 func TestBinaryExponential(t *testing.T) {
 	const duration = time.Second
 
-	algorithm := BinaryExponential(duration)
+	algorithm := backoff.BinaryExponential(duration)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -70,28 +72,16 @@ func TestBinaryExponential(t *testing.T) {
 
 func TestFibonacci(t *testing.T) {
 	const duration = time.Millisecond
+	sequence := []uint{0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233}
 
-	algorithm := Fibonacci(duration)
+	algorithm := backoff.Fibonacci(duration)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
-		expected := duration * time.Duration(fibonacciNumber(i))
+		expected := duration * time.Duration(sequence[i])
 
 		if result != expected {
 			t.Errorf("algorithm expected to return a %s duration, but received %s instead", expected, result)
-		}
-	}
-}
-
-func TestFibonacciNumber(t *testing.T) {
-	// Fibonacci sequence
-	expectedSequence := []uint{0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233}
-
-	for i, expected := range expectedSequence {
-		result := fibonacciNumber(uint(i))
-
-		if result != expected {
-			t.Errorf("fibonacci %d number expected %d, but got %d", i, expected, result)
 		}
 	}
 }
