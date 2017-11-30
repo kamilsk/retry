@@ -1,5 +1,5 @@
 
-Usage: test [-timeout Timeout] [--notify] [strategy flags] -- command
+Usage: test [-timeout Timeout] [--debug] [--notify] [strategy flags] -- command
 
 The strategy flags
     --infinite

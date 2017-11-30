@@ -8,7 +8,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retry)](https://goreportcard.com/report/github.com/kamilsk/retry)
 [![Coverage Status](https://coveralls.io/repos/github/kamilsk/retry/badge.svg)](https://coveralls.io/github/kamilsk/retry)
 [![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](LICENSE)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](../../LICENSE)
 
 ## Concept
 
@@ -19,7 +19,7 @@ $ retry -limit=3 -backoff=lin:10ms -- curl example.com
 ## Documentation
 
 ```
-Usage: retry [-timeout 1m] [--notify] [strategy flags] -- command
+Usage: retry [-timeout Timeout] [--debug] [--notify] [strategy flags] -- command
 
 The strategy flags
     --infinite
@@ -105,6 +105,13 @@ The strategy flags
 
         The given generator is what is used to determine the random transformation.
         If a nil generator is passed, a default one will be provided.
+
+Examples:
+    retry -limit=3 -backoff=lin:10ms -- curl http://example.com
+    retry -tbackoff="lin:10s full" --debug -- curl https://example.com
+    retry -timeout=500ms --notify --infinite -- git pull
+
+Version 3.0.0 (commit: ..., build date: ..., go version: go1.9, compiler: gc, platform: darwin/amd64)
 ```
 
 ### Complex example
@@ -112,17 +119,17 @@ The strategy flags
 ```
 $ retry -limit=3 -backoff=lin:10ms -- /bin/sh -c 'echo "trying..."; exit 1'
 trying...
-[INFO] #2 attempt at 17.636458ms...
+#2 attempt at 17.636458ms...
 trying...
-[INFO] #3 attempt at 48.287964ms...
+#3 attempt at 48.287964ms...
 trying...
-[ERROR] error occurred: "exit status 1"
+error occurred: "exit status 1"
 $ retry -timeout=500ms --infinite -- /bin/sh -c 'echo "trying..."; exit 1'
 trying...
 ...
 trying...
-[INFO] #N attempt at 499.691521ms...
-[ERROR] error occurred: "context deadline exceeded"
+#N attempt at 499.691521ms...
+error occurred: "context deadline exceeded"
 ```
 
 ## Installation

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
 	"runtime"
 	"time"
@@ -23,6 +22,7 @@ type Metadata struct {
 
 type Result struct {
 	Timeout    time.Duration
+	Debug      bool
 	Notify     bool
 	Args       []string
 	Strategies []strategy.Strategy
@@ -41,11 +41,12 @@ var (
 	usage      func(output io.Writer, metadata Metadata) func()
 )
 
-func parse(binary string, arguments ...string) (Result, error) {
+func parse(output io.Writer, binary string, arguments ...string) (Result, error) {
 	r := Result{}
 
 	cl := flag.NewFlagSet(binary, flag.ContinueOnError)
-	cl.Usage = usage(os.Stderr, Metadata{
+	cl.SetOutput(output)
+	cl.Usage = usage(output, Metadata{
 		BinName: binary,
 		Commit:  commit, BuildDate: date, Version: version,
 		Compiler: runtime.Compiler, Platform: runtime.GOOS + "/" + runtime.GOARCH, GoVersion: runtime.Version(),
@@ -61,10 +62,11 @@ func parse(binary string, arguments ...string) (Result, error) {
 		}
 	}
 	cl.DurationVar(&r.Timeout, "timeout", time.Minute, "Timeout for task execution")
+	cl.BoolVar(&r.Debug, "debug", false, "show error stack trace")
 	cl.BoolVar(&r.Notify, "notify", false, "show notification at the end (not implemented yet)")
 
 	if err := cl.Parse(arguments); err != nil {
-		return r, errors.WithMessage(err, "parse")
+		return r, errors.Wrap(err, "parse")
 	}
 
 	{
@@ -76,7 +78,7 @@ func parse(binary string, arguments ...string) (Result, error) {
 			})
 			return flags
 		}()); err != nil {
-			return r, errors.WithMessage(err, "parse")
+			return r, errors.Wrap(err, "parse")
 		}
 	}
 
@@ -94,7 +96,7 @@ func handle(flags []*flag.Flag) ([]strategy.Strategy, error) {
 		if c, ok := compliance[f.Name]; ok {
 			s, err := c.handler(f)
 			if err != nil {
-				return nil, errors.WithMessage(err, "handle")
+				return nil, errors.Wrap(err, "handle")
 			}
 			strategies = append(strategies, s)
 		}

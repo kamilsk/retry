@@ -54,7 +54,7 @@ func init() {
 	usage = func(output io.Writer, md Metadata) func() {
 		return func() {
 			fmt.Fprintf(output, `
-Usage: %s [-timeout Timeout] [--notify] [strategy flags] -- command
+Usage: %s [-timeout Timeout] [--debug] [--notify] [strategy flags] -- command
 
 The strategy flags
     --infinite
