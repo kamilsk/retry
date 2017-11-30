@@ -33,6 +33,19 @@ $ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..
 
 See more details [here](cmd/retry).
 
+### Interrupt execution
+
+```go
+interrupter := retry.Multiplex(
+	retry.WithTimeout(time.Second),
+	retry.WithSignal(os.Interrupt),
+)
+if err := retry.Retry(interrupter, func(uint) error { time.Sleep(time.Second); return nil }); err == nil {
+	panic("press Ctrl+C")
+}
+// successful interruption
+```
+
 ## Installation
 
 ```bash
