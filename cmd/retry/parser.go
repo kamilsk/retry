@@ -14,13 +14,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Metadata holds meta information.
 type Metadata struct {
 	BinName                       string
 	Commit, BuildDate, Version    string
 	Compiler, Platform, GoVersion string
 }
 
-type Result struct {
+// Command holds command configuration.
+type Command struct {
 	Timeout    time.Duration
 	Debug      bool
 	Notify     bool
@@ -41,8 +43,8 @@ var (
 	usage      func(output io.Writer, metadata Metadata) func()
 )
 
-func parse(output io.Writer, binary string, arguments ...string) (Result, error) {
-	r := Result{}
+func parse(output io.Writer, binary string, arguments ...string) (Command, error) {
+	cmd := Command{}
 
 	cl := flag.NewFlagSet(binary, flag.ContinueOnError)
 	cl.SetOutput(output)
@@ -58,38 +60,38 @@ func parse(output io.Writer, binary string, arguments ...string) (Result, error)
 		case *bool:
 			cl.BoolVar(cursor, name, false, cfg.usage)
 		default:
-			return r, fmt.Errorf("init: an unsupported cursor type %T", cursor)
+			return cmd, fmt.Errorf("init: an unsupported cursor type %T", cursor)
 		}
 	}
-	cl.DurationVar(&r.Timeout, "timeout", time.Minute, "Timeout for task execution")
-	cl.BoolVar(&r.Debug, "debug", false, "show error stack trace")
-	cl.BoolVar(&r.Notify, "notify", false, "show notification at the end (not implemented yet)")
+	cl.DurationVar(&cmd.Timeout, "timeout", time.Minute, "Timeout for task execution")
+	cl.BoolVar(&cmd.Debug, "debug", false, "show error stack trace")
+	cl.BoolVar(&cmd.Notify, "notify", false, "show notification at the end (not implemented yet)")
 
 	if err := cl.Parse(arguments); err != nil {
 		if err == flag.ErrHelp {
-			return r, err
+			return cmd, err
 		}
-		return r, errors.Wrap(err, "parse")
+		return cmd, errors.Wrap(err, "parse")
 	}
 
 	{
 		var err error
-		if r.Strategies, err = handle(func() []*flag.Flag {
+		if cmd.Strategies, err = handle(func() []*flag.Flag {
 			flags := make([]*flag.Flag, 0, cl.NFlag())
 			cl.Visit(func(f *flag.Flag) {
 				flags = append(flags, f)
 			})
 			return flags
 		}()); err != nil {
-			return r, errors.Wrap(err, "parse")
+			return cmd, errors.Wrap(err, "parse")
 		}
 	}
 
-	if r.Args = cl.Args(); len(r.Args) == 0 {
-		return r, errors.New("please provide a command to retry")
+	if cmd.Args = cl.Args(); len(cmd.Args) == 0 {
+		return cmd, errors.New("please provide a command to retry")
 	}
 
-	return r, nil
+	return cmd, nil
 }
 
 func handle(flags []*flag.Flag) ([]strategy.Strategy, error) {
