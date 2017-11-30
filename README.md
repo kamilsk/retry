@@ -21,7 +21,17 @@
 
 ## Usage
 
-... will be ported from [examples](examples) soon
+### Console tool for command execution with retries
+
+This example shows how to repeat console command until successful.
+
+```bash
+$ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..."; exit $((1 + RANDOM % 10 > 5))'
+```
+
+[![asciicast](https://asciinema.org/a/150367.png)](https://asciinema.org/a/150367)
+
+See more details [here](cmd/retry).
 
 ## Installation
 
