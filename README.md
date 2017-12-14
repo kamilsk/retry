@@ -14,7 +14,8 @@
 
 - Fixed [bug](https://github.com/Rican7/retry/pull/2) with an unexpected infinite loop.
   - Added a clear mechanism for this purpose as the Infinite [strategy](strategy/strategy.go#L24-L28).
-- Added `context` support to cancellation.
+- Added support of cancellation (based on simple channel, e.g. `context.Done`).
+  - Made honest Action execution.
 - Added `error` transmission between attempts.
   - Added `classifier` to handle them (see [classifier](classifier) package).
 - Added CLI tool `retry` which provides functionality for repeating terminal commands (see [cmd/retry](cmd/retry)).
