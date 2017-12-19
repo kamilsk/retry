@@ -24,10 +24,8 @@ type Action func(attempt uint) error
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
 func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strategy) error {
-	var attempt uint
-
 	if len(strategies) == 0 {
-		return action(attempt)
+		return action(0)
 	}
 
 	var (
@@ -36,7 +34,9 @@ func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strat
 	)
 	done := make(chan struct{})
 	go func() {
-		for ; (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...) && atomic.LoadUint32(&interrupt) == 0; attempt++ {
+		for attempt := uint(0); (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...) &&
+			!atomic.CompareAndSwapUint32(&interrupt, 1, 0); attempt++ {
+
 			err = action(attempt)
 		}
 		close(done)
@@ -44,7 +44,7 @@ func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strat
 
 	select {
 	case <-deadline:
-		atomic.AddUint32(&interrupt, 1)
+		atomic.CompareAndSwapUint32(&interrupt, 0, 1)
 		return errTimeout
 	case <-done:
 		return err

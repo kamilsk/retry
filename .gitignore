@@ -3,5 +3,5 @@ vendor/
 # goreleaser
 /dist/
 
-# go test
-*coverage*.out
+# go test and code quality report
+*.out
