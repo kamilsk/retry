@@ -1,8 +1,11 @@
-# dep
+# glide from docker
+.glide/
+
+# dep, glide
 vendor/
 
 # goreleaser
 /dist/
 
-# go test and code quality report
+# go test, code quality report
 *.out
