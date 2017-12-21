@@ -19,7 +19,7 @@ brew:
   commit_author:
     name:  Kamil Samigullin
     email: kamil@samigullin.info
-  description: Functional mechanism based on context to perform actions repetitively until successful.
+  description: Functional mechanism based on channels to perform actions repetitively until successful.
   folder: Formula
   github:
     name:  homebrew-tap

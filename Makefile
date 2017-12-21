@@ -6,12 +6,16 @@ include makes/local.mk
 include makes/docker.mk
 include cmd/retry/Makefile
 
-.PHONY: check-code-quality
-check-code-quality: ARGS = \
-	--exclude='.*_test\.go:.*error return value not checked.*\(errcheck\)$' \
-	--exclude='duplicate of.*_test.go.*\(dupl\)$' \
-	--vendor --deadline=2m ./...
-check-code-quality: docker-tool-gometalinter
+.PHONY: code-quality-check
+code-quality-check: ARGS = \
+	--exclude=".*_test\.go:.*error return value not checked.*\(errcheck\)$$" \
+	--exclude="duplicate of.*_test.go.*\(dupl\)$$" \
+	--vendor --deadline=1m ./... | sort
+code-quality-check: docker-tool-gometalinter
+
+.PHONY: code-quality-report
+code-quality-report:
+	time make code-quality-check | tail +7 | tee report.out | pbcopy
 
 .PHONY: pull-github-tpl
 pull-github-tpl:
