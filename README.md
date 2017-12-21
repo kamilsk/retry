@@ -1,4 +1,4 @@
-> # retry [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful.&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter)
+> # retry [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter)
 > [![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/dev?pixel)](https://github.com/igrigorik/ga-beacon)
 > Functional mechanism based on channels to perform actions repetitively until successful.
 
