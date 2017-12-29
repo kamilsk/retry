@@ -165,10 +165,8 @@ func Test_handle_generated(t *testing.T) {
 			t.Errorf("unexpected error %q at {%s:%d} test case", err, tc.name, i)
 		case tc.error != "" && err == nil:
 			t.Errorf("expected error %q, obtained nil at {%s:%d} test case", tc.error, tc.name, i)
-		case tc.error != "" && err != nil:
-			if tc.error != err.Error() {
-				t.Errorf("expected error %q, obtained %q at {%s:%d} test case", tc.error, err, tc.name, i)
-			}
+		case tc.error != "" && err != nil && tc.error != err.Error():
+			t.Errorf("expected error %q, obtained %q at {%s:%d} test case", tc.error, err, tc.name, i)
 		case len(strategies) != tc.expected:
 			t.Errorf("expected %d strategies, obtained %d", tc.expected, len(strategies))
 		}
