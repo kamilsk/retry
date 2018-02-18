@@ -8,6 +8,7 @@ import (
 )
 
 // Multiplex combines multiple empty struct channels into one.
+//todo can be leaky, https://github.com/kamilsk/retry/issues/109
 func Multiplex(channels ...<-chan struct{}) <-chan struct{} {
 	ch := make(chan struct{})
 	if len(channels) == 0 {
@@ -25,13 +26,29 @@ func Multiplex(channels ...<-chan struct{}) <-chan struct{} {
 	return ch
 }
 
-// WithDeadline returns empty struct channel based on Time channel.
+// WithDeadline returns empty struct channel above on `time.Timer` channel.
+//todo can be leaky, https://github.com/kamilsk/retry/issues/109
 func WithDeadline(deadline time.Time) <-chan struct{} {
-	// go 1.5 doesn't support time.Until(deadline)
-	return WithTimeout(deadline.Sub(time.Now())) //nolint: gosimple
+	ch := make(chan struct{})
+	if time.Now().After(deadline) {
+		close(ch)
+		return ch
+	}
+	go func() {
+		// go 1.5 doesn't support time.Until(deadline)
+		after := deadline.Sub(time.Now()) //nolint: gosimple
+		if after <= 0 {
+			close(ch)
+			return
+		}
+		<-time.After(after)
+		close(ch)
+	}()
+	return ch
 }
 
-// WithSignal returns empty struct channel based on Signal channel.
+// WithSignal returns empty struct channel above on `os.Signal` channel.
+//todo can be leaky, https://github.com/kamilsk/retry/issues/109
 func WithSignal(s os.Signal) <-chan struct{} {
 	ch := make(chan struct{})
 	if s == nil {
@@ -48,16 +65,13 @@ func WithSignal(s os.Signal) <-chan struct{} {
 	return ch
 }
 
-// WithTimeout returns empty struct channel based on Time channel.
+// WithTimeout returns empty struct channel above on `time.Timer` channel.
+//todo can be leaky, https://github.com/kamilsk/retry/issues/109
 func WithTimeout(timeout time.Duration) <-chan struct{} {
 	ch := make(chan struct{})
 	if timeout <= 0 {
 		close(ch)
 		return ch
 	}
-	go func() {
-		<-time.After(timeout)
-		close(ch)
-	}()
-	return ch
+	return WithDeadline(time.Now().Add(timeout))
 }

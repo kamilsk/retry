@@ -24,7 +24,7 @@ brew:
   github:
     name:  homebrew-tap
     owner: kamilsk
-  homepage:    https://github.com/kamilsk/retry
+  homepage: https://github.com/kamilsk/retry
 
 build:
   binary: retry
@@ -38,7 +38,7 @@ build:
   - linux
   - windows
   ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
-  main:    ./cmd/retry
+  main: ./cmd/retry
 
 checksum: { name_template: checksums.txt }
 

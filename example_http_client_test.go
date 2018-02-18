@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"time"
 
 	"github.com/kamilsk/retry"
@@ -38,18 +39,18 @@ func (c *client) Get(deadline <-chan struct{}, url string) (*http.Response, erro
 
 // This example shows how to extend standard http.Client with retry under the hood.
 func Example_httpClient() {
-	var attempts uint = 2
+	var attempts int32 = 2
 	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if attempts == 0 {
+		if atomic.CompareAndSwapInt32(&attempts, 0, -1) {
 			rw.Write([]byte("success"))
 			return
 		}
-		attempts--
+		atomic.AddInt32(&attempts, -1)
 		time.Sleep(100 * time.Millisecond)
 	}))
 	defer ts.Close()
 
-	cl := New(10*time.Millisecond, strategy.Limit(attempts+1))
+	cl := New(10*time.Millisecond, strategy.Limit(uint(attempts)+1))
 	resp, err := cl.Get(retry.WithTimeout(time.Second), ts.URL)
 
 	fmt.Printf("response: %s, error: %+v \n", func() string {
