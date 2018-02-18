@@ -1,5 +1,5 @@
 > # retry [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter)
-> [![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/dev?pixel)](https://github.com/igrigorik/ga-beacon)
+> [![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/dev?pixel)](https://github.com/kamilsk/retry)
 > Functional mechanism based on channels to perform actions repetitively until successful.
 
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#utilities)
@@ -21,6 +21,25 @@
 - Added CLI tool `retry` which provides functionality for repeating terminal commands (see [cmd/retry](cmd/retry)).
 
 ## Usage
+
+### Quick start
+
+```go
+var (
+	response *http.Response
+	action   retry.Action = func(attempt uint) error {
+		var err error
+		response, err = http.Get("https://github.com/kamilsk/retry")
+		return err
+	}
+)
+
+if err := retry.Retry(retry.WithTimeout(time.Minute), action, strategy.Limit(10)); err != nil {
+	// handle error
+	return
+}
+// work with response
+```
 
 ### Console tool for command execution with retries
 
@@ -163,5 +182,5 @@ use [dep](https://github.com/golang/dep) or something similar for this purpose.
 ## Notes
 
 - [research](../../tree/research)
-- tested on Go 1.5, 1.6, 1.7, 1.8 and 1.9
+- tested on Go 1.5, 1.6, 1.7, 1.8, 1.9 and 1.10
 - made with ❤️ by [OctoLab](https://www.octolab.org/)

@@ -1,13 +1,14 @@
 language: go
 
 go:
+- master
+- 1.x
 - 1.5.x
 - 1.6.x
 - 1.7.x
 - 1.8.x
 - 1.9.x
-- 1.x
-- master
+- 1.10.x
 
 matrix:
   allow_failures:
@@ -17,11 +18,13 @@ matrix:
 sudo: false
 
 before_install:
-- wget -q -O dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64
-- chmod +x dep && mv dep "${GOPATH}"/bin
-- go get github.com/mattn/goveralls
+- export DEP_VERSION=0.4.1
 - export GO_TEST_COVERAGE_FILENAME='coverage.out'
 - export GO15VENDOREXPERIMENT=1
+
+- wget -q -O dep https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
+- chmod +x dep && mv dep "${GOPATH}"/bin
+- go get github.com/mattn/goveralls
 
 install:
 - make cmd-deps-local
@@ -32,7 +35,7 @@ script:
 after_success:
 - goveralls -service=travis-ci -coverprofile="${GO_TEST_COVERAGE_FILENAME}"
 - echo $TRAVIS_GO_VERSION ":" $TRAVIS_TAG
-- if [[ $TRAVIS_GO_VERSION == 1.9* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
+- if [[ $TRAVIS_GO_VERSION == 1.10* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
