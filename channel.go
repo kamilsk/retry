@@ -8,7 +8,7 @@ import (
 )
 
 // Multiplex combines multiple empty struct channels into one.
-//todo can be leaky, https://github.com/kamilsk/retry/issues/109
+// TODO can be leaky, https://github.com/kamilsk/retry/issues/109
 func Multiplex(channels ...<-chan struct{}) <-chan struct{} {
 	ch := make(chan struct{})
 	if len(channels) == 0 {
@@ -27,7 +27,7 @@ func Multiplex(channels ...<-chan struct{}) <-chan struct{} {
 }
 
 // WithDeadline returns empty struct channel above on `time.Timer` channel.
-//todo can be leaky, https://github.com/kamilsk/retry/issues/109
+// TODO can be leaky, https://github.com/kamilsk/retry/issues/109
 func WithDeadline(deadline time.Time) <-chan struct{} {
 	ch := make(chan struct{})
 	if time.Now().After(deadline) {
@@ -48,7 +48,7 @@ func WithDeadline(deadline time.Time) <-chan struct{} {
 }
 
 // WithSignal returns empty struct channel above on `os.Signal` channel.
-//todo can be leaky, https://github.com/kamilsk/retry/issues/109
+// TODO can be leaky, https://github.com/kamilsk/retry/issues/109
 func WithSignal(s os.Signal) <-chan struct{} {
 	ch := make(chan struct{})
 	if s == nil {
@@ -66,7 +66,7 @@ func WithSignal(s os.Signal) <-chan struct{} {
 }
 
 // WithTimeout returns empty struct channel above on `time.Timer` channel.
-//todo can be leaky, https://github.com/kamilsk/retry/issues/109
+// TODO can be leaky, https://github.com/kamilsk/retry/issues/109
 func WithTimeout(timeout time.Duration) <-chan struct{} {
 	ch := make(chan struct{})
 	if timeout <= 0 {
