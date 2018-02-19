@@ -27,7 +27,7 @@
 ```go
 var (
 	response *http.Response
-	action   retry.Action = func(attempt uint) error {
+	action   retry.Action = func(_ uint) error {
 		var err error
 		response, err = http.Get("https://github.com/kamilsk/retry")
 		return err
