@@ -35,13 +35,7 @@ func WithDeadline(deadline time.Time) <-chan struct{} {
 		return ch
 	}
 	go func() {
-		// go 1.5 doesn't support time.Until(deadline)
-		after := deadline.Sub(time.Now()) //nolint: gosimple
-		if after <= 0 {
-			close(ch)
-			return
-		}
-		<-time.After(after)
+		<-time.After(deadline.Sub(time.Now()))
 		close(ch)
 	}()
 	return ch
