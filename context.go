@@ -8,10 +8,9 @@ import "context"
 func WithContext(parent context.Context, deadline <-chan struct{}) context.Context {
 	ctx, cancel := context.WithCancel(parent)
 	go func() {
-		if deadline == nil {
-			return
+		if deadline != nil {
+			<-deadline
 		}
-		<-deadline
 		cancel()
 	}()
 	return ctx

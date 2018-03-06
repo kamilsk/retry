@@ -173,14 +173,15 @@ This library is using [SemVer](http://semver.org) for versioning, and it is not
 [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. Therefore, do not use `go get -u` to update it,
 use [dep](https://github.com/golang/dep) or something similar for this purpose.
 
-## Feedback
+## Notes
+
+- [research](../../tree/research)
+- tested on Go 1.5, 1.6, 1.7, 1.8, 1.9 and 1.10
+
+---
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retry)
 [![@kamilsk](https://img.shields.io/badge/author-%40kamilsk-blue.svg)](https://twitter.com/ikamilsk)
 [![@octolab](https://img.shields.io/badge/sponsor-%40octolab-blue.svg)](https://twitter.com/octolab_inc)
 
-## Notes
-
-- [research](../../tree/research)
-- tested on Go 1.5, 1.6, 1.7, 1.8, 1.9 and 1.10
-- made with ❤️ by [OctoLab](https://www.octolab.org/)
+made with ❤️ by [OctoLab](https://www.octolab.org/)

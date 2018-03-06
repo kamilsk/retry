@@ -25,13 +25,25 @@ func TestMultiplex_WithoutChannels(t *testing.T) {
 }
 
 func TestWithDeadline(t *testing.T) {
-	sleep := time.Now().Add(100 * time.Millisecond)
+	tests := []struct {
+		name     string
+		deadline time.Duration
+	}{
+		{"normal case", 10 * time.Millisecond},
+		{"past deadline", -time.Nanosecond},
+	}
+	for _, test := range tests {
+		tc := test
+		t.Run(test.name, func(t *testing.T) {
 
-	<-retry.WithDeadline(sleep)
-	end := time.Now()
+			start := time.Now()
+			<-retry.WithDeadline(start.Add(tc.deadline))
+			end := time.Now()
 
-	if expected, obtained := sleep, end; expected.After(obtained) {
-		t.Errorf("an unexpected sleep time. expected: %v; obtained: %v", expected, obtained)
+			if !end.After(start.Add(tc.deadline)) {
+				t.Errorf("an unexpected deadline")
+			}
+		})
 	}
 }
 
