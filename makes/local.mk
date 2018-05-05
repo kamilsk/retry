@@ -4,7 +4,7 @@ endif
 
 OPEN_BROWSER              ?= true
 GO_TEST_COVERAGE_MODE     ?= count
-GO_TEST_COVERAGE_FILENAME ?= coverage.out
+GO_TEST_COVERAGE_FILENAME ?= cover.out
 
 
 .PHONY: install-deps
