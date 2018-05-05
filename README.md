@@ -5,8 +5,8 @@
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#utilities)
 [![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/octolab)
 [![Build Status](https://travis-ci.org/kamilsk/retry.svg?branch=dev)](https://travis-ci.org/kamilsk/retry)
-[![Code Coverage](https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kamilsk/retry/?branch=master)
-[![Code Quality](https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kamilsk/retry/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=dev)](https://scrutinizer-ci.com/g/kamilsk/retry/?branch=dev)
+[![Code Quality](https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/kamilsk/retry/?branch=dev)
 [![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
