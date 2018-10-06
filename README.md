@@ -1,14 +1,15 @@
-> # retry [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter)
-> [![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/master?pixel)](https://github.com/kamilsk/retry)
+> # ♻️ retry [![Tweet][icon_twitter]][twitter_publish]
+> [![Analytics][analytics_pixel]][page_promo]
 > Functional mechanism based on channels to perform actions repetitively until successful.
 
-[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#utilities)
-[![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/octolab)
-[![Build Status](https://travis-ci.org/kamilsk/retry.svg?branch=master)](https://travis-ci.org/kamilsk/retry)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retry)](https://goreportcard.com/report/github.com/kamilsk/retry)
-[![Coverage Status](https://coveralls.io/repos/github/kamilsk/retry/badge.svg)](https://coveralls.io/github/kamilsk/retry)
-[![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Awesome][icon_awesome]](https://github.com/avelino/awesome-go#utilities)
+[![Patreon][icon_patreon]](https://www.patreon.com/octolab)
+[![Build Status][icon_build]][page_build]
+[![Code Coverage][icon_coverage]][page_quality]
+[![Code Quality][icon_quality]][page_quality]
+[![GoDoc][icon_docs]][page_docs]
+[![Research][icon_research]][page_research]
+[![License][icon_license]](LICENSE)
 
 ## Differences from [Rican7/retry](https://github.com/Rican7/retry)
 
@@ -138,8 +139,6 @@ if err := retry.Retry(ctx.Done(), action, strategy.Delay(time.Millisecond)); err
 }
 ```
 
-See more details [here](https://godoc.org/github.com/kamilsk/retry#example-package--RetryWithContext).
-
 ### Interrupt execution
 
 ```go
@@ -157,31 +156,47 @@ if err := retry.Retry(interrupter, func(uint) error { time.Sleep(time.Second); r
 
 ```bash
 $ go get github.com/kamilsk/retry
-```
-
-### Mirror
-
-```bash
+$ # or use mirror
 $ egg bitbucket.org/kamilsk/retry
 ```
 
-> [egg](https://github.com/kamilsk/egg) is an `extended go get`.
+> [egg](https://github.com/kamilsk/egg)<sup id="anchor-egg">[1](#egg)</sup> is an `extended go get`.
 
-### Update
+## Update
 
 This library is using [SemVer](http://semver.org) for versioning, and it is not
 [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. Therefore, do not use `go get -u` to update it,
 use [dep](https://github.com/golang/dep) or something similar for this purpose.
 
-## Notes
-
-- [research](../../tree/research)
-- tested on Go 1.5, 1.6, 1.7, 1.8, 1.9 and 1.10
+<sup id="egg">1</sup> The project is still in prototyping. [↩](#anchor-egg)
 
 ---
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retry)
-[![@kamilsk](https://img.shields.io/badge/author-%40kamilsk-blue.svg)](https://twitter.com/ikamilsk)
-[![@octolab](https://img.shields.io/badge/sponsor-%40octolab-blue.svg)](https://twitter.com/octolab_inc)
+[![Gitter][icon_gitter]](https://gitter.im/kamilsk/retry)
+[![@kamilsk][icon_tw_author]](https://twitter.com/ikamilsk)
+[![@octolab][icon_tw_sponsor]](https://twitter.com/octolab_inc)
 
 made with ❤️ by [OctoLab](https://www.octolab.org/)
+
+[analytics_pixel]: https://ga-beacon.appspot.com/UA-109817251-1/retry/master?pixel
+
+[icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
+[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=master
+[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=master
+[icon_docs]:       https://godoc.org/github.com/kamilsk/retry?status.svg
+[icon_gitter]:     https://badges.gitter.im/Join%20Chat.svg
+[icon_license]:    https://img.shields.io/badge/license-MIT-blue.svg
+[icon_patreon]:    https://img.shields.io/badge/patreon-donate-orange.svg
+[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=master
+[icon_research]:   https://img.shields.io/badge/research-in%20progress-yellow.svg
+[icon_tw_author]:  https://img.shields.io/badge/author-%40kamilsk-blue.svg
+[icon_tw_sponsor]: https://img.shields.io/badge/sponsor-%40octolab-blue.svg
+[icon_twitter]:    https://img.shields.io/twitter/url/http/shields.io.svg?style=social
+
+[page_build]:      https://travis-ci.org/kamilsk/retry
+[page_docs]:       https://godoc.org/github.com/kamilsk/retry
+[page_promo]:      https://github.com/kamilsk/retry
+[page_research]:   https://github.com/kamilsk/go-research/tree/master/projects/retry
+[page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=master
+
+[twitter_publish]: https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter

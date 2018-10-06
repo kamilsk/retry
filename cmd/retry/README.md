@@ -1,20 +1,22 @@
-> # cmd/retry
->
+> # cmd/retry [![Tweet][icon_twitter]][twitter_publish]
+> [![Analytics][analytics_pixel]][page_promo]
 > `retry` provides functionality to repeat terminal commands.
 
-[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#utilities)
-[![Patreon](https://img.shields.io/badge/patreon-donate-orange.svg)](https://www.patreon.com/octolab)
-[![Build Status](https://travis-ci.org/kamilsk/retry.svg?branch=master)](https://travis-ci.org/kamilsk/retry)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kamilsk/retry)](https://goreportcard.com/report/github.com/kamilsk/retry)
-[![Coverage Status](https://coveralls.io/repos/github/kamilsk/retry/badge.svg)](https://coveralls.io/github/kamilsk/retry)
-[![GoDoc](https://godoc.org/github.com/kamilsk/retry?status.svg)](https://godoc.org/github.com/kamilsk/retry)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](../../LICENSE)
+[![Awesome][icon_awesome]](https://github.com/avelino/awesome-go#utilities)
+[![Patreon][icon_patreon]](https://www.patreon.com/octolab)
+[![Build Status][icon_build]][page_build]
+[![Code Coverage][icon_coverage]][page_quality]
+[![Code Quality][icon_quality]][page_quality]
+[![GoDoc][icon_docs]][page_docs]
+[![License][icon_license]](../../LICENSE)
 
 ## Concept
 
 ```bash
 $ retry -limit=3 -backoff=lin:500ms -- curl example.com
 ```
+
+[![asciicast](https://asciinema.org/a/150367.png)](https://asciinema.org/a/150367)
 
 ## Documentation
 
@@ -116,7 +118,7 @@ Version 3.0.0 (commit: ..., build date: ..., go version: go1.9, compiler: gc, pl
 
 ### Complex example
 
-```
+```bash
 $ retry -limit=3 -backoff=lin:10ms -- /bin/sh -c 'echo "trying..."; exit 1'
 trying...
 #2 attempt at 17.636458ms...
@@ -143,100 +145,63 @@ $ brew install kamilsk/tap/retry
 ### Binary
 
 ```bash
-$ export SEM_V=3.0.0    # all available versions are on https://github.com/kamilsk/retry/releases
+$ export REQ_VER=3.0.0  # all available versions are on https://github.com/kamilsk/retry/releases
 $ export REQ_OS=Linux   # macOS and Windows are also available
 $ export REQ_ARCH=64bit # 32bit is also available
-$ wget -q -O retry.tar.gz \
-      https://github.com/kamilsk/retry/releases/download/${SEM_V}/retry_${SEM_V}_${REQ_OS}-${REQ_ARCH}.tar.gz
-$ tar xf retry.tar.gz -C "${GOPATH}"/bin/
-$ rm retry.tar.gz
+$ # wget -q -O retry.tar.gz
+$ curl -sL -o retry.tar.gz \
+       https://github.com/kamilsk/retry/releases/download/"${REQ_VER}/retry_${REQ_VER}_${REQ_OS}-${REQ_ARCH}".tar.gz
+$ tar xf retry.tar.gz -C "${GOPATH}"/bin/ && rm retry.tar.gz
 ```
 
 ### From source code
 
 ```bash
-$ go get -d github.com/kamilsk/retry
-$ cd "${GOPATH}"/src/github.com/kamilsk/retry
-$ make cmd-deps-local # or cmd-deps, if you don't have the dep binary but have the docker
-$ make cmd-install
+$ egg github.com/kamilsk/retry@^3.0.0 -- make test install
+$ # or use mirror
+$ egg bitbucket.org/kamilsk/retry@^3.0.0 -- make test install
 ```
 
-## Command-line completion
+> [egg](https://github.com/kamilsk/egg)<sup id="anchor-egg">[1](#egg)</sup> is an `extended go get`.
 
-### Useful articles
+### Bash and Zsh completions
 
-- [Command-line completion | Docker Documentation](https://docs.docker.com/compose/completion/)
-
-### Bash
-
-Make sure [bash completion](https://github.com/scop/bash-completion) is installed.
-
-- On a current Linux (in a non-minimal installation), bash completion should be available.
-- On a macOS, install by the command `brew install bash-completion`.
-
-Place the completion script in `/etc/bash_completion.d/` (or `$(brew --prefix)/etc/bash_completion.d/` on a macOS):
+You can find completion files [here](https://github.com/kamilsk/shared/tree/dotfiles/bash_completion.d) or
+build your own using these commands
 
 ```bash
-$ sudo curl -L https://raw.githubusercontent.com/kamilsk/shared/dotfiles/bash_completion.d/retry.sh \
-            -o /etc/bash_completion.d/retry
+$ retry completion bash > /path/to/bash_completion.d/retry.sh
+$ retry completion zsh  > /path/to/zsh-completions/_retry.zsh
 ```
 
-On a macOS, add the following to your `~/.bash_profile`:
+<sup id="egg">1</sup> The project is still in prototyping. [↩](#anchor-egg)
 
-```bash
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-    source $(brew --prefix)/etc/bash_completion
-fi
-```
+---
 
-If you're using MacPorts instead of brew you'll need to slightly modify your steps to the following:
+[![Gitter][icon_gitter]](https://gitter.im/kamilsk/retry)
+[![@kamilsk][icon_tw_author]](https://twitter.com/ikamilsk)
+[![@octolab][icon_tw_sponsor]](https://twitter.com/octolab_inc)
 
-- Run `sudo port install bash-completion` to install bash completion.
-- Add the following lines to `~/.bash_profile`:
-```bash
-if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
-    source /opt/local/etc/profile.d/bash_completion.sh
-fi
-```
+made with ❤️ by [OctoLab](https://www.octolab.org/)
 
-You can source your `~/.bash_profile` or launch a new terminal to utilize completion.
+[analytics_pixel]: https://ga-beacon.appspot.com/UA-109817251-1/retry/cmd/dev?pixel
 
-### Zsh
+[icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
+[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=dev
+[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=dev
+[icon_docs]:       https://godoc.org/github.com/kamilsk/retry?status.svg
+[icon_gitter]:     https://badges.gitter.im/Join%20Chat.svg
+[icon_license]:    https://img.shields.io/badge/license-MIT-blue.svg
+[icon_patreon]:    https://img.shields.io/badge/patreon-donate-orange.svg
+[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=dev
+[icon_research]:   https://img.shields.io/badge/research-in%20progress-yellow.svg
+[icon_tw_author]:  https://img.shields.io/badge/author-%40kamilsk-blue.svg
+[icon_tw_sponsor]: https://img.shields.io/badge/sponsor-%40octolab-blue.svg
+[icon_twitter]:    https://img.shields.io/twitter/url/http/shields.io.svg?style=social
 
-Place the completion script in your `/path/to/zsh/completion`, using, e.g., `~/.zsh/completion/`:
+[page_build]:      https://travis-ci.org/kamilsk/retry
+[page_docs]:       https://godoc.org/github.com/kamilsk/retry
+[page_promo]:      https://github.com/kamilsk/retry
+[page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=dev
 
-```bash
-$ mkdir -p ~/.zsh/completion
-$ curl -L https://raw.githubusercontent.com/kamilsk/shared/dotfiles/bash_completion.d/retry.zsh \
-       -o ~/.zsh/completion/_retry
-```
-
-Include the directory in your `$fpath`, e.g., by adding in `~/.zshrc`:
-
-```bash
-fpath=(~/.zsh/completion $fpath)
-```
-
-Make sure `compinit` is loaded or do it by adding in `~/.zshrc`:
-
-```bash
-autoload -Uz compinit && compinit -i
-```
-
-Then reload your shell:
-
-```bash
-exec $SHELL -l
-```
-
-## Feedback
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kamilsk/retry)
-[![@kamilsk](https://img.shields.io/badge/author-%40kamilsk-blue.svg)](https://twitter.com/ikamilsk)
-[![@octolab](https://img.shields.io/badge/sponsor-%40octolab-blue.svg)](https://twitter.com/octolab_inc)
-
-## Notes
-
-- made with ❤️ by [OctoLab](https://www.octolab.org/)
-
-[![Analytics](https://ga-beacon.appspot.com/UA-109817251-1/retry/cmd)](https://github.com/igrigorik/ga-beacon)
+[twitter_publish]: https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter

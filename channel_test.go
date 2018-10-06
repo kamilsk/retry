@@ -33,17 +33,13 @@ func TestWithDeadline(t *testing.T) {
 		{"past deadline", -time.Nanosecond},
 	}
 	for _, test := range tests {
-		tc := test
-		t.Run(test.name, func(t *testing.T) {
+		start := time.Now()
+		<-retry.WithDeadline(start.Add(test.deadline))
+		end := time.Now()
 
-			start := time.Now()
-			<-retry.WithDeadline(start.Add(tc.deadline))
-			end := time.Now()
-
-			if !end.After(start.Add(tc.deadline)) {
-				t.Errorf("an unexpected deadline")
-			}
-		})
+		if !end.After(start.Add(test.deadline)) {
+			t.Errorf("%s: an unexpected deadline", test.name)
+		}
 	}
 }
 

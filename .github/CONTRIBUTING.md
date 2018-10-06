@@ -6,7 +6,7 @@ Read first [Go Code Review Comments](https://github.com/golang/go/wiki/CodeRevie
 
 ```bash
 $ make docker-pull-tools
-$ make code-quality-check
+$ make check-code-quality
 ```
 
 ## Testing
