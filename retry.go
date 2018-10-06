@@ -48,7 +48,7 @@ func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strat
 	select {
 	case <-deadline:
 		atomic.CompareAndSwapUint32(&interrupt, 0, 1)
-		return timeoutErr
+		return errTimeout
 	case <-done:
 		return err
 	}
@@ -65,7 +65,7 @@ func IsRecovered(err error) (interface{}, bool) {
 
 // IsTimeout checks that the error is related to the incident deadline on Retry call.
 func IsTimeout(err error) bool {
-	return err == timeoutErr
+	return err == errTimeout
 }
 
 type panicHandler struct {
@@ -75,13 +75,13 @@ type panicHandler struct {
 
 func (panicHandler) recover(err *error) {
 	if r := recover(); r != nil {
-		*err = panicHandler{panicErr, r}
+		*err = panicHandler{errPanic, r}
 	}
 }
 
 var (
-	panicErr   = errors.New("unhandled action's panic")
-	timeoutErr = errors.New("operation timeout")
+	errPanic   = errors.New("unhandled action's panic")
+	errTimeout = errors.New("operation timeout")
 )
 
 // shouldAttempt evaluates the provided strategies with the given attempt to
