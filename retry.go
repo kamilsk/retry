@@ -33,39 +33,65 @@ func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strat
 		interrupt uint32
 	)
 	done := make(chan struct{})
+
 	go func() {
+		defer close(done)
+		defer panicHandler{}.recover(&err)
+
 		for attempt := uint(0); (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...) &&
 			!atomic.CompareAndSwapUint32(&interrupt, 1, 0); attempt++ {
 
 			err = action(attempt)
 		}
-		close(done)
 	}()
 
 	select {
 	case <-deadline:
 		atomic.CompareAndSwapUint32(&interrupt, 0, 1)
-		return errTimeout
+		return timeoutErr
 	case <-done:
 		return err
 	}
 }
 
-// IsTimeout checks if passed error is related to the incident deadline on Retry call.
-func IsTimeout(err error) bool {
-	return err == errTimeout
+// IsRecovered checks that the error is related to unhandled Action's panic
+// and returns an original cause of panic.
+func IsRecovered(err error) (interface{}, bool) {
+	if h, is := err.(panicHandler); is {
+		return h.recovered, true
+	}
+	return nil, false
 }
 
-var errTimeout = errors.New("operation timeout")
+// IsTimeout checks that the error is related to the incident deadline on Retry call.
+func IsTimeout(err error) bool {
+	return err == timeoutErr
+}
+
+type panicHandler struct {
+	error
+	recovered interface{}
+}
+
+func (panicHandler) recover(err *error) {
+	if r := recover(); r != nil {
+		*err = panicHandler{panicErr, r}
+	}
+}
+
+var (
+	panicErr   = errors.New("unhandled action's panic")
+	timeoutErr = errors.New("operation timeout")
+)
 
 // shouldAttempt evaluates the provided strategies with the given attempt to
 // determine if the Retry loop should make another attempt.
 func shouldAttempt(attempt uint, err error, strategies ...strategy.Strategy) bool {
-	shouldAttempt := true
+	should := true
 
-	for i, repeat := 0, len(strategies); shouldAttempt && i < repeat; i++ {
-		shouldAttempt = shouldAttempt && strategies[i](attempt, err)
+	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
+		should = should && strategies[i](attempt, err)
 	}
 
-	return shouldAttempt
+	return should
 }
