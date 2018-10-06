@@ -178,16 +178,16 @@ use [dep](https://github.com/golang/dep) or something similar for this purpose.
 
 made with ❤️ by [OctoLab](https://www.octolab.org/)
 
-[analytics_pixel]: https://ga-beacon.appspot.com/UA-109817251-1/retry/master?pixel
+[analytics_pixel]: https://ga-beacon.appspot.com/UA-109817251-1/retry/dev?pixel
 
 [icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
-[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=master
-[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=master
+[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=dev
+[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=dev
 [icon_docs]:       https://godoc.org/github.com/kamilsk/retry?status.svg
 [icon_gitter]:     https://badges.gitter.im/Join%20Chat.svg
 [icon_license]:    https://img.shields.io/badge/license-MIT-blue.svg
 [icon_patreon]:    https://img.shields.io/badge/patreon-donate-orange.svg
-[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=master
+[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=dev
 [icon_research]:   https://img.shields.io/badge/research-in%20progress-yellow.svg
 [icon_tw_author]:  https://img.shields.io/badge/author-%40kamilsk-blue.svg
 [icon_tw_sponsor]: https://img.shields.io/badge/sponsor-%40octolab-blue.svg
@@ -196,7 +196,7 @@ made with ❤️ by [OctoLab](https://www.octolab.org/)
 [page_build]:      https://travis-ci.org/kamilsk/retry
 [page_docs]:       https://godoc.org/github.com/kamilsk/retry
 [page_promo]:      https://github.com/kamilsk/retry
-[page_research]:   https://github.com/kamilsk/go-research/tree/master/projects/retry
-[page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=master
+[page_research]:   https://github.com/kamilsk/go-research/tree/dev/projects/retry
+[page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=dev
 
 [twitter_publish]: https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
