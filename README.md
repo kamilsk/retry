@@ -196,7 +196,7 @@ made with ❤️ by [OctoLab](https://www.octolab.org/)
 [page_build]:      https://travis-ci.org/kamilsk/retry
 [page_docs]:       https://godoc.org/github.com/kamilsk/retry
 [page_promo]:      https://github.com/kamilsk/retry
-[page_research]:   https://github.com/kamilsk/go-research/tree/dev/projects/retry
+[page_research]:   https://github.com/kamilsk/go-research/tree/master/projects/retry
 [page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=dev
 
 [twitter_publish]: https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
