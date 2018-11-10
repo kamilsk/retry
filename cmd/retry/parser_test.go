@@ -66,16 +66,17 @@ func Test_parse(t *testing.T) {
 				return
 			},
 		},
-		{
-			name: "invalid timeout",
-			do: func() (obtained, expected string) {
-				expected = `parse: invalid value "Timeout" for flag -timeout: time: invalid duration Timeout`
-				if _, err := parse(ioutil.Discard, "test", "-timeout=Timeout"); err != nil {
-					obtained = err.Error()
-				}
-				return
-			},
-		},
+		// TODO issue#104
+		//{
+		//	name: "invalid timeout",
+		//	do: func() (obtained, expected string) {
+		//		expected = `parse: invalid value "Timeout" for flag -timeout: time: invalid duration Timeout`
+		//		if _, err := parse(ioutil.Discard, "test", "-timeout=Timeout"); err != nil {
+		//			obtained = err.Error()
+		//		}
+		//		return
+		//	},
+		//},
 		{
 			name: "invalid strategy",
 			do: func() (obtained, expected string) {

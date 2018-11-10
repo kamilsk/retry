@@ -1,15 +1,28 @@
 [[constraint]]
+  name = "github.com/briandowns/spinner"
+  version = "^1.0.0"
+
+[[constraint]]
   name = "github.com/fatih/color"
   version = "^1.5.0"
 
 [[constraint]]
+  name = "github.com/kamilsk/go-kit"
+  branch = "master"
+
+[[override]]
   name = "github.com/pkg/errors"
   version = "^0.8.0"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "^0.0.3"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "^1.1.4"
 
-[[constraint]]
-  name = "github.com/briandowns/spinner"
-  version = "1.0.0"
+[prune]
+  go-tests = true
+  non-go = true
+  unused-packages = true
