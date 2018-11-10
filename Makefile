@@ -18,3 +18,9 @@ code-quality-check: docker-tool-gometalinter
 .PHONY: code-quality-report
 code-quality-report:
 	time make code-quality-check | tail +7 | tee report.out
+
+
+.PHONY: generate
+generate:
+	go generate ./cmd/generate
+	mv ./cmd/generate/parser_gen.go ./cmd/retry/parser_gen.go
