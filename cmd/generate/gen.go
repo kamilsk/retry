@@ -10,7 +10,7 @@ import (
 //go:generate gofmt -w parser_gen.go
 
 const tpl = `
-// +build go1.10
+{{ if .BuildTags }}// +build{{ range .BuildTags }} {{ . }}{{ end }}{{ end }}
 
 package main
 
@@ -318,5 +318,9 @@ func main() {
 		panic(err)
 	}
 	defer f.Close()
-	t.Execute(f, nil)
+	t.Execute(f, struct {
+		BuildTags []string
+	}{
+		BuildTags: []string{"go1.10"},
+	})
 }
