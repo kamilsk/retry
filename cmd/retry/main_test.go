@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -11,7 +11,7 @@ import (
 
 func TestMain_Exec_Fails(t *testing.T) {
 	var status int
-	application{
+	tool{
 		Args:   []string{"cmd", "unknown"},
 		Stderr: ioutil.Discard, Stdout: ioutil.Discard,
 		Shutdown: func(code int) { status = code },

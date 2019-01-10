@@ -6,11 +6,11 @@ import (
 	"text/template"
 )
 
-//go:generate go run gen.go -output parser_gen.go
-//go:generate gofmt -w parser_gen.go
+//go:generate go run gen.go -output ../retry/parser_gen.go
+//go:generate goimports -ungroup -w ../retry/parser_gen.go
 
 const tpl = `
-{{ if .BuildTags }}// +build{{ range .BuildTags }} {{ . }}{{ end }}{{ end }}
+{{ if .BuildTags }}//+build{{ range .BuildTags }} {{ . }}{{ end }}{{ end }}
 
 package main
 
@@ -312,15 +312,16 @@ func generatedNormalDistributionTransformation(raw string) (jitter.Transformatio
 var output = flag.String("output", "parser_gen.go", "output filename")
 
 func main() {
+	flag.Parse()
 	t := template.Must(template.New("parser").Parse(tpl))
 	f, err := os.Create(*output)
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
-	t.Execute(f, struct {
+	defer func () { _ = f.Close() }()
+	_ = t.Execute(f, struct {
 		BuildTags []string
 	}{
-		BuildTags: []string{"go1.10"},
+		BuildTags: []string{"go1.11"},
 	})
 }

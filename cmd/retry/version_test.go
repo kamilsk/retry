@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -19,7 +19,7 @@ func TestVersion(t *testing.T) {
 
 	buf := bytes.NewBuffer(nil)
 	cmd := &cobra.Command{Use: "test"}
-	cmd.AddCommand(Version)
+	cmd.AddCommand(versionCommand)
 	cmd.SetOutput(buf)
 
 	tests := []struct {
@@ -27,8 +27,8 @@ func TestVersion(t *testing.T) {
 		memo
 		expected string
 	}{
-		{"Version 4.0", memo{commit: "0c2ffff", date: "November 30, 2018", version: "4.0.0"},
-			"Version 4.0.0 (commit: 0c2ffff, build date: November 30, 2018"},
+		{"Version 4.0", memo{commit: "...", date: "Sometime", version: "4.0.0"},
+			"Version 4.0.0 (commit: ..., build date: Sometime"},
 	}
 	for _, test := range tests {
 		tc := test
@@ -38,7 +38,7 @@ func TestVersion(t *testing.T) {
 			commit, date, version = tc.commit, tc.date, tc.version
 
 			buf.Reset()
-			Version.Run(Version, nil)
+			versionCommand.Run(versionCommand, nil)
 			assert.Contains(t, buf.String(), tc.expected)
 		})
 	}

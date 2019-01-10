@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -11,12 +11,12 @@ import (
 )
 
 func TestCompletion(t *testing.T) {
-	before := Completion.OutOrStdout()
-	defer Completion.SetOutput(before)
+	before := completionCommand.OutOrStdout()
+	defer completionCommand.SetOutput(before)
 
 	buf := bytes.NewBuffer(nil)
 	cmd := &cobra.Command{Use: "test"}
-	cmd.AddCommand(Completion)
+	cmd.AddCommand(completionCommand)
 	cmd.SetOutput(buf)
 
 	tests := []struct {
@@ -31,8 +31,8 @@ func TestCompletion(t *testing.T) {
 		tc := test
 		t.Run(test.name, func(t *testing.T) {
 			buf.Reset()
-			Completion.Flag("format").Value.Set(tc.format)
-			assert.NoError(t, Completion.RunE(Completion, nil))
+			assert.NoError(t, completionCommand.Flag("format").Value.Set(tc.format))
+			assert.NoError(t, completionCommand.RunE(completionCommand, nil))
 			assert.Contains(t, buf.String(), tc.expected)
 		})
 	}

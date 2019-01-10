@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -14,10 +14,9 @@ var (
 	version = "dev"
 )
 
-// Version shows application version.
-var Version = &cobra.Command{
+var versionCommand = &cobra.Command{
 	Use:   "version",
-	Short: "Show application version",
+	Short: "Show tool version",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Printf(
 			"Version %s (commit: %s, build date: %s, go version: %s, compiler: %s, platform: %s/%s)\n",

@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -24,8 +24,7 @@ const (
 	failed  = 1
 )
 
-// DefaultReport is a default template for report.
-var DefaultReport = `
+var reportTpl = `
 
 ---
 
@@ -41,16 +40,16 @@ details: started at {{ .Start }}, finished at {{ .End }}, elapsed {{ .Elapsed }}
 {{ .Stderr }}
 `
 
-func main() { application{Args: os.Args, Stderr: os.Stderr, Stdout: os.Stdout, Shutdown: os.Exit}.Run() }
+func main() { tool{Args: os.Args, Stderr: os.Stderr, Stdout: os.Stdout, Shutdown: os.Exit}.Run() }
 
-type application struct {
+type tool struct {
 	Args           []string
 	Stderr, Stdout io.Writer
 	Shutdown       func(code int)
 }
 
-// Run executes the application logic.
-func (app application) Run() {
+// Run executes the tool logic.
+func (app tool) Run() {
 	var (
 		result, err = parse(app.Stderr, app.Args[0], app.Args[1:]...)
 		format      = func() string {
@@ -62,11 +61,11 @@ func (app application) Run() {
 		start, finish  time.Time
 		shutdown, spin = app.Shutdown, spinner.New(spinner.CharSets[17], 100*time.Millisecond)
 		stderr, stdout = bytes.NewBuffer(nil), bytes.NewBuffer(nil)
-		report         = template.Must(template.New("report").Parse(DefaultReport))
+		report         = template.Must(template.New("report").Parse(reportTpl))
 	)
 	if err != nil {
 		if err != flag.ErrHelp {
-			color.New(color.FgRed).Fprintf(app.Stderr, format, err)
+			_, _ = color.New(color.FgRed).Fprintf(app.Stderr, format, err)
 			app.Shutdown(failed)
 			return
 		}
@@ -87,9 +86,9 @@ func (app application) Run() {
 				// TODO try to find or implement by myself
 				// - https://github.com/variadico/noti
 				// - https://github.com/jolicode/JoliNotif
-				color.New(color.FgYellow).Fprintln(stderr, "notify component is not ready yet")
+				_, _ = color.New(color.FgYellow).Fprintln(stderr, "notify component is not ready yet")
 			}
-			report.Execute(app.Stdout, struct {
+			_ = report.Execute(app.Stdout, struct {
 				Name       string
 				Error      string
 				Start, End string
@@ -115,8 +114,8 @@ func (app application) Run() {
 			spin.Start()
 			start = time.Now()
 		} else {
-			spin.Color("red")
-			color.New(color.FgYellow).Fprintf(stderr, "#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
+			_ = spin.Color("red")
+			_, _ = color.New(color.FgYellow).Fprintf(stderr, "#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
 		}
 		cmd := exec.Command(result.Args[0], result.Args[1:]...)
 		cmd.Stderr, cmd.Stdout = stderr, stdout

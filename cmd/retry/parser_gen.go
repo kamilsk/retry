@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -55,7 +55,7 @@ func init() {
 	}
 	usage = func(output io.Writer, md Metadata) func() {
 		return func() {
-			fmt.Fprintf(output, `
+			_, _ = fmt.Fprintf(output, `
 Usage: %s [-timeout Timeout] [--debug] [--notify] [strategy flags] -- command
 
 The strategy flags

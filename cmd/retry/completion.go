@@ -1,4 +1,4 @@
-// +build go1.10
+//+build go1.11
 
 package main
 
@@ -12,8 +12,7 @@ const (
 	zshFormat  = "zsh"
 )
 
-// Completion prints Bash or Zsh completion.
-var Completion = &cobra.Command{
+var completionCommand = &cobra.Command{
 	Use:   "completion",
 	Short: "Print Bash or Zsh completion",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,6 +31,6 @@ var Completion = &cobra.Command{
 }
 
 func init() {
-	Completion.Flags().StringVarP(new(string), "format", "f", zshFormat, "output format, one of: bash|zsh")
-	fn.Must(func() error { return Completion.MarkFlagRequired("format") })
+	completionCommand.Flags().StringVarP(new(string), "format", "f", zshFormat, "output format, one of: bash|zsh")
+	fn.Must(func() error { return completionCommand.MarkFlagRequired("format") })
 }

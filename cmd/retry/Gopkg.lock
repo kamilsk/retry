@@ -58,12 +58,12 @@
   version = "v0.0.4"
 
 [[projects]]
-  digest = "1:5cf3f025cbee5951a4ee961de067c8a89fc95a5adabead774f82822efabab121"
+  digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -90,20 +90,20 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:bacb8b590716ab7c33f2277240972c9582d389593ee8d66fc10074e0508b8126"
+  digest = "1:42e8c2456d7ec0f31e182c20022e74324c4da2cb3bd9069ff9b131fe33466308"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   pruneopts = "NUT"
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
-  version = "v1.2.2"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:fa55723134da3921dbe0abdc6d870aef9a1fdf4335d7c0fd72aa96244333feed"
+  digest = "1:8f8e2026a1f1bd38f0f2cfb93e5eac44d11a512d0f1c4d463894a72ddc8cf7a3"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "66b7b1311ac80bbafcd2daeef9a5e6e2cd1e2399"
+  revision = "48ac38b7c8cbedd50b1613c0fccacfc7d88dfcdf"
 
 [solve-meta]
   analyzer-name = "dep"
