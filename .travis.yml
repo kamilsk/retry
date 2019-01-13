@@ -3,10 +3,6 @@ language: go
 go:
 - master
 - 1.x
-- 1.5.x
-- 1.6.x
-- 1.7.x
-- 1.8.x
 - 1.9.x
 - 1.10.x
 - 1.11.x
@@ -16,15 +12,12 @@ matrix:
 
 sudo: false
 
-before_install:
-- export GO15VENDOREXPERIMENT=1
-
 script:
 - make test ARGS='-timeout=1s'
 
 after_success:
 - echo $TRAVIS_GO_VERSION ":" $TRAVIS_TAG
-- if [[ $TRAVIS_GO_VERSION == 1.10* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
+- if [[ $TRAVIS_GO_VERSION == 1.11* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
