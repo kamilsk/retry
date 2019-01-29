@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/backoff"
+	"github.com/kamilsk/retry/v3/backoff"
 )
 
 func TestIncremental(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry"
+	"github.com/kamilsk/retry/v3"
 )
 
 func TestMultiplex(t *testing.T) {

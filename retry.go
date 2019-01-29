@@ -7,13 +7,13 @@
 //
 // This package is an extended version of https://godoc.org/github.com/Rican7/retry.
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package retry // import "github.com/kamilsk/retry"
+package retry // import "github.com/kamilsk/retry/v3"
 
 import (
 	"errors"
 	"sync/atomic"
 
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v3/strategy"
 )
 
 // Action defines a callable function that package retry can handle.

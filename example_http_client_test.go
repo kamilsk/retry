@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/kamilsk/retry"
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v3"
+	"github.com/kamilsk/retry/v3/strategy"
 )
 
 type client struct {

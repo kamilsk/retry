@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/kamilsk/retry/backoff"
-	"github.com/kamilsk/retry/jitter"
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v3/backoff"
+	"github.com/kamilsk/retry/v3/jitter"
+	"github.com/kamilsk/retry/v3/strategy"
 	"github.com/pkg/errors"
 )
 

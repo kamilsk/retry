@@ -6,7 +6,7 @@
 // a number of attempts made.
 //
 // Copyright © 2016 Trevor N. Suarez (Rican7)
-package backoff // import "github.com/kamilsk/retry/backoff"
+package backoff // import "github.com/kamilsk/retry/v3/backoff"
 
 import (
 	"math"

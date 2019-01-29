@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry"
+	"github.com/kamilsk/retry/v3"
 )
 
 func TestWithContext(t *testing.T) {
