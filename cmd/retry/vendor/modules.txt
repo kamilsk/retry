@@ -1,0 +1,23 @@
+# github.com/briandowns/spinner v0.0.0-20170614154858-48dbb65d7bd5
+github.com/briandowns/spinner
+# github.com/davecgh/go-spew v1.1.0
+github.com/davecgh/go-spew/spew
+# github.com/fatih/color v1.6.0
+github.com/fatih/color
+# github.com/kamilsk/retry/v3 v3.4.0
+github.com/kamilsk/retry/v3
+github.com/kamilsk/retry/v3/backoff
+github.com/kamilsk/retry/v3/jitter
+github.com/kamilsk/retry/v3/strategy
+# github.com/mattn/go-colorable v0.0.9
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.3
+github.com/mattn/go-isatty
+# github.com/pkg/errors v0.8.0
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.2.1
+github.com/stretchr/testify/assert
+# golang.org/x/sys v0.0.0-20180302081741-dd2ff4accc09
+golang.org/x/sys/unix
