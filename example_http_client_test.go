@@ -8,16 +8,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/kamilsk/retry/v3"
-	"github.com/kamilsk/retry/v3/strategy"
+	. "github.com/kamilsk/retry/v3"
+	. "github.com/kamilsk/retry/v3/strategy"
 )
 
 type client struct {
 	base       *http.Client
-	strategies []strategy.Strategy
+	strategies []Strategy
 }
 
-func New(timeout time.Duration, strategies ...strategy.Strategy) *client {
+func New(timeout time.Duration, strategies ...Strategy) *client {
 	return &client{
 		base:       &http.Client{Timeout: timeout},
 		strategies: strategies,
@@ -26,7 +26,7 @@ func New(timeout time.Duration, strategies ...strategy.Strategy) *client {
 
 func (c *client) Get(deadline <-chan struct{}, url string) (*http.Response, error) {
 	var response *http.Response
-	err := retry.Retry(deadline, func(uint) error {
+	err := Retry(deadline, func(uint) error {
 		resp, err := c.base.Get(url)
 		if err != nil {
 			return err
@@ -42,7 +42,7 @@ func Example_httpClient() {
 	var attempts int32 = 2
 	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		if atomic.CompareAndSwapInt32(&attempts, 0, -1) {
-			rw.Write([]byte("success"))
+			_, _ = rw.Write([]byte("success"))
 			return
 		}
 		atomic.AddInt32(&attempts, -1)
@@ -50,8 +50,8 @@ func Example_httpClient() {
 	}))
 	defer ts.Close()
 
-	cl := New(10*time.Millisecond, strategy.Limit(uint(attempts)+1))
-	resp, err := cl.Get(retry.WithTimeout(time.Second), ts.URL)
+	cl := New(10*time.Millisecond, Limit(uint(attempts)+1))
+	resp, err := cl.Get(WithTimeout(time.Second), ts.URL)
 
 	fmt.Printf("response: %s, error: %+v \n", func() string {
 		b, err := ioutil.ReadAll(resp.Body)

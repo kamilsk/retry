@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/kamilsk/retry/v3/classifier"
+	. "github.com/kamilsk/retry/v3/classifier"
 )
 
 func TestBlacklistClassifier_Classify(t *testing.T) {
@@ -12,17 +12,17 @@ func TestBlacklistClassifier_Classify(t *testing.T) {
 		errInBlacklist    = errors.New("is in blacklist")
 		errNotInBlacklist = errors.New("is not in blacklist")
 	)
-	list := classifier.BlacklistClassifier([]error{errInBlacklist})
+	list := BlacklistClassifier([]error{errInBlacklist})
 
-	if list.Classify(nil) != classifier.Succeed {
+	if list.Classify(nil) != Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if list.Classify(errNotInBlacklist) != classifier.Retry {
+	if list.Classify(errNotInBlacklist) != Retry {
 		t.Error("retry is expected")
 	}
 
-	if list.Classify(errInBlacklist) != classifier.Fail {
+	if list.Classify(errInBlacklist) != Fail {
 		t.Error("fail is expected")
 	}
 }

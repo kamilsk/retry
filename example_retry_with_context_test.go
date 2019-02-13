@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kamilsk/retry/v3"
-	"github.com/kamilsk/retry/v3/strategy"
+	. "github.com/kamilsk/retry/v3"
+	. "github.com/kamilsk/retry/v3/strategy"
 )
 
 // This example shows how to use context and retry together.
@@ -34,8 +34,8 @@ func Example_retryWithContext() {
 		communication <- nil   // ping
 		return <-communication // pong
 	}
-	ctx := retry.WithContext(context.Background(), retry.WithTimeout(time.Second))
-	if err := retry.Retry(ctx.Done(), action, strategy.Delay(time.Millisecond)); err != nil {
+	ctx := WithContext(context.Background(), WithTimeout(time.Second))
+	if err := Retry(ctx.Done(), action, Delay(time.Millisecond)); err != nil {
 		panic(err)
 	}
 

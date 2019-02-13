@@ -6,35 +6,35 @@ import (
 	"net"
 	"testing"
 
-	"github.com/kamilsk/retry/v3/classifier"
+	. "github.com/kamilsk/retry/v3/classifier"
 )
 
 func TestFunctionalClassifier_Classify(t *testing.T) {
 	var (
 		errClassified       = &json.SyntaxError{}
 		errNotClassified    = errors.New("is unknown error")
-		jsonErrorClassifier = classifier.FunctionalClassifier(func(err error) classifier.Action {
+		jsonErrorClassifier = FunctionalClassifier(func(err error) Action {
 			if err == nil {
-				return classifier.Succeed
+				return Succeed
 			}
 
 			if _, is := err.(*json.SyntaxError); is {
-				return classifier.Retry
+				return Retry
 			}
 
-			return classifier.Unknown
+			return Unknown
 		})
 	)
 
-	if jsonErrorClassifier.Classify(nil) != classifier.Succeed {
+	if jsonErrorClassifier.Classify(nil) != Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if jsonErrorClassifier.Classify(errClassified) != classifier.Retry {
+	if jsonErrorClassifier.Classify(errClassified) != Retry {
 		t.Error("retry is expected")
 	}
 
-	if jsonErrorClassifier.Classify(errNotClassified) != classifier.Unknown {
+	if jsonErrorClassifier.Classify(errNotClassified) != Unknown {
 		t.Error("unknown is expected")
 	}
 }
@@ -46,19 +46,19 @@ func TestFunctionalClassifier_NetworkErrorClassifier_Classify(t *testing.T) {
 		errOther          = errors.New("is not network error")
 	)
 
-	if classifier.NetworkErrorClassifier.Classify(nil) != classifier.Succeed {
+	if NetworkErrorClassifier.Classify(nil) != Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if classifier.NetworkErrorClassifier.Classify(errNetworkTimeout) != classifier.Retry {
+	if NetworkErrorClassifier.Classify(errNetworkTimeout) != Retry {
 		t.Error("retry is expected")
 	}
 
-	if classifier.NetworkErrorClassifier.Classify(errNetworkOther) != classifier.Fail {
+	if NetworkErrorClassifier.Classify(errNetworkOther) != Fail {
 		t.Error("fail is expected")
 	}
 
-	if classifier.NetworkErrorClassifier.Classify(errOther) != classifier.Unknown {
+	if NetworkErrorClassifier.Classify(errOther) != Unknown {
 		t.Error("unknown is expected")
 	}
 }

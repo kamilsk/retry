@@ -10,14 +10,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/kamilsk/retry/v3"
-	"github.com/kamilsk/retry/v3/backoff"
-	"github.com/kamilsk/retry/v3/jitter"
-	"github.com/kamilsk/retry/v3/strategy"
+	. "github.com/kamilsk/retry/v3"
+	. "github.com/kamilsk/retry/v3/backoff"
+	. "github.com/kamilsk/retry/v3/jitter"
+	. "github.com/kamilsk/retry/v3/strategy"
 )
 
 func Example() {
-	_ = retry.Retry(nil, func(attempt uint) error {
+	_ = Retry(nil, func(attempt uint) error {
 		return nil // Do something that may or may not cause an error
 	})
 }
@@ -27,7 +27,7 @@ func Example_fileOpen() {
 
 	var logFile *os.File
 
-	err := retry.Retry(nil, func(attempt uint) error {
+	err := Retry(nil, func(attempt uint) error {
 		var err error
 
 		logFile, err = os.Open(logFilePath)
@@ -60,7 +60,7 @@ func Example_httpGetWithStrategies() {
 		return err
 	}
 
-	err := retry.Retry(nil, action, strategy.Limit(5), strategy.Backoff(backoff.Fibonacci(10*time.Millisecond)))
+	err := Retry(nil, action, Limit(5), Backoff(Fibonacci(10*time.Millisecond)))
 	if nil != err {
 		log.Fatalf("Failed to fetch repository with error %q", err)
 	}
@@ -74,13 +74,13 @@ func Example_withBackoffJitter() {
 	seed := time.Now().UnixNano()
 	random := rand.New(rand.NewSource(seed))
 
-	_ = retry.Retry(
+	_ = Retry(
 		nil,
 		action,
-		strategy.Limit(5),
-		strategy.BackoffWithJitter(
-			backoff.BinaryExponential(10*time.Millisecond),
-			jitter.Deviation(random, 0.5),
+		Limit(5),
+		BackoffWithJitter(
+			BinaryExponential(10*time.Millisecond),
+			Deviation(random, 0.5),
 		),
 	)
 }

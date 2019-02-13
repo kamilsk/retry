@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kamilsk/retry/v3"
-	"github.com/kamilsk/retry/v3/strategy"
+	. "github.com/kamilsk/retry/v3"
+	. "github.com/kamilsk/retry/v3/strategy"
 )
 
 type drv struct {
@@ -58,7 +58,7 @@ func Example_dbConnectionRestore() {
 
 	shutdown := make(chan struct{})
 	go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, frequency time.Duration,
-		strategies ...strategy.Strategy) {
+		strategies ...Strategy) {
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -71,12 +71,12 @@ func Example_dbConnectionRestore() {
 		}
 
 		for {
-			if err := retry.Retry(ctx.Done(), ping, strategies...); err != nil {
+			if err := Retry(ctx.Done(), ping, strategies...); err != nil {
 				panic(err)
 			}
 			time.Sleep(frequency)
 		}
-	}(MustOpen(), context.Background(), shutdown, time.Millisecond, strategy.Limit(1))
+	}(MustOpen(), context.Background(), shutdown, time.Millisecond, Limit(1))
 
 	d.conn.ping <- errors.New("done")
 	<-shutdown
