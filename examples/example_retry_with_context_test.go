@@ -1,6 +1,6 @@
 // +build go1.7
 
-package retry_test
+package examples_test
 
 import (
 	"context"

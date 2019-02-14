@@ -1,4 +1,4 @@
-package retry_test
+package examples_test
 
 import (
 	"fmt"
@@ -42,7 +42,7 @@ func Example_httpClient() {
 	var attempts int32 = 2
 	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		if atomic.CompareAndSwapInt32(&attempts, 0, -1) {
-			rw.Write([]byte("success"))
+			_, _ = rw.Write([]byte("success"))
 			return
 		}
 		atomic.AddInt32(&attempts, -1)
