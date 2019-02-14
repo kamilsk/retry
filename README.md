@@ -1,25 +1,15 @@
 > # ♻️ retry [![Tweet][icon_twitter]][twitter_publish]
-> [![Analytics][analytics_pixel]][page_promo]
+>
 > Functional mechanism based on channels to perform actions repetitively until successful.
 
-[![Awesome][icon_awesome]](https://github.com/avelino/awesome-go#utilities)
-[![Patreon][icon_patreon]](https://www.patreon.com/octolab)
+[![Awesome][icon_awesome]][page_awesome]
+[![Patreon][icon_patreon]][support]
 [![Build Status][icon_build]][page_build]
 [![Code Coverage][icon_coverage]][page_quality]
 [![Code Quality][icon_quality]][page_quality]
 [![GoDoc][icon_docs]][page_docs]
 [![Research][icon_research]][page_research]
-[![License][icon_license]](LICENSE)
-
-## Differences from [Rican7/retry](https://github.com/Rican7/retry)
-
-- Fixed [bug](https://github.com/Rican7/retry/pull/2) with an unexpected infinite loop.
-  - Added a clear mechanism for this purpose as the Infinite [strategy](strategy/strategy.go#L24-L28).
-- Added support of cancellation (based on simple channel, e.g. `context.Done`).
-  - Made honest Action execution.
-- Added `error` transmission between attempts.
-  - Added `classifier` to handle them (see [classifier](classifier) package).
-- Added CLI tool `retry` which provides functionality for repeating terminal commands (see [cmd/retry](cmd/retry)).
+[![License][icon_license]][license]
 
 ## Usage
 
@@ -172,9 +162,9 @@ use [dep](https://github.com/golang/dep) or something similar for this purpose.
 
 ---
 
-[![Gitter][icon_gitter]](https://gitter.im/kamilsk/retry)
-[![@kamilsk][icon_tw_author]](https://twitter.com/ikamilsk)
-[![@octolab][icon_tw_sponsor]](https://twitter.com/octolab_inc)
+[![Gitter][icon_gitter]][gitter]
+[![@kamilsk][icon_tw_author]][author]
+[![@octolab][icon_tw_sponsor]][sponsor]
 
 made with ❤️ by [OctoLab](https://www.octolab.org/)
 
@@ -193,10 +183,17 @@ made with ❤️ by [OctoLab](https://www.octolab.org/)
 [icon_tw_sponsor]: https://img.shields.io/badge/sponsor-%40octolab-blue.svg
 [icon_twitter]:    https://img.shields.io/twitter/url/http/shields.io.svg?style=social
 
+[page_awesome]:    https://github.com/avelino/awesome-go#utilities
 [page_build]:      https://travis-ci.org/kamilsk/retry
 [page_docs]:       https://godoc.org/github.com/kamilsk/retry
 [page_promo]:      https://github.com/kamilsk/retry
-[page_research]:   https://github.com/kamilsk/go-research/tree/master/projects/retry
 [page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=master
+[page_research]:   https://github.com/kamilsk/go-research/tree/master/projects/retry
+
+[author]:          https://twitter.com/ikamilsk
+[gitter]:          https://gitter.im/kamilsk/retry
+[license]:         LICENSE
+[sponsor]:         https://twitter.com/octolab_inc
+[support]:         https://www.patreon.com/octolab
 
 [twitter_publish]: https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
