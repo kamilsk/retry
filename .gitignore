@@ -1,2 +1,6 @@
 # go test and code quality report
 *.out
+
+# legacy
+go.mod
+go.sum
