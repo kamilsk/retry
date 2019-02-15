@@ -9,6 +9,7 @@ go:
 - 1.8.x
 - 1.9.x
 - 1.10.x
+- 1.11.x
 
 matrix:
   allow_failures:
@@ -25,7 +26,7 @@ script:
 
 after_success:
 - echo $TRAVIS_GO_VERSION ":" $TRAVIS_TAG
-- if [[ $TRAVIS_GO_VERSION == 1.10* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
+- if [[ $TRAVIS_GO_VERSION == 1.11* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
