@@ -4,9 +4,6 @@
 
 [![Awesome][icon_awesome]][awesome]
 [![Patreon][icon_patreon]][support]
-[![Build Status][icon_build]][build]
-[![Code Coverage][icon_coverage]][quality]
-[![Code Quality][icon_quality]][quality]
 [![GoDoc][icon_docs]][docs]
 [![Research][icon_research]][research]
 [![License][icon_license]][license]

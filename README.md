@@ -4,9 +4,6 @@
 
 [![Awesome][icon_awesome]][awesome]
 [![Patreon][icon_patreon]][support]
-[![Build Status][icon_build]][build]
-[![Code Coverage][icon_coverage]][quality]
-[![Code Quality][icon_quality]][quality]
 [![GoDoc][icon_docs]][docs]
 [![Research][icon_research]][research]
 [![License][icon_license]][license]
@@ -19,14 +16,14 @@ The **[master][legacy]** is a feature frozen branch for versions _3.3.x_ and no 
 $ dep ensure -add github.com/kamilsk/retry@3.3.2
 ```
 
-The **[v3][]** branch is a continuation of the **master** branch for versions _v3.4.y_
+The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions _v3.4.x_
 to better integration with [Go Modules][gomod].
 
 ```bash
 $ go get -u github.com/kamilsk/retry/v3@v3.4.3
 ```
 
-The **v4** branch is an actual development branch with many [features][v4_features].
+The **[v4][]** branch is an actual development branch.
 
 ```bash
 $ go get -u github.com/kamilsk/retry/v4
@@ -199,7 +196,7 @@ made with ❤️ by [OctoLab][octolab]
 [research]:        https://github.com/kamilsk/go-research/tree/master/projects/retry
 [legacy]:          https://github.com/kamilsk/retry/tree/master
 [v3]:              https://github.com/kamilsk/retry/tree/v3
-[v4_features]:     https://github.com/kamilsk/retry/projects/4
+[v4]:              https://github.com/kamilsk/retry/projects/4
 
 [egg]:             https://github.com/kamilsk/egg
 [gomod]:           https://github.com/golang/go/wiki/Modules
