@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kamilsk/retry"
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v4"
+	"github.com/kamilsk/retry/v4/strategy"
 )
 
 type drv struct {

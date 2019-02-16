@@ -15,7 +15,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
-	"github.com/kamilsk/retry"
+	"github.com/kamilsk/retry/v4"
 	"github.com/pkg/errors"
 )
 

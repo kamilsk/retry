@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kamilsk/retry/backoff"
-	"github.com/kamilsk/retry/jitter"
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v4/backoff"
+	"github.com/kamilsk/retry/v4/jitter"
+	"github.com/kamilsk/retry/v4/strategy"
 )
 
 func init() {

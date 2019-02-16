@@ -3,7 +3,7 @@
 // that can be found in the LICENSE file.
 
 // Package classifier provides a way to classify an occurred error.
-package classifier // import "github.com/kamilsk/retry/classifier"
+package classifier // import "github.com/kamilsk/retry/v4/classifier"
 
 // Copyright © 2014 Evan Huus (eapache)
 

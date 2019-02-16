@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v4/strategy"
 	"github.com/stretchr/testify/assert"
 )
 

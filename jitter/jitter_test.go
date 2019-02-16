@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/jitter"
+	"github.com/kamilsk/retry/v4/jitter"
 )
 
 func TestFull(t *testing.T) {

@@ -1,1 +1,1 @@
-module github.com/kamilsk/retry
+module github.com/kamilsk/retry/v4

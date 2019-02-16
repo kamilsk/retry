@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/kamilsk/retry/classifier"
+	"github.com/kamilsk/retry/v4/classifier"
 )
 
 func TestWhitelistClassifier_Classify(t *testing.T) {

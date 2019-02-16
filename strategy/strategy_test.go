@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v4/strategy"
 )
 
 // timeMarginOfError represents the acceptable amount of time that may pass for
