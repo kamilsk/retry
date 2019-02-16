@@ -35,7 +35,7 @@ func WithDeadline(deadline time.Time) <-chan struct{} {
 		return ch
 	}
 	go func() {
-		<-time.After(deadline.Sub(time.Now()))
+		<-time.After(deadline.Sub(time.Now())) // nolint: gosimple
 		close(ch)
 	}()
 	return ch
