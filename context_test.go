@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/v4"
+	. "github.com/kamilsk/retry/v4"
 )
 
 func TestWithContext(t *testing.T) {
@@ -26,7 +26,7 @@ func TestWithContext(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 
 			start := time.Now()
-			<-retry.WithContext(context.TODO(), tc.deadline()).Done()
+			<-WithContext(context.TODO(), tc.deadline()).Done()
 			end := time.Now()
 
 			if !end.After(start.Add(tc.expected)) {

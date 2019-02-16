@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/v4/backoff"
+	. "github.com/kamilsk/retry/v4/backoff"
 )
 
 func TestIncremental(t *testing.T) {
 	const duration = time.Millisecond
 	const increment = time.Nanosecond
 
-	algorithm := backoff.Incremental(duration, increment)
+	algorithm := Incremental(duration, increment)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -27,7 +27,7 @@ func TestIncremental(t *testing.T) {
 func TestLinear(t *testing.T) {
 	const duration = time.Millisecond
 
-	algorithm := backoff.Linear(duration)
+	algorithm := Linear(duration)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -43,7 +43,7 @@ func TestExponential(t *testing.T) {
 	const duration = time.Second
 	const base = 3
 
-	algorithm := backoff.Exponential(duration, base)
+	algorithm := Exponential(duration, base)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -58,7 +58,7 @@ func TestExponential(t *testing.T) {
 func TestBinaryExponential(t *testing.T) {
 	const duration = time.Second
 
-	algorithm := backoff.BinaryExponential(duration)
+	algorithm := BinaryExponential(duration)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)
@@ -74,7 +74,7 @@ func TestFibonacci(t *testing.T) {
 	const duration = time.Millisecond
 	sequence := []uint{0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233}
 
-	algorithm := backoff.Fibonacci(duration)
+	algorithm := Fibonacci(duration)
 
 	for i := uint(0); i < 10; i++ {
 		result := algorithm(i)

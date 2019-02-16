@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/v4/strategy"
+	. "github.com/kamilsk/retry/v4/strategy"
 )
 
 // timeMarginOfError represents the acceptable amount of time that may pass for
@@ -13,7 +13,7 @@ import (
 const timeMarginOfError = time.Millisecond
 
 func TestInfinite(t *testing.T) {
-	policy := strategy.Infinite()
+	policy := Infinite()
 
 	if !policy(0, nil) {
 		t.Error("strategy expected to return true")
@@ -27,7 +27,7 @@ func TestInfinite(t *testing.T) {
 func TestLimit(t *testing.T) {
 	const attemptLimit = 3
 
-	policy := strategy.Limit(attemptLimit)
+	policy := Limit(attemptLimit)
 
 	if !policy(0, nil) {
 		t.Error("strategy expected to return true")
@@ -49,7 +49,7 @@ func TestLimit(t *testing.T) {
 func TestDelay(t *testing.T) {
 	const delayDuration = time.Duration(10 * timeMarginOfError)
 
-	policy := strategy.Delay(delayDuration)
+	policy := Delay(delayDuration)
 
 	if now := time.Now(); !policy(0, nil) || delayDuration > time.Since(now) {
 		t.Errorf("strategy expected to return true in %s", time.Duration(delayDuration))
@@ -61,7 +61,7 @@ func TestDelay(t *testing.T) {
 }
 
 func TestWait(t *testing.T) {
-	policy := strategy.Wait()
+	policy := Wait()
 
 	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
@@ -75,7 +75,7 @@ func TestWait(t *testing.T) {
 func TestWaitWithDuration(t *testing.T) {
 	const waitDuration = time.Duration(10 * timeMarginOfError)
 
-	policy := strategy.Wait(waitDuration)
+	policy := Wait(waitDuration)
 
 	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
@@ -94,7 +94,7 @@ func TestWaitWithMultipleDurations(t *testing.T) {
 		time.Duration(40 * timeMarginOfError),
 	}
 
-	policy := strategy.Wait(waitDurations...)
+	policy := Wait(waitDurations...)
 
 	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
@@ -121,7 +121,7 @@ func TestBackoff(t *testing.T) {
 		return backoffDuration - (algorithmDurationBase * time.Duration(attempt))
 	}
 
-	policy := strategy.Backoff(algorithm)
+	policy := Backoff(algorithm)
 
 	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")
@@ -148,7 +148,7 @@ func TestBackoffWithJitter(t *testing.T) {
 		return duration - time.Duration(10*timeMarginOfError)
 	}
 
-	policy := strategy.BackoffWithJitter(algorithm, transformation)
+	policy := BackoffWithJitter(algorithm, transformation)
 
 	if now := time.Now(); !policy(0, nil) || timeMarginOfError < time.Since(now) {
 		t.Error("strategy expected to return true in ~0 time")

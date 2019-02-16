@@ -1,5 +1,3 @@
-//+build go1.11
-
 package main
 
 import (
@@ -51,13 +49,7 @@ type tool struct {
 // Run executes the tool logic.
 func (app tool) Run() {
 	var (
-		result, err = parse(app.Stderr, app.Args[0], app.Args[1:]...)
-		format      = func() string {
-			if result.Debug {
-				return "an error occurred: %+v\n"
-			}
-			return "an error occurred: %v\n"
-		}()
+		result, err    = parse(app.Stderr, app.Args[0], app.Args[1:]...)
 		start, finish  time.Time
 		shutdown, spin = app.Shutdown, spinner.New(spinner.CharSets[17], 100*time.Millisecond)
 		stderr, stdout = bytes.NewBuffer(nil), bytes.NewBuffer(nil)
@@ -65,7 +57,7 @@ func (app tool) Run() {
 	)
 	if err != nil {
 		if err != flag.ErrHelp {
-			_, _ = color.New(color.FgRed).Fprintf(app.Stderr, format, err)
+			_, _ = color.New(color.FgRed).Fprintf(app.Stderr, "an error occurred: %v\n", err)
 			app.Shutdown(failed)
 			return
 		}
@@ -97,7 +89,7 @@ func (app tool) Run() {
 				Stderr     string
 			}{
 				Name:    command,
-				Error:   fmt.Sprintf(format, err),
+				Error:   fmt.Sprintf("an error occurred: %v\n", err),
 				Start:   start.Format("2006-01-02 15:04:05.99"),
 				End:     finish.Format("2006-01-02 15:04:05.99"),
 				Elapsed: finish.Sub(start),
@@ -115,7 +107,8 @@ func (app tool) Run() {
 			start = time.Now()
 		} else {
 			_ = spin.Color("red")
-			_, _ = color.New(color.FgYellow).Fprintf(stderr, "#%d attempt at %s... \n", attempt+1, time.Now().Sub(start))
+			_, _ = color.New(color.FgYellow).Fprintf(stderr, "#%d attempt at %s... \n", attempt+1,
+				time.Since(start))
 		}
 		cmd := exec.Command(result.Args[0], result.Args[1:]...)
 		cmd.Stderr, cmd.Stdout = stderr, stdout
@@ -130,5 +123,4 @@ func (app tool) Run() {
 		return
 	}
 	app.Shutdown(success)
-	return
 }

@@ -4,17 +4,17 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/kamilsk/retry/v4/classifier"
+	. "github.com/kamilsk/retry/v4/classifier"
 )
 
 func TestDefaultClassifier_Classify(t *testing.T) {
-	defaultClassifier := classifier.DefaultClassifier{}
+	defaultClassifier := DefaultClassifier{}
 
-	if defaultClassifier.Classify(nil) != classifier.Succeed {
+	if defaultClassifier.Classify(nil) != Succeed {
 		t.Error("succeed is expected")
 	}
 
-	if defaultClassifier.Classify(errors.New("error")) != classifier.Retry {
+	if defaultClassifier.Classify(errors.New("error")) != Retry {
 		t.Error("retry is expected")
 	}
 }

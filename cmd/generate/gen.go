@@ -24,9 +24,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kamilsk/retry/backoff"
-	"github.com/kamilsk/retry/jitter"
-	"github.com/kamilsk/retry/strategy"
+	"github.com/kamilsk/retry/v4/backoff"
+	"github.com/kamilsk/retry/v4/jitter"
+	"github.com/kamilsk/retry/v4/strategy"
 )
 
 func init() {
@@ -318,10 +318,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer func () { _ = f.Close() }()
-	_ = t.Execute(f, struct {
-		BuildTags []string
-	}{
-		BuildTags: []string{"go1.11"},
-	})
+	defer func() { _ = f.Close() }()
+	_ = t.Execute(f, nil)
 }
