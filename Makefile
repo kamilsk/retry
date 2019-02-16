@@ -28,32 +28,31 @@ test-with-coverage-formatted: #| Runs tests with coverage and formats the result
 
 .PHONY: test-with-coverage-profile
 test-with-coverage-profile:   #| Runs tests with coverage and collects the result.
-                              #| Accepts: ARGS, OPEN_BROWSER.
-                              #| Uses: GO_TEST_COVERAGE_MODE, GO_TEST_COVERAGE_FILENAME, PACKAGES.
-	echo 'mode: ${GO_TEST_COVERAGE_MODE}' > '${GO_TEST_COVERAGE_FILENAME}'
+                              #| Accepts: ARGS.
+                              #| Uses: PACKAGES.
+	echo 'mode: count' > cover.out
 	for package in $$($(PACKAGES)); do \
-	    go test -covermode '${GO_TEST_COVERAGE_MODE}' \
+	    go test -covermode count \
 	            -coverprofile "coverage_$${package##*/}.out" \
 	            $(strip $(ARGS)) "$${package}"; \
 	    if [ -f "coverage_$${package##*/}.out" ]; then \
-	        sed '1d' "coverage_$${package##*/}.out" >> '${GO_TEST_COVERAGE_FILENAME}'; \
+	        sed 1d "coverage_$${package##*/}.out" >> cover.out; \
 	        rm "coverage_$${package##*/}.out"; \
 	    fi \
 	done
 
 .PHONY: test-example
-test-example: GO_TEST_COVERAGE_FILENAME = coverage_example.out
 test-example:                 #| Runs example tests with coverage and collects the result.
-                              #| Accepts: ARGS, OPEN_BROWSER.
-                              #| Uses: GO_TEST_COVERAGE_MODE, GO_TEST_COVERAGE_FILENAME, PACKAGES.
-	echo 'mode: ${GO_TEST_COVERAGE_MODE}' > '${GO_TEST_COVERAGE_FILENAME}'
+                              #| Accepts: ARGS.
+                              #| Uses: PACKAGES.
+	echo 'mode: count' > coverage_example.out
 	for package in $$($(PACKAGES)); do \
 	    go test -v -run=Example \
-	            -covermode '${GO_TEST_COVERAGE_MODE}' \
+	            -covermode count \
 	            -coverprofile "coverage_example_$${package##*/}.out" \
 	            $(strip $(ARGS)) "$${package}"; \
 	    if [ -f "coverage_$${package##*/}.out" ]; then \
-	        sed '1d' "coverage_example_$${package##*/}.out" >> '${GO_TEST_COVERAGE_FILENAME}'; \
+	        sed 1d "coverage_example_$${package##*/}.out" >> coverage_example.out; \
 	        rm "coverage_example_$${package##*/}.out"; \
 	    fi \
 	done
