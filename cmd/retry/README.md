@@ -1,14 +1,15 @@
-> # cmd/retry [![Tweet][icon_twitter]][twitter_publish]
-> [![Analytics][analytics_pixel]][page_promo]
+> # ♻️ cmd/retry
+>
 > `retry` provides functionality to repeat terminal commands.
 
-[![Awesome][icon_awesome]](https://github.com/avelino/awesome-go#utilities)
-[![Patreon][icon_patreon]](https://www.patreon.com/octolab)
-[![Build Status][icon_build]][page_build]
-[![Code Coverage][icon_coverage]][page_quality]
-[![Code Quality][icon_quality]][page_quality]
-[![GoDoc][icon_docs]][page_docs]
-[![License][icon_license]](../../LICENSE)
+[![Awesome][icon_awesome]][awesome]
+[![Patreon][icon_patreon]][support]
+[![Build Status][icon_build]][build]
+[![Code Coverage][icon_coverage]][quality]
+[![Code Quality][icon_quality]][quality]
+[![GoDoc][icon_docs]][docs]
+[![Research][icon_research]][research]
+[![License][icon_license]][license]
 
 ## Concept
 
@@ -148,7 +149,6 @@ $ brew install kamilsk/tap/retry
 $ export REQ_VER=3.0.0  # all available versions are on https://github.com/kamilsk/retry/releases
 $ export REQ_OS=Linux   # macOS and Windows are also available
 $ export REQ_ARCH=64bit # 32bit is also available
-$ # wget -q -O retry.tar.gz
 $ curl -sL -o retry.tar.gz \
        https://github.com/kamilsk/retry/releases/download/"${REQ_VER}/retry_${REQ_VER}_${REQ_OS}-${REQ_ARCH}".tar.gz
 $ tar xf retry.tar.gz -C "${GOPATH}"/bin/ && rm retry.tar.gz
@@ -162,12 +162,9 @@ $ # or use mirror
 $ egg bitbucket.org/kamilsk/retry@^3.0.0 -- make test install
 ```
 
-> [egg](https://github.com/kamilsk/egg)<sup id="anchor-egg">[1](#egg)</sup> is an `extended go get`.
+> [egg][]<sup id="anchor-egg">[1](#egg)</sup> is an `extended go get`.
 
 ### Bash and Zsh completions
-
-You can find completion files [here](https://github.com/kamilsk/shared/tree/dotfiles/bash_completion.d) or
-build your own using these commands
 
 ```bash
 $ retry completion bash > /path/to/bash_completion.d/retry.sh
@@ -178,30 +175,45 @@ $ retry completion zsh  > /path/to/zsh-completions/_retry.zsh
 
 ---
 
-[![Gitter][icon_gitter]](https://gitter.im/kamilsk/retry)
-[![@kamilsk][icon_tw_author]](https://twitter.com/ikamilsk)
-[![@octolab][icon_tw_sponsor]](https://twitter.com/octolab_inc)
+[![Gitter][icon_gitter]][gitter]
+[![@kamilsk][icon_tw_author]][author]
+[![@octolab][icon_tw_sponsor]][sponsor]
 
-made with ❤️ by [OctoLab](https://www.octolab.org/)
+made with ❤️ by [OctoLab][octolab]
 
-[analytics_pixel]: https://ga-beacon.appspot.com/UA-109817251-1/retry/cmd/dev?pixel
+[awesome]:         https://github.com/avelino/awesome-go#utilities
+[build]:           https://travis-ci.org/kamilsk/retry
+[docs]:            https://godoc.org/github.com/kamilsk/retry
+[gitter]:          https://gitter.im/kamilsk/retry
+[license]:         LICENSE
+[promo]:           https://github.com/kamilsk/retry
+[quality]:         https://scrutinizer-ci.com/g/kamilsk/retry/?branch=v3
+[research]:        https://github.com/kamilsk/go-research/tree/master/projects/retry
+[v3]:              https://github.com/kamilsk/retry/tree/v3
+[v4]:              https://github.com/kamilsk/retry/tree/v4
+[v4_features]:     https://github.com/kamilsk/retry/projects/4
+
+[egg]:             https://github.com/kamilsk/egg
+[gomod]:           https://github.com/golang/go/wiki/Modules
+[semver]:          https://semver.org/
+
+[author]:          https://twitter.com/ikamilsk
+[octolab]:         https://www.octolab.org/
+[sponsor]:         https://twitter.com/octolab_inc
+[support]:         https://www.patreon.com/octolab
+
+[analytics]:       https://ga-beacon.appspot.com/UA-109817251-1/retry/v3?pixel
+[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
 
 [icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
-[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=dev
-[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=dev
+[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=v3
+[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=v3
 [icon_docs]:       https://godoc.org/github.com/kamilsk/retry?status.svg
 [icon_gitter]:     https://badges.gitter.im/Join%20Chat.svg
 [icon_license]:    https://img.shields.io/badge/license-MIT-blue.svg
 [icon_patreon]:    https://img.shields.io/badge/patreon-donate-orange.svg
-[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=dev
+[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=v3
 [icon_research]:   https://img.shields.io/badge/research-in%20progress-yellow.svg
 [icon_tw_author]:  https://img.shields.io/badge/author-%40kamilsk-blue.svg
 [icon_tw_sponsor]: https://img.shields.io/badge/sponsor-%40octolab-blue.svg
 [icon_twitter]:    https://img.shields.io/twitter/url/http/shields.io.svg?style=social
-
-[page_build]:      https://travis-ci.org/kamilsk/retry
-[page_docs]:       https://godoc.org/github.com/kamilsk/retry
-[page_promo]:      https://github.com/kamilsk/retry
-[page_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/?branch=dev
-
-[twitter_publish]: https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter

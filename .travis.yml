@@ -9,23 +9,20 @@ go:
 - 1.8.x
 - 1.9.x
 - 1.10.x
-
-matrix:
-  allow_failures:
-  - go: master
-  fast_finish: true
+- 1.11.x
 
 sudo: false
 
 before_install:
 - export GO15VENDOREXPERIMENT=1
+- export GO111MODULE=on
 
 script:
 - make test ARGS='-timeout=1s'
 
 after_success:
 - echo $TRAVIS_GO_VERSION ":" $TRAVIS_TAG
-- if [[ $TRAVIS_GO_VERSION == 1.10* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
+- if [[ $TRAVIS_GO_VERSION == 1.11* ]] && [ -n "$TRAVIS_TAG" ]; then curl -sL https://git.io/goreleaser | bash; fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
