@@ -1,5 +1,5 @@
 PACKAGES := go list ./... | grep -v vendor | grep -v ^_
-SHELL    ?= /bin/bash -euo pipefail
+SHELL    := /bin/bash -euo pipefail
 
 
 .PHONY: test
