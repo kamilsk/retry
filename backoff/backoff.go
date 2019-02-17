@@ -55,11 +55,12 @@ func Fibonacci(factor time.Duration) Algorithm {
 // fibonacciNumber calculates the Fibonacci sequence number for the given
 // sequence position.
 func fibonacciNumber(n uint) uint {
-	if 0 == n {
+	if n == 0 {
 		return 0
-	} else if 1 == n {
-		return 1
-	} else {
-		return fibonacciNumber(n-1) + fibonacciNumber(n-2)
 	}
+	var a, b uint = 0, 1
+	for i := uint(1); i < n; i++ {
+		a, b = b, a+b
+	}
+	return b
 }

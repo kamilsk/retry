@@ -84,4 +84,8 @@ func TestFibonacci(t *testing.T) {
 			t.Errorf("algorithm expected to return a %s duration, but received %s instead", expected, result)
 		}
 	}
+
+	t.Run("performance", func(t *testing.T) {
+		_ = Fibonacci(time.Millisecond)(50)
+	})
 }
