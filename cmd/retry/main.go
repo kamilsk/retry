@@ -13,6 +13,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	"github.com/kamilsk/breaker"
 	"github.com/kamilsk/retry/v4"
 	"github.com/pkg/errors"
 )
@@ -114,11 +115,12 @@ func (app tool) Run() {
 		cmd.Stderr, cmd.Stdout = stderr, stdout
 		return errors.WithStack(cmd.Run())
 	}
-	deadline := retry.Multiplex(
-		retry.WithTimeout(result.Timeout),
-		retry.WithSignal(os.Interrupt),
+	interrupter := breaker.MultiplexTwo(
+		breaker.BreakByTimeout(result.Timeout),
+		breaker.BreakBySignal(os.Interrupt),
 	)
-	if err = retry.Retry(deadline, action, result.Strategies...); err != nil {
+
+	if err = retry.Retry(interrupter, action, result.Strategies...); err != nil {
 		app.Shutdown(failed)
 		return
 	}

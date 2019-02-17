@@ -27,7 +27,7 @@ type Command struct {
 	Debug      bool
 	Notify     bool
 	Args       []string
-	Strategies []strategy.Strategy
+	Strategies []func(attempt uint, err error) bool
 }
 
 var (
@@ -94,8 +94,8 @@ func parse(output io.Writer, binary string, arguments ...string) (Command, error
 	return cmd, nil
 }
 
-func handle(flags []*flag.Flag) ([]strategy.Strategy, error) {
-	strategies := make([]strategy.Strategy, 0, len(flags))
+func handle(flags []*flag.Flag) ([]func(attempt uint, err error) bool, error) {
+	strategies := make([]func(attempt uint, err error) bool, 0, len(flags))
 
 	for _, f := range flags {
 		if c, ok := compliance[f.Name]; ok {
