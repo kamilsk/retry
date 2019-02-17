@@ -1,7 +1,6 @@
 package strategy_test
 
 import (
-	"math"
 	"testing"
 	"time"
 
@@ -11,18 +10,6 @@ import (
 // timeMarginOfError represents the acceptable amount of time that may pass for
 // a time-based (sleep) unit before considering invalid.
 const timeMarginOfError = time.Millisecond
-
-func TestInfinite(t *testing.T) {
-	policy := Infinite()
-
-	if !policy(0, nil) {
-		t.Error("strategy expected to return true")
-	}
-
-	if !policy(math.MaxUint32, nil) {
-		t.Error("strategy expected to return true")
-	}
-}
 
 func TestLimit(t *testing.T) {
 	const attemptLimit = 3
