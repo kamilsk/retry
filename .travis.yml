@@ -10,7 +10,7 @@ go_import_path: github.com/kamilsk/retry/v4
 sudo: false
 
 script:
-- make test ARGS='-timeout=1s'
+- make test
 
 after_success:
 - echo $TRAVIS_GO_VERSION ":" $TRAVIS_TAG
