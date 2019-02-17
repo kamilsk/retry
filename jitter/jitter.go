@@ -1,10 +1,4 @@
-// Copyright (c) 2017 OctoLab. All rights reserved.
-// Use of this source code is governed by the MIT license
-// that can be found in the LICENSE file.
-
 // Package jitter provides methods of transforming durations.
-//
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package jitter // import "github.com/kamilsk/retry/v4/jitter"
 
 import (

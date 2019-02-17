@@ -1,99 +1,267 @@
 package retry_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
 
 	. "github.com/kamilsk/retry/v4"
 	. "github.com/kamilsk/retry/v4/strategy"
+	"github.com/stretchr/testify/assert"
 )
 
+var delta = 10 * time.Millisecond
+
 func TestRetry(t *testing.T) {
-	action := func(attempt uint) error {
-		return nil
+	type Assert struct {
+		Attempts uint
+		Error    func(assert.TestingT, error, ...interface{}) bool
 	}
 
-	err := Retry(nil, action)
-
-	if nil != err {
-		t.Error("expected a nil error")
+	tests := []struct {
+		name       string
+		breaker    BreakCloser
+		strategies []func(attempt uint, err error) bool
+		error      error
+		assert     Assert
+	}{
+		{
+			"zero iterations",
+			newClosedBreaker(),
+			[]func(attempt uint, err error) bool{Delay(delta), Limit(10000)},
+			errors.New("zero iterations"),
+			Assert{0, func(t assert.TestingT, err error, _ ...interface{}) bool {
+				return assert.Error(t, err) && assert.True(t, IsInterrupted(err))
+			}},
+		},
+		{
+			"one iteration",
+			nil,
+			nil,
+			nil,
+			Assert{1, assert.NoError},
+		},
+		{
+			"two iterations",
+			nil,
+			[]func(attempt uint, err error) bool{Limit(2)},
+			errors.New("two iterations"),
+			Assert{2, assert.Error},
+		},
+		{
+			"three iterations",
+			newBreaker(),
+			[]func(attempt uint, err error) bool{Limit(3)},
+			errors.New("three iterations"),
+			Assert{3, func(t assert.TestingT, err error, _ ...interface{}) bool {
+				return assert.EqualError(t, err, "three iterations")
+			}},
+		},
 	}
-
-	if _, is := IsRecovered(err); is {
-		t.Error("recovered error is not expected")
+	for _, test := range tests {
+		tc := test
+		t.Run(test.name, func(t *testing.T) {
+			var total uint
+			action := func(attempt uint) error {
+				total = attempt + 1
+				return tc.error
+			}
+			err := Retry(tc.breaker, action, tc.strategies...)
+			tc.assert.Error(t, err)
+			_, is := IsRecovered(err)
+			assert.False(t, is)
+			assert.Equal(t, tc.assert.Attempts, total)
+		})
 	}
-
-	if IsTimeout(err) {
-		t.Error("timeout error is not expected")
-	}
+	t.Run("unexpected panic", func(t *testing.T) {
+		err := Retry(newBreaker(), func(uint) error { panic("Catch Me If You Can") })
+		assert.Error(t, err)
+		cause, is := IsRecovered(err)
+		assert.True(t, is)
+		assert.Equal(t, "Catch Me If You Can", cause)
+	})
 }
 
-func TestRetry_PanickedAction(t *testing.T) {
-	action := func(attempt uint) error {
-		panic("catch me if you can")
+func TestTry(t *testing.T) {
+	type Assert struct {
+		Attempts uint
+		Error    func(assert.TestingT, error, ...interface{}) bool
 	}
 
-	err := Retry(nil, action, Infinite())
-
-	if nil == err {
-		t.Error("expected an error")
+	tests := []struct {
+		name       string
+		breaker    Breaker
+		strategies []func(attempt uint, err error) bool
+		error      error
+		assert     Assert
+	}{
+		{
+			"zero iterations",
+			newClosedBreaker(),
+			[]func(attempt uint, err error) bool{Delay(delta), Limit(10000)},
+			errors.New("zero iterations"),
+			Assert{0, func(t assert.TestingT, err error, _ ...interface{}) bool {
+				return assert.Error(t, err) && assert.True(t, IsInterrupted(err))
+			}},
+		},
+		{
+			"one iteration",
+			nil,
+			nil,
+			nil,
+			Assert{1, assert.NoError},
+		},
+		{
+			"two iterations",
+			nil,
+			[]func(attempt uint, err error) bool{Limit(2)},
+			errors.New("two iterations"),
+			Assert{2, assert.Error},
+		},
+		{
+			"three iterations",
+			newPanicBreaker(),
+			[]func(attempt uint, err error) bool{Limit(3)},
+			errors.New("three iterations"),
+			Assert{3, func(t assert.TestingT, err error, _ ...interface{}) bool {
+				return assert.EqualError(t, err, "three iterations")
+			}},
+		},
 	}
-
-	if expected, obtained := "unhandled action's panic", err.Error(); expected != obtained {
-		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
+	for _, test := range tests {
+		tc := test
+		t.Run(test.name, func(t *testing.T) {
+			var total uint
+			action := func(attempt uint) error {
+				total = attempt + 1
+				return tc.error
+			}
+			err := Try(tc.breaker, action, tc.strategies...)
+			tc.assert.Error(t, err)
+			_, is := IsRecovered(err)
+			assert.False(t, is)
+			assert.Equal(t, tc.assert.Attempts, total)
+		})
 	}
-
-	if r, is := IsRecovered(err); !is || r.(string) != "catch me if you can" {
-		t.Errorf("expected recovered error; obtained: %v", r)
-	}
+	t.Run("unexpected panic", func(t *testing.T) {
+		err := Try(newBreaker(), func(uint) error { panic("Catch Me If You Can") })
+		assert.Error(t, err)
+		cause, is := IsRecovered(err)
+		assert.True(t, is)
+		assert.Equal(t, "Catch Me If You Can", cause)
+	})
 }
 
-func TestRetry_RetriesUntilNoErrorReturned(t *testing.T) {
-	const errorUntilAttemptNumber = 5
-
-	var attemptsMade uint
-
-	action := func(attempt uint) error {
-		attemptsMade = attempt
-
-		if errorUntilAttemptNumber == attempt {
-			return nil
-		}
-
-		return errors.New("error")
+func TestTryContext(t *testing.T) {
+	type Assert struct {
+		Attempts uint
+		Error    func(assert.TestingT, error, ...interface{}) bool
 	}
 
-	err := Retry(nil, action, Infinite())
-
-	if nil != err {
-		t.Error("expected a nil error")
+	tests := []struct {
+		name       string
+		ctx        context.Context
+		strategies []func(attempt uint, err error) bool
+		error      error
+		assert     Assert
+	}{
+		{
+			"zero iterations",
+			func() context.Context {
+				ctx, cancel := context.WithCancel(context.Background())
+				cancel()
+				return ctx
+			}(),
+			[]func(attempt uint, err error) bool{Delay(delta), Limit(10000)},
+			errors.New("zero iterations"),
+			Assert{0, func(t assert.TestingT, err error, _ ...interface{}) bool {
+				return assert.Error(t, err) && assert.True(t, IsInterrupted(err))
+			}},
+		},
+		{
+			"one iteration",
+			nil,
+			nil,
+			nil,
+			Assert{1, assert.NoError},
+		},
+		{
+			"two iterations",
+			nil,
+			[]func(attempt uint, err error) bool{Limit(2)},
+			errors.New("two iterations"),
+			Assert{2, assert.Error},
+		},
+		{
+			"three iterations",
+			context.Background(),
+			[]func(attempt uint, err error) bool{Limit(3)},
+			errors.New("three iterations"),
+			Assert{3, func(t assert.TestingT, err error, _ ...interface{}) bool {
+				return assert.EqualError(t, err, "three iterations")
+			}},
+		},
 	}
-
-	if errorUntilAttemptNumber != attemptsMade {
-		t.Errorf(
-			"expected %d attempts to be made, but %d were made instead",
-			errorUntilAttemptNumber, attemptsMade)
+	for _, test := range tests {
+		tc := test
+		t.Run(test.name, func(t *testing.T) {
+			var total uint
+			action := func(ctx context.Context, attempt uint) error {
+				assert.Equal(t, tc.ctx, ctx)
+				total = attempt + 1
+				return tc.error
+			}
+			err := TryContext(tc.ctx, action, tc.strategies...)
+			tc.assert.Error(t, err)
+			_, is := IsRecovered(err)
+			assert.False(t, is)
+			assert.Equal(t, tc.assert.Attempts, total)
+		})
 	}
+	t.Run("unexpected panic", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		err := TryContext(ctx, func(context.Context, uint) error { panic("Catch Me If You Can") })
+		assert.Error(t, err)
+		cause, is := IsRecovered(err)
+		assert.True(t, is)
+		assert.Equal(t, "Catch Me If You Can", cause)
+		cancel()
+	})
 }
 
-func TestRetry_RetriesWithAlreadyDoneContext(t *testing.T) {
-	deadline, expected := WithTimeout(0), "operation timeout"
-
-	if err := Retry(deadline, func(uint) error { return nil }, Infinite()); !IsTimeout(err) {
-		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
-	}
+func newBreaker() *contextBreaker {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &contextBreaker{ctx, cancel}
 }
 
-func TestRetry_RetriesWithDeadline(t *testing.T) {
-	deadline, expected := WithTimeout(100*time.Millisecond), "operation timeout"
+func newClosedBreaker() *contextBreaker {
+	breaker := newBreaker()
+	breaker.Close()
+	return breaker
+}
 
-	action := func(uint) error {
-		time.Sleep(110 * time.Millisecond)
-		return nil
-	}
+func newPanicBreaker() BreakCloser {
+	return &panicBreaker{newBreaker()}
+}
 
-	if err := Retry(deadline, action, Infinite()); !IsTimeout(err) {
-		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
-	}
+type contextBreaker struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+}
+
+func (breaker *contextBreaker) Done() <-chan struct{} {
+	return breaker.ctx.Done()
+}
+
+func (breaker *contextBreaker) Close() {
+	breaker.cancel()
+}
+
+type panicBreaker struct {
+	*contextBreaker
+}
+
+func (*panicBreaker) Close() {
+	panic("unexpected method call")
 }

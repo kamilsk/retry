@@ -1,57 +1,76 @@
-// Copyright (c) 2017 OctoLab. All rights reserved.
-// Use of this source code is governed by the MIT license
-// that can be found in the LICENSE file.
-
 // Package retry provides functional mechanism based on channels
 // to perform actions repetitively until successful.
-//
-// This package is an extended version of https://godoc.org/github.com/Rican7/retry.
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package retry // import "github.com/kamilsk/retry/v4"
 
 import (
+	"context"
 	"errors"
 	"sync/atomic"
-
-	"github.com/kamilsk/retry/v4/strategy"
 )
 
-// Action defines a callable function that package retry can handle.
-type Action func(attempt uint) error
-
-// Retry takes an action and performs it, repetitively, until successful.
+// Retry takes action and performs it, repetitively, until successful.
+// When it is done it releases resources associated with the Breaker.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
-func Retry(deadline <-chan struct{}, action Action, strategies ...strategy.Strategy) error {
-	if len(strategies) == 0 {
-		return action(0)
+func Retry(
+	breaker BreakCloser,
+	action func(attempt uint) error,
+	strategies ...func(attempt uint, err error) bool,
+) error {
+	if breaker != nil {
+		defer breaker.Close()
 	}
+	return retry(breaker, action, strategies...)
+}
 
-	var (
-		err       error
-		interrupt uint32
-	)
-	done := make(chan struct{})
+// Try takes action and performs it, repetitively, until successful.
+//
+// Optionally, strategies may be passed that assess whether or not an attempt
+// should be made.
+func Try(
+	breaker Breaker,
+	action func(attempt uint) error,
+	strategies ...func(attempt uint, err error) bool,
+) error {
+	return retry(breaker, action, strategies...)
+}
 
-	go func() {
-		defer close(done)
-		defer panicHandler{}.recover(&err)
+// TryContext takes action and performs it, repetitively, until successful.
+// It uses the Context as a Breaker to prevent unnecessary action execution.
+//
+// Optionally, strategies may be passed that assess whether or not an attempt
+// should be made.
+func TryContext(
+	ctx context.Context,
+	action func(ctx context.Context, attempt uint) error,
+	strategies ...func(attempt uint, err error) bool,
+) error {
+	return retry(ctx, currying(action, ctx), strategies...)
+}
 
-		for attempt := uint(0); (attempt == 0 || err != nil) && shouldAttempt(attempt, err, strategies...) &&
-			!atomic.CompareAndSwapUint32(&interrupt, 1, 0); attempt++ {
+// A Breaker carries a cancellation signal to break an action execution.
+//
+// It is a subset of context.Context and github.com/kamilsk/breaker.Breaker.
+type Breaker interface {
+	// Done returns a channel that's closed when a cancellation signal occurred.
+	Done() <-chan struct{}
+}
 
-			err = action(attempt)
-		}
-	}()
+// A BreakCloser carries a cancellation signal to break an action execution
+// and can release resources associated with it.
+//
+// It is a subset of github.com/kamilsk/breaker.Breaker.
+type BreakCloser interface {
+	Breaker
+	// Close closes the Done channel and releases resources associated with it.
+	Close()
+}
 
-	select {
-	case <-deadline:
-		atomic.CompareAndSwapUint32(&interrupt, 0, 1)
-		return errTimeout
-	case <-done:
-		return err
-	}
+// IsInterrupted checks that the error is related to the Breaker interruption
+// on Retry call.
+func IsInterrupted(err error) bool {
+	return err == errInterrupted
 }
 
 // IsRecovered checks that the error is related to unhandled Action's panic
@@ -63,9 +82,67 @@ func IsRecovered(err error) (interface{}, bool) {
 	return nil, false
 }
 
-// IsTimeout checks that the error is related to the incident deadline on Retry call.
-func IsTimeout(err error) bool {
-	return err == errTimeout
+var (
+	errPanic       = errors.New("unhandled action's panic")
+	errInterrupted = errors.New("operation was interrupted")
+)
+
+func currying(action func(context.Context, uint) error, ctx context.Context) func(uint) error {
+	return func(attempt uint) error {
+		return action(ctx, attempt)
+	}
+}
+
+func retry(
+	breaker Breaker,
+	action func(attempt uint) error,
+	strategies ...func(attempt uint, err error) bool,
+) error {
+	if (breaker == nil || breaker.Done() == nil) && len(strategies) == 0 {
+		return action(0)
+	}
+	var (
+		interrupted  uint32
+		interruption <-chan struct{}
+	)
+	if breaker != nil {
+		interruption = breaker.Done()
+	}
+
+	done := make(chan error, 1)
+	go func() {
+		var err error
+
+		defer close(done)
+		defer func() { done <- err }()
+		defer panicHandler{}.recover(&err)
+
+		for attempt := uint(0); shouldAttempt(attempt, err, strategies...) &&
+			!atomic.CompareAndSwapUint32(&interrupted, 1, 0); attempt++ {
+
+			err = action(attempt)
+		}
+	}()
+
+	select {
+	case <-interruption:
+		atomic.CompareAndSwapUint32(&interrupted, 0, 1)
+		return errInterrupted
+	case err := <-done:
+		return err
+	}
+}
+
+// shouldAttempt evaluates the provided strategies with the given attempt to
+// determine if the Retry loop should make another attempt.
+func shouldAttempt(attempt uint, err error, strategies ...func(uint, error) bool) bool {
+	should := attempt == 0 || err != nil
+
+	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
+		should = should && strategies[i](attempt, err)
+	}
+
+	return should
 }
 
 type panicHandler struct {
@@ -77,21 +154,4 @@ func (panicHandler) recover(err *error) {
 	if r := recover(); r != nil {
 		*err = panicHandler{errPanic, r}
 	}
-}
-
-var (
-	errPanic   = errors.New("unhandled action's panic")
-	errTimeout = errors.New("operation timeout")
-)
-
-// shouldAttempt evaluates the provided strategies with the given attempt to
-// determine if the Retry loop should make another attempt.
-func shouldAttempt(attempt uint, err error, strategies ...strategy.Strategy) bool {
-	should := true
-
-	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-		should = should && strategies[i](attempt, err)
-	}
-
-	return should
 }

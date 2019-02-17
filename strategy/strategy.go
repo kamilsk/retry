@@ -1,10 +1,4 @@
-// Copyright (c) 2017 OctoLab. All rights reserved.
-// Use of this source code is governed by the MIT license
-// that can be found in the LICENSE file.
-
 // Package strategy provides a way to change the way that retry is performed.
-//
-// Copyright © 2016 Trevor N. Suarez (Rican7)
 package strategy // import "github.com/kamilsk/retry/v4/strategy"
 
 import (
