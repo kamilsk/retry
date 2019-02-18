@@ -29,7 +29,7 @@ The **[v4][]** branch is an actual development branch.
 $ go get -u github.com/kamilsk/retry/v4
 ```
 
-Version **v4.x.y** focus on integration with the 🚧 [breaker][] package.
+Version **v4.x.y** focused on integration with the 🚧 [breaker][] package.
 
 ## Usage
 
