@@ -1,5 +1,3 @@
-// +build example
-
 package examples
 
 import (
@@ -9,7 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
+	"testing"
 	"time"
 
 	"github.com/kamilsk/breaker"
@@ -17,12 +17,23 @@ import (
 	"github.com/kamilsk/retry/v4/strategy"
 )
 
+var server *httptest.Server
+
+func TestMain(m *testing.M) {
+	server = httptest.NewServer(
+		http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) { rw.WriteHeader(http.StatusOK) }),
+	)
+	code := m.Run()
+	server.Close()
+	os.Exit(code)
+}
+
 func ExampleRetryQuickStart() {
 	var response *http.Response
 
 	action := func(uint) error {
 		var err error
-		response, err = http.Get("https://github.com/kamilsk/retry")
+		response, err = http.Get(server.URL)
 		return err
 	}
 
@@ -42,7 +53,7 @@ func ExampleTryQuickStart() {
 
 	action := func(uint) error {
 		var err error
-		response, err = http.Get("https://github.com/kamilsk/retry")
+		response, err = http.Get(server.URL)
 		return err
 	}
 	interrupter := breaker.MultiplexTwo(
@@ -66,7 +77,7 @@ func ExampleTryContextQuickStart() {
 	var response *http.Response
 
 	action := func(ctx context.Context, _ uint) error {
-		req, err := http.NewRequest(http.MethodGet, "https://github.com/kamilsk/retry", nil)
+		req, err := http.NewRequest(http.MethodGet, server.URL, nil)
 		if err != nil {
 			return err
 		}
