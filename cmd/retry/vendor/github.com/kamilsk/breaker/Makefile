@@ -1,6 +1,6 @@
 .PHONY: deps
 deps:
-	@(go mod tidy && go mod verify)
+	@(go mod tidy && go mod vendor && go mod verify)
 
 .PHONY: goimports
 goimports:
@@ -8,4 +8,4 @@ goimports:
 
 .PHONY: test
 test:
-	@(go test -cover -race -v ./...)
+	@(go test -cover -race -timeout 1s -v ./...)
