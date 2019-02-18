@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// A Breaker carries a cancellation signal to break an action execution.
+// Interface carries a cancellation signal to break an action execution.
 //
 // Example based on github.com/kamilsk/retry package:
 //
@@ -24,18 +24,18 @@ import (
 //  	log.Fatal(err)
 //  }
 //
-type Breaker interface {
+type Interface interface {
 	// Done returns a channel that's closed when a cancellation signal occurred.
 	Done() <-chan struct{}
 	// Close closes the Done channel and releases resources associated with it.
 	Close()
 	// trigger is a private method to guarantee that the Breakers come from
 	// this package and all of them return a valid Done channel.
-	trigger() Breaker
+	trigger() Interface
 }
 
 // BreakByDeadline closes the Done channel when the deadline occurs.
-func BreakByDeadline(deadline time.Time) Breaker {
+func BreakByDeadline(deadline time.Time) Interface {
 	timeout := time.Until(deadline)
 	if timeout < 0 {
 		return closedBreaker()
@@ -44,7 +44,7 @@ func BreakByDeadline(deadline time.Time) Breaker {
 }
 
 // BreakBySignal closes the Done channel when signals will be received.
-func BreakBySignal(sig ...os.Signal) Breaker {
+func BreakBySignal(sig ...os.Signal) Interface {
 	if len(sig) == 0 {
 		return closedBreaker()
 	}
@@ -52,7 +52,7 @@ func BreakBySignal(sig ...os.Signal) Breaker {
 }
 
 // BreakByTimeout closes the Done channel when the timeout happens.
-func BreakByTimeout(timeout time.Duration) Breaker {
+func BreakByTimeout(timeout time.Duration) Interface {
 	if timeout < 0 {
 		return closedBreaker()
 	}
@@ -60,7 +60,7 @@ func BreakByTimeout(timeout time.Duration) Breaker {
 }
 
 // Multiplex combines multiple Breakers into one.
-func Multiplex(breakers ...Breaker) Breaker {
+func Multiplex(breakers ...Interface) Interface {
 	if len(breakers) == 0 {
 		return closedBreaker()
 	}
@@ -69,7 +69,7 @@ func Multiplex(breakers ...Breaker) Breaker {
 
 // MultiplexTwo combines two Breakers into one.
 // This is the optimized version of more generic Multiplex.
-func MultiplexTwo(one, two Breaker) Breaker {
+func MultiplexTwo(one, two Interface) Interface {
 	br := newBreaker()
 	go func() {
 		defer br.Close()
@@ -83,7 +83,7 @@ func MultiplexTwo(one, two Breaker) Breaker {
 
 // MultiplexThree combines three Breakers into one.
 // This is the optimized version of more generic Multiplex.
-func MultiplexThree(one, two, three Breaker) Breaker {
+func MultiplexThree(one, two, three Interface) Interface {
 	br := newBreaker()
 	go func() {
 		defer br.Close()
@@ -96,20 +96,11 @@ func MultiplexThree(one, two, three Breaker) Breaker {
 	return br
 }
 
-// WithContext returns a copy of the parent with a new Done channel. The returned
-// context's Done channel is closed when the passed Breaker closes its Done channel
-// or when the parent context's Done channel is closed, whichever happens first.
-func WithContext(parent context.Context, breaker Breaker) context.Context {
-	ctx, cancel := context.WithCancel(parent)
-	go func() {
-		select {
-		case <-parent.Done():
-			return
-		case <-breaker.Done():
-			cancel()
-		}
-	}()
-	return ctx
+// WithContext returns a new Breaker and an associated Context derived from ctx.
+func WithContext(ctx context.Context) (Interface, context.Context) {
+	ctx, cancel := context.WithCancel(ctx)
+	br := &contextBreaker{cancel, ctx.Done()}
+	return br.trigger(), ctx
 }
 
 func closedBreaker() *breaker {
@@ -138,17 +129,36 @@ func (br *breaker) Close() {
 	br.closer.Do(func() { close(br.signal) })
 }
 
-func (br *breaker) trigger() Breaker {
+func (br *breaker) trigger() Interface {
 	return br
 }
 
-func newMultiplexedBreaker(entries []Breaker) Breaker {
+type contextBreaker struct {
+	cancel context.CancelFunc
+	signal <-chan struct{}
+}
+
+// Done returns a channel that's closed when a cancellation signal occurred.
+func (br *contextBreaker) Done() <-chan struct{} {
+	return br.signal
+}
+
+// Close closes the Done channel and releases resources associated with it.
+func (br *contextBreaker) Close() {
+	br.cancel()
+}
+
+func (br *contextBreaker) trigger() Interface {
+	return br
+}
+
+func newMultiplexedBreaker(entries []Interface) Interface {
 	return &multiplexedBreaker{newBreaker(), entries}
 }
 
 type multiplexedBreaker struct {
 	*breaker
-	entries []Breaker
+	entries []Interface
 }
 
 // Close closes the Done channel and releases resources associated with it.
@@ -160,7 +170,7 @@ func (br *multiplexedBreaker) Close() {
 }
 
 // trigger starts listening all Done channels of multiplexed Breakers.
-func (br *multiplexedBreaker) trigger() Breaker {
+func (br *multiplexedBreaker) trigger() Interface {
 	go func() {
 		brs := make([]reflect.SelectCase, 0, len(br.entries))
 		for _, br := range br.entries {
@@ -173,7 +183,7 @@ func (br *multiplexedBreaker) trigger() Breaker {
 	return br
 }
 
-func newSignaledBreaker(signals []os.Signal) Breaker {
+func newSignaledBreaker(signals []os.Signal) Interface {
 	return &signaledBreaker{newBreaker(), make(chan os.Signal, len(signals)), signals}
 }
 
@@ -192,7 +202,7 @@ func (br *signaledBreaker) Close() {
 }
 
 // trigger starts listening required signals to close the Done channel.
-func (br *signaledBreaker) trigger() Breaker {
+func (br *signaledBreaker) trigger() Interface {
 	go func() {
 		signal.Notify(br.relay, br.signals...)
 		select {
@@ -205,7 +215,7 @@ func (br *signaledBreaker) trigger() Breaker {
 	return br
 }
 
-func newTimedBreaker(timeout time.Duration) Breaker {
+func newTimedBreaker(timeout time.Duration) Interface {
 	return &timedBreaker{newBreaker(), time.NewTimer(timeout)}
 }
 
@@ -223,7 +233,7 @@ func (br *timedBreaker) Close() {
 }
 
 // trigger starts listening internal timer to close the Done channel.
-func (br *timedBreaker) trigger() Breaker {
+func (br *timedBreaker) trigger() Interface {
 	go func() {
 		select {
 		case <-br.Timer.C:
@@ -235,7 +245,7 @@ func (br *timedBreaker) trigger() Breaker {
 	return br
 }
 
-type each []Breaker
+type each []Interface
 
 // Close closes all Done channels of a list of Breakers
 // and releases resources associated with them.

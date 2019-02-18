@@ -88,10 +88,9 @@ action := func(ctx context.Context, _ uint) error {
 	response, err = http.DefaultClient.Do(req)
 	return err
 }
-ctx := breaker.WithContext(
-	context.Background(),
-	breaker.BreakBySignal(os.Interrupt),
-)
+ctx, _ := context.WithTimeout(request.Context(), time.Minute)
+br, ctx := breaker.WithContext(ctx)
+defer br.Close()
 
 if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 	// handle error

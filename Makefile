@@ -1,10 +1,19 @@
 SHELL := /bin/bash -euo pipefail
 
 
+.PHONY: deps
+deps:
+	@(go mod tidy && go mod vendor && go mod verify)
+
+
 .PHONY: generate
 generate:
 	go generate ./cmd/generate
 	mv ./cmd/generate/parser_gen.go ./cmd/retry/parser_gen.go
+
+.PHONY: goimports
+goimports:
+	@(goimports -ungroup -w .)
 
 
 .PHONY: test

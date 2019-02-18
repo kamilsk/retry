@@ -1,6 +1,6 @@
 # github.com/briandowns/spinner v0.0.0-20190212173954-5cf08d0ac778
 github.com/briandowns/spinner
-# github.com/davecgh/go-spew v1.1.0
+# github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/fatih/color v1.7.0
 github.com/fatih/color

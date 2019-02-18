@@ -2,6 +2,7 @@ module github.com/kamilsk/retry/cli
 
 require (
 	github.com/briandowns/spinner v0.0.0-20190212173954-5cf08d0ac778
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kamilsk/breaker v1.0.0

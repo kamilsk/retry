@@ -1,12 +1,13 @@
 github.com/briandowns/spinner v0.0.0-20190212173954-5cf08d0ac778 h1:Dmz6bJXocvwkw7BOz4jpyVZReGrkjs+fBDWKn5tBES4=
 github.com/briandowns/spinner v0.0.0-20190212173954-5cf08d0ac778/go.mod h1:hw/JEQBIE+c/BLI4aKM8UU8v+ZqrD3h7HC27kKt8JQU=
-github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
-github.com/kamilsk/breaker v1.0.0 h1:5c1qEzpnlqhZtbuHzAb//Pgqe7C3sDAwI2+qbjpsQPw=
+github.com/kamilsk/breaker v1.0.0 h1:Hj1n5Y6YeYLB/MTbrS1+xU1b5qjSnIhDz5MO2NyNDJA=
 github.com/kamilsk/breaker v1.0.0/go.mod h1:v9ySMER3LyAafxjouLF3PLF2bueyFIMXSTWEMa16hdE=
 github.com/kamilsk/go-kit v0.0.0-20190129050637-e2e228a63f53 h1:6aZQZCuXNZpWfGa2yjMRU83msPNdlg3sP8pzxHUCQH8=
 github.com/kamilsk/go-kit v0.0.0-20190129050637-e2e228a63f53/go.mod h1:h4x6B1xj2nw89zH4cRlNFfH1B1VF67fx/sL/F3ASpNA=

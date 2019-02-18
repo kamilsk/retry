@@ -24,6 +24,22 @@ if err := semaphore.Acquire(breaker.BreakByTimeout(time.Minute), 5); err != nil 
 }
 ```
 
+Complex example:
+
+```go
+interrupter := breaker.Multiplex(
+	func () breaker.Interface {
+		br, _ := breaker.WithContext(request.Context())
+		return br
+	}()
+	breaker.BreakByTimeout(time.Minute),
+	breaker.BreakBySignal(os.Interrupt),
+)
+defer interrupter.Close()
+
+<-interrupter.Done() // wait context cancellation, timeout or interrupt signal
+```
+
 ## Notice
 
 This package is based on the [platform][] - my toolset to build microservices such as [click][] or [forma][].
