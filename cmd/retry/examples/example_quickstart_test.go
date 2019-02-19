@@ -85,9 +85,13 @@ func ExampleTryContextQuickStart() {
 		response, err = http.DefaultClient.Do(req)
 		return err
 	}
-	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	br, ctx := breaker.WithContext(ctx)
-	defer br.Close()
+	defer func() {
+		// they do the same thing
+		br.Close()
+		cancel()
+	}()
 
 	if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 		log.Fatal(err)
