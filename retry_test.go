@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilsk/retry/strategy"
-
 	. "github.com/kamilsk/retry"
+	. "github.com/kamilsk/retry/strategy"
 )
 
 func TestRetry(t *testing.T) {
@@ -35,7 +34,7 @@ func TestRetry_PanickedAction(t *testing.T) {
 		panic("catch me if you can")
 	}
 
-	err := Retry(nil, action, strategy.Infinite())
+	err := Retry(nil, action, Infinite())
 
 	if nil == err {
 		t.Error("expected an error")
@@ -65,7 +64,7 @@ func TestRetry_RetriesUntilNoErrorReturned(t *testing.T) {
 		return errors.New("error")
 	}
 
-	err := Retry(nil, action, strategy.Infinite())
+	err := Retry(nil, action, Infinite())
 
 	if nil != err {
 		t.Error("expected a nil error")
@@ -81,7 +80,7 @@ func TestRetry_RetriesUntilNoErrorReturned(t *testing.T) {
 func TestRetry_RetriesWithAlreadyDoneContext(t *testing.T) {
 	deadline, expected := WithTimeout(0), "operation timeout"
 
-	if err := Retry(deadline, func(uint) error { return nil }, strategy.Infinite()); !IsTimeout(err) {
+	if err := Retry(deadline, func(uint) error { return nil }, Infinite()); !IsTimeout(err) {
 		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
 	}
 }
@@ -94,7 +93,7 @@ func TestRetry_RetriesWithDeadline(t *testing.T) {
 		return nil
 	}
 
-	if err := Retry(deadline, action, strategy.Infinite()); !IsTimeout(err) {
+	if err := Retry(deadline, action, Infinite()); !IsTimeout(err) {
 		t.Errorf("an unexpected error. expected: %s; obtained: %v", expected, err)
 	}
 }
