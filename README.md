@@ -13,14 +13,14 @@
 The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
 
 ```bash
-$ dep ensure -add github.com/kamilsk/retry@3.3.2
+$ dep ensure -add github.com/kamilsk/retry@3.3.3
 ```
 
 The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions **v3.4.x**
 to better integration with [Go Modules][gomod].
 
 ```bash
-$ go get -u github.com/kamilsk/retry/v3@v3.4.3
+$ go get -u github.com/kamilsk/retry/v3@v3.4.4
 ```
 
 The **[v4][]** branch is an actual development branch.
@@ -29,7 +29,7 @@ The **[v4][]** branch is an actual development branch.
 $ go get -u github.com/kamilsk/retry/v4
 ```
 
-Version **v4.x.y** focused on integration with the 🚧 [breaker][] package.
+Version **v4.x.y** focused on integration with the 🚧 [breaker][] and the 🧰 [platform][] packages.
 
 ## Usage
 
@@ -100,9 +100,13 @@ action := func(ctx context.Context, _ uint) error {
 	response, err = http.DefaultClient.Do(req)
 	return err
 }
-ctx, _ := context.WithTimeout(request.Context(), time.Minute)
+ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
 br, ctx := breaker.WithContext(ctx)
-defer br.Close()
+defer func() {
+	// they do the same thing
+	br.Close()
+	close()
+}()
 
 if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 	// handle error
@@ -162,6 +166,7 @@ made with ❤️ by [OctoLab][octolab]
 [egg]:             https://github.com/kamilsk/egg
 [breaker]:         https://github.com/kamilsk/breaker
 [gomod]:           https://github.com/golang/go/wiki/Modules
+[platform]:        https://github.com/kamilsk/platform
 
 [author]:          https://twitter.com/ikamilsk
 [octolab]:         https://www.octolab.org/
