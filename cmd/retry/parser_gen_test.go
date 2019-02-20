@@ -29,15 +29,6 @@ func Test_handle_generated(t *testing.T) {
 		expected int
 	}{
 		{
-			name: "infinite",
-			flags: []*flag.Flag{
-				{
-					Name: "infinite",
-				},
-			},
-			expected: 1,
-		},
-		{
 			name: "limit",
 			flags: []*flag.Flag{
 				{

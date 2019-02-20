@@ -12,8 +12,8 @@ github.com/kamilsk/breaker v1.0.0 h1:t10o52zQwrLXm5ZQnKDkXVr8w+05Mj+NgVPeKVPK0Ns
 github.com/kamilsk/breaker v1.0.0/go.mod h1:v9ySMER3LyAafxjouLF3PLF2bueyFIMXSTWEMa16hdE=
 github.com/kamilsk/platform v1.4.0 h1:+EdsQTmSgFbckjwiBUpq6vM42BpaamoszFbQ9Nbd1Yc=
 github.com/kamilsk/platform v1.4.0/go.mod h1:AZtZ9SncxGgpB1zcBhtSdQQ1/j0zAy8+0DjCkuvbRCE=
-github.com/kamilsk/retry/v4 v4.0.0-20190217101433-c167d2615827 h1:IlHjdJcAYsR266hdAfYYIovac3j7Hb1Dn8X/hw/Noe0=
-github.com/kamilsk/retry/v4 v4.0.0-20190217101433-c167d2615827/go.mod h1:resXTqZ5IUwMFSW/JG2YJ6vp3nf1cX+i6vpjMTZEKXg=
+github.com/kamilsk/retry/v4 v4.0.0-rc4 h1:fhhXWd+J6buRUh0VBFkChfRLF5Ed/fq9XM4chV5JQkk=
+github.com/kamilsk/retry/v4 v4.0.0-rc4/go.mod h1:resXTqZ5IUwMFSW/JG2YJ6vp3nf1cX+i6vpjMTZEKXg=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=

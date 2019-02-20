@@ -16,17 +16,12 @@ import (
 )
 
 func init() {
-	var (
-		fInfinite                                  bool
-		fLimit, fDelay, fWait, fBackoff, fTBackoff string
-	)
+	var fLimit, fDelay, fWait, fBackoff, fTBackoff string
 	compliance = map[string]struct {
 		cursor  interface{}
 		usage   string
 		handler func(*flag.Flag) (strategy.Strategy, error)
 	}{
-		"infinite": {cursor: &fInfinite,
-			handler: generatedInfiniteStrategy},
 		"limit": {cursor: &fLimit,
 			handler: generatedLimitStrategy},
 		"delay": {cursor: &fDelay,
@@ -153,10 +148,6 @@ Version %s (commit: %s, build date: %s, go version: %s, compiler: %s, platform: 
 }
 
 // strategies
-
-func generatedInfiniteStrategy(_ *flag.Flag) (strategy.Strategy, error) {
-	return strategy.Infinite(), nil
-}
 
 func generatedLimitStrategy(f *flag.Flag) (strategy.Strategy, error) {
 	attemptLimit, err := strconv.ParseUint(f.Value.String(), 10, 0)

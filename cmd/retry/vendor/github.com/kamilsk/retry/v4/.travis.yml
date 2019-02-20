@@ -5,13 +5,12 @@ go:
 - 1.x
 - 1.11.x
 
+go_import_path: github.com/kamilsk/retry/v4
+
 sudo: false
 
-before_install:
-- export GO111MODULE=on
-
 script:
-- make test ARGS='-timeout=1s'
+- make test
 
 after_success:
 - echo $TRAVIS_GO_VERSION ":" $TRAVIS_TAG

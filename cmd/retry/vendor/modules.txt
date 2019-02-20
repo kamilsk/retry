@@ -12,7 +12,7 @@ github.com/kamilsk/breaker
 github.com/kamilsk/platform/cmd/cobra
 github.com/kamilsk/platform/pkg/fn
 github.com/kamilsk/platform/pkg/math
-# github.com/kamilsk/retry/v4 v4.0.0-20190217101433-c167d2615827
+# github.com/kamilsk/retry/v4 v4.0.0-rc4
 github.com/kamilsk/retry/v4
 github.com/kamilsk/retry/v4/backoff
 github.com/kamilsk/retry/v4/jitter

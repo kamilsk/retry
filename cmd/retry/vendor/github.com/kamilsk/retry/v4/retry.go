@@ -87,7 +87,7 @@ var (
 	errInterrupted = errors.New("operation was interrupted")
 )
 
-func currying(action func(context.Context, uint) error, ctx context.Context) func(uint) error {
+func currying(action func(context.Context, uint) error, ctx context.Context) func(uint) error { // nolint: golint
 	return func(attempt uint) error {
 		return action(ctx, attempt)
 	}

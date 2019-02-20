@@ -18,13 +18,6 @@ import (
 // made. This allows for a pre-action delay, etc.
 type Strategy func(attempt uint, err error) bool
 
-// Infinite creates a Strategy that will never stop repeating.
-func Infinite() Strategy {
-	return func(attempt uint, _ error) bool {
-		return true
-	}
-}
-
 // Limit creates a Strategy that limits the number of attempts that Retry will
 // make.
 func Limit(attemptLimit uint) Strategy {

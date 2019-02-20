@@ -5,7 +5,7 @@ require (
 	github.com/fatih/color v1.7.0
 	github.com/kamilsk/breaker v1.0.0
 	github.com/kamilsk/platform v1.4.0
-	github.com/kamilsk/retry/v4 v4.0.0-20190217101433-c167d2615827
+	github.com/kamilsk/retry/v4 v4.0.0-rc4
 	github.com/mattn/go-colorable v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/pkg/errors v0.8.1

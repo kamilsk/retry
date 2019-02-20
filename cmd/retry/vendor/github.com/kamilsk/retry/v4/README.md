@@ -10,13 +10,13 @@
 
 ## Important news
 
-The **[master][legacy]** is a feature frozen branch for versions _3.3.x_ and no longer maintained.
+The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
 
 ```bash
 $ dep ensure -add github.com/kamilsk/retry@3.3.2
 ```
 
-The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions _v3.4.x_
+The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions **v3.4.x**
 to better integration with [Go Modules][gomod].
 
 ```bash
@@ -29,23 +29,83 @@ The **[v4][]** branch is an actual development branch.
 $ go get -u github.com/kamilsk/retry/v4
 ```
 
+Version **v4.x.y** focused on integration with the 🚧 [breaker][] package.
+
 ## Usage
 
 ### Quick start
 
+#### retry.Retry
+
 ```go
-var (
-	response *http.Response
-	action   retry.Action = func(_ uint) error {
-		var err error
-		response, err = http.Get("https://github.com/kamilsk/retry")
+var response *http.Response
+
+action := func(uint) error {
+	var err error
+	response, err = http.Get("https://github.com/kamilsk/retry")
+	return err
+}
+
+if err := retry.Retry(breaker.BreakByTimeout(time.Minute), action, strategy.Limit(3)); err != nil {
+	// handle error
+}
+// work with response
+```
+
+#### retry.Try
+
+```go
+var response *http.Response
+
+action := func(uint) error {
+	var err error
+	response, err = http.Get("https://github.com/kamilsk/retry")
+	return err
+}
+interrupter := breaker.MultiplexTwo(
+	breaker.BreakByTimeout(time.Minute),
+	breaker.BreakBySignal(os.Interrupt),
+)
+defer interrupter.Close()
+
+if err := retry.Try(interrupter, action, strategy.Limit(3)); err != nil {
+	// handle error
+}
+// work with response
+```
+
+Or use Context
+
+```go
+ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
+defer cancel()
+
+if err := retry.Try(ctx, action, strategy.Limit(3)); err != nil {
+	// handle error
+}
+// work with response
+```
+
+#### retry.TryContext
+
+```go
+var response *http.Response
+
+action := func(ctx context.Context, _ uint) error {
+	req, err := http.NewRequest(http.MethodGet, "https://github.com/kamilsk/retry", nil)
+	if err != nil {
 		return err
 	}
-)
+	req = req.WithContext(ctx)
+	response, err = http.DefaultClient.Do(req)
+	return err
+}
+ctx, _ := context.WithTimeout(request.Context(), time.Minute)
+br, ctx := breaker.WithContext(ctx)
+defer br.Close()
 
-if err := retry.Retry(retry.WithTimeout(time.Minute), action, strategy.Limit(10)); err != nil {
+if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 	// handle error
-	return
 }
 // work with response
 ```
@@ -62,104 +122,6 @@ $ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..
 
 See more details [here](cmd/retry).
 
-### Create HTTP client with retry
-
-This example shows how to extend standard http.Client with retry under the hood.
-
-```go
-type client struct {
-	base       *http.Client
-	strategies []strategy.Strategy
-}
-
-func New(timeout time.Duration, strategies ...strategy.Strategy) *client {
-	return &client{
-		base:       &http.Client{Timeout: timeout},
-		strategies: strategies,
-	}
-}
-
-func (c *client) Get(deadline <-chan struct{}, url string) (*http.Response, error) {
-	var response *http.Response
-	err := retry.Retry(deadline, func(uint) error {
-		resp, err := c.base.Get(url)
-		if err != nil {
-			return err
-		}
-		response = resp
-		return nil
-	}, c.strategies...)
-	return response, err
-}
-```
-
-### Control database connection
-
-This example shows how to use retry to restore database connection by `database/sql/driver.Pinger`.
-
-```go
-MustOpen := func() *sql.DB {
-	db, err := sql.Open("stub", "stub://test")
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-go func(db *sql.DB, ctx context.Context, shutdown chan<- struct{}, frequency time.Duration,
-	strategies ...strategy.Strategy) {
-
-	defer func() {
-		if r := recover(); r != nil {
-			shutdown <- struct{}{}
-		}
-	}()
-
-	ping := func(uint) error {
-		return db.Ping()
-	}
-
-	for {
-		if err := retry.Retry(ctx.Done(), ping, strategies...); err != nil {
-			panic(err)
-		}
-		time.Sleep(frequency)
-	}
-}(MustOpen(), context.Background(), shutdown, time.Millisecond, strategy.Limit(1))
-```
-
-### Use context for cancellation
-
-This example shows how to use context and retry together.
-
-```go
-communication := make(chan error)
-
-go service.Listen(communication)
-
-action := func(uint) error {
-	communication <- nil   // ping
-	return <-communication // pong
-}
-ctx := retry.WithContext(context.Background(), retry.WithTimeout(time.Second))
-if err := retry.Retry(ctx.Done(), action, strategy.Delay(time.Millisecond)); err != nil {
-	// the service does not respond within one second
-}
-```
-
-### Interrupt execution
-
-```go
-interrupter := retry.Multiplex(
-	retry.WithTimeout(time.Second),
-	retry.WithSignal(os.Interrupt),
-)
-if err := retry.Retry(interrupter, func(uint) error { time.Sleep(time.Second); return nil }); err == nil {
-	panic("press Ctrl+C")
-}
-// successful interruption
-```
-
 ## Installation
 
 ```bash
@@ -173,8 +135,7 @@ $ egg bitbucket.org/kamilsk/retry
 ## Update
 
 This library is using [SemVer](https://semver.org/) for versioning, and it is not
-[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. Therefore, do not use `go get -u` to update it,
-use **dep**, **glide** or something similar for this purpose.
+[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
 
 <sup id="egg">1</sup> The project is still in prototyping. [↩](#anchor-egg)
 
@@ -199,6 +160,7 @@ made with ❤️ by [OctoLab][octolab]
 [v4]:              https://github.com/kamilsk/retry/projects/4
 
 [egg]:             https://github.com/kamilsk/egg
+[breaker]:         https://github.com/kamilsk/breaker
 [gomod]:           https://github.com/golang/go/wiki/Modules
 
 [author]:          https://twitter.com/ikamilsk
