@@ -184,32 +184,33 @@ made with ❤️ by [OctoLab][octolab]
 [gitter]:          https://gitter.im/kamilsk/retry
 [license]:         LICENSE
 [promo]:           https://github.com/kamilsk/retry
-[quality]:         https://scrutinizer-ci.com/g/kamilsk/retry/?branch=v3
+[quality]:         https://scrutinizer-ci.com/g/kamilsk/retry/?branch=v4
 [research]:        https://github.com/kamilsk/go-research/tree/master/projects/retry
+[legacy]:          https://github.com/kamilsk/retry/tree/master
 [v3]:              https://github.com/kamilsk/retry/tree/v3
-[v4]:              https://github.com/kamilsk/retry/tree/v4
-[v4_features]:     https://github.com/kamilsk/retry/projects/4
+[v4]:              https://github.com/kamilsk/retry/projects/4
 
 [egg]:             https://github.com/kamilsk/egg
+[breaker]:         https://github.com/kamilsk/breaker
 [gomod]:           https://github.com/golang/go/wiki/Modules
-[semver]:          https://semver.org/
+[platform]:        https://github.com/kamilsk/platform
 
 [author]:          https://twitter.com/ikamilsk
 [octolab]:         https://www.octolab.org/
 [sponsor]:         https://twitter.com/octolab_inc
 [support]:         https://www.patreon.com/octolab
 
-[analytics]:       https://ga-beacon.appspot.com/UA-109817251-1/retry/v3?pixel
-[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
+[analytics]:       https://ga-beacon.appspot.com/UA-109817251-1/retry/v4?pixel
+[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
 
 [icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
-[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=v3
-[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=v3
+[icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=v4
+[icon_coverage]:   https://scrutinizer-ci.com/g/kamilsk/retry/badges/coverage.png?b=v4
 [icon_docs]:       https://godoc.org/github.com/kamilsk/retry?status.svg
 [icon_gitter]:     https://badges.gitter.im/Join%20Chat.svg
 [icon_license]:    https://img.shields.io/badge/license-MIT-blue.svg
 [icon_patreon]:    https://img.shields.io/badge/patreon-donate-orange.svg
-[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=v3
+[icon_quality]:    https://scrutinizer-ci.com/g/kamilsk/retry/badges/quality-score.png?b=v4
 [icon_research]:   https://img.shields.io/badge/research-in%20progress-yellow.svg
 [icon_tw_author]:  https://img.shields.io/badge/author-%40kamilsk-blue.svg
 [icon_tw_sponsor]: https://img.shields.io/badge/sponsor-%40octolab-blue.svg

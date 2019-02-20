@@ -1,6 +1,6 @@
 > # ♻️ retry
 >
-> Functional mechanism based on channels to perform actions repetitively until successful.
+> Functional mechanism to perform actions repetitively until successful.
 
 [![Awesome][icon_awesome]][awesome]
 [![Patreon][icon_patreon]][support]
@@ -174,7 +174,7 @@ made with ❤️ by [OctoLab][octolab]
 [support]:         https://www.patreon.com/octolab
 
 [analytics]:       https://ga-beacon.appspot.com/UA-109817251-1/retry/v4?pixel
-[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
+[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
 
 [icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 [icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=v4
