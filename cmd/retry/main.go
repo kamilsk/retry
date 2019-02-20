@@ -20,7 +20,7 @@ import (
 
 const (
 	success = 0
-	failed  = 1
+	failure = 1
 )
 
 var reportTpl = `
@@ -39,16 +39,16 @@ details: started at {{ .Start }}, finished at {{ .End }}, elapsed {{ .Elapsed }}
 {{ .Stderr }}
 `
 
-func main() { tool{Args: os.Args, Stderr: os.Stderr, Stdout: os.Stdout, Shutdown: os.Exit}.Run() }
+func main() { legacy{Args: os.Args, Stderr: os.Stderr, Stdout: os.Stdout, Shutdown: os.Exit}.Run() }
 
-type tool struct {
+type legacy struct {
 	Args           []string
 	Stderr, Stdout io.Writer
 	Shutdown       func(code int)
 }
 
 // Run executes the tool logic.
-func (app tool) Run() {
+func (app legacy) Run() {
 	var (
 		result, err    = parse(app.Stderr, app.Args[0], app.Args[1:]...)
 		start, finish  time.Time
@@ -59,7 +59,7 @@ func (app tool) Run() {
 	if err != nil {
 		if err != flag.ErrHelp {
 			_, _ = color.New(color.FgRed).Fprintf(app.Stderr, "an error occurred: %v\n", err)
-			app.Shutdown(failed)
+			app.Shutdown(failure)
 			return
 		}
 		app.Shutdown(success)
@@ -121,7 +121,7 @@ func (app tool) Run() {
 	)
 
 	if err = retry.Retry(interrupter, action, result.Strategies...); err != nil {
-		app.Shutdown(failed)
+		app.Shutdown(failure)
 		return
 	}
 	app.Shutdown(success)

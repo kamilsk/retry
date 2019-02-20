@@ -8,8 +8,10 @@ github.com/fatih/color
 github.com/inconshreveable/mousetrap
 # github.com/kamilsk/breaker v1.0.0
 github.com/kamilsk/breaker
-# github.com/kamilsk/go-kit v0.0.0-20190129050637-e2e228a63f53
-github.com/kamilsk/go-kit/pkg/fn
+# github.com/kamilsk/platform v1.4.0
+github.com/kamilsk/platform/cmd/cobra
+github.com/kamilsk/platform/pkg/fn
+github.com/kamilsk/platform/pkg/math
 # github.com/kamilsk/retry/v4 v4.0.0-20190217101433-c167d2615827
 github.com/kamilsk/retry/v4
 github.com/kamilsk/retry/v4/backoff
