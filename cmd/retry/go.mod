@@ -4,7 +4,7 @@ require (
 	github.com/briandowns/spinner v0.0.0-20190212173954-5cf08d0ac778
 	github.com/fatih/color v1.7.0
 	github.com/kamilsk/breaker v1.0.0
-	github.com/kamilsk/platform v1.4.0
+	github.com/kamilsk/platform v0.5.0
 	github.com/kamilsk/retry/v4 v4.0.0-rc4
 	github.com/mattn/go-colorable v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
