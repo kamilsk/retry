@@ -27,6 +27,8 @@ The **[v4][]** branch is an actual development branch.
 
 ```bash
 $ go get -u github.com/kamilsk/retry/v4
+
+$ dep ensure -add github.com/kamilsk/retry@v4.0.0-rc5
 ```
 
 Version **v4.x.y** focused on integration with the 🚧 [breaker][] and the 🧰 [platform][] packages.
