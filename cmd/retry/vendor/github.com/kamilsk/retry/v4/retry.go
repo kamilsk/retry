@@ -1,6 +1,6 @@
 // Package retry provides functional mechanism based on channels
 // to perform actions repetitively until successful.
-package retry // import "github.com/kamilsk/retry/v4"
+package retry
 
 import (
 	"context"
@@ -46,7 +46,7 @@ func TryContext(
 	action func(ctx context.Context, attempt uint) error,
 	strategies ...func(attempt uint, err error) bool,
 ) error {
-	return retry(ctx, currying(action, ctx), strategies...)
+	return retry(ctx, currying(ctx, action), strategies...)
 }
 
 // A Breaker carries a cancellation signal to break an action execution.
@@ -87,7 +87,7 @@ var (
 	errInterrupted = errors.New("operation was interrupted")
 )
 
-func currying(action func(context.Context, uint) error, ctx context.Context) func(uint) error { // nolint: golint
+func currying(ctx context.Context, action func(context.Context, uint) error) func(uint) error {
 	return func(attempt uint) error {
 		return action(ctx, attempt)
 	}

@@ -1,6 +1,6 @@
 > # ♻️ retry
 >
-> Functional mechanism based on channels to perform actions repetitively until successful.
+> Functional mechanism to perform actions repetitively until successful.
 
 [![Awesome][icon_awesome]][awesome]
 [![Patreon][icon_patreon]][support]
@@ -13,23 +13,25 @@
 The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
 
 ```bash
-$ dep ensure -add github.com/kamilsk/retry@3.3.2
+$ dep ensure -add github.com/kamilsk/retry@3.3.3
 ```
 
 The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions **v3.4.x**
 to better integration with [Go Modules][gomod].
 
 ```bash
-$ go get -u github.com/kamilsk/retry/v3@v3.4.3
+$ go get -u github.com/kamilsk/retry/v3@v3.4.4
 ```
 
 The **[v4][]** branch is an actual development branch.
 
 ```bash
 $ go get -u github.com/kamilsk/retry/v4
+
+$ dep ensure -add github.com/kamilsk/retry@v4.0.0-rc5
 ```
 
-Version **v4.x.y** focused on integration with the 🚧 [breaker][] package.
+Version **v4.x.y** focused on integration with the 🚧 [breaker][] and the 🧰 [platform][] packages.
 
 ## Usage
 
@@ -100,9 +102,13 @@ action := func(ctx context.Context, _ uint) error {
 	response, err = http.DefaultClient.Do(req)
 	return err
 }
-ctx, _ := context.WithTimeout(request.Context(), time.Minute)
+ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
 br, ctx := breaker.WithContext(ctx)
-defer br.Close()
+defer func() {
+	// they do the same thing
+	br.Close()
+	close()
+}()
 
 if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 	// handle error
@@ -162,6 +168,7 @@ made with ❤️ by [OctoLab][octolab]
 [egg]:             https://github.com/kamilsk/egg
 [breaker]:         https://github.com/kamilsk/breaker
 [gomod]:           https://github.com/golang/go/wiki/Modules
+[platform]:        https://github.com/kamilsk/platform
 
 [author]:          https://twitter.com/ikamilsk
 [octolab]:         https://www.octolab.org/
@@ -169,7 +176,7 @@ made with ❤️ by [OctoLab][octolab]
 [support]:         https://www.patreon.com/octolab
 
 [analytics]:       https://ga-beacon.appspot.com/UA-109817251-1/retry/v4?pixel
-[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20based%20on%20channels%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
+[tweet]:           https://twitter.com/intent/tweet?text=Functional%20mechanism%20to%20perform%20actions%20repetitively%20until%20successful&url=https://github.com/kamilsk/retry&via=ikamilsk&hashtags=go,repeat,retry,backoff,jitter
 
 [icon_awesome]:    https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 [icon_build]:      https://travis-ci.org/kamilsk/retry.svg?branch=v4

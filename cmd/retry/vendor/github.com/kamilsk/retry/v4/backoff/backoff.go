@@ -1,6 +1,6 @@
 // Package backoff provides stateless methods of calculating durations based on
 // a number of attempts made.
-package backoff // import "github.com/kamilsk/retry/v4/backoff"
+package backoff
 
 import (
 	"math"

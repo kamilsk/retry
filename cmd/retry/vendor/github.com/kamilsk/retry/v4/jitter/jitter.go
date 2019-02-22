@@ -1,5 +1,5 @@
 // Package jitter provides methods of transforming durations.
-package jitter // import "github.com/kamilsk/retry/v4/jitter"
+package jitter
 
 import (
 	"math"

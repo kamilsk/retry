@@ -1,12 +1,7 @@
 // Package strategy provides a way to change the way that retry is performed.
-package strategy // import "github.com/kamilsk/retry/v4/strategy"
+package strategy
 
-import (
-	"time"
-
-	"github.com/kamilsk/retry/v4/backoff"
-	"github.com/kamilsk/retry/v4/jitter"
-)
+import "time"
 
 // Strategy defines a function that Retry calls before every successive attempt
 // to determine whether it should make the next attempt or not. Returning `true`
@@ -59,13 +54,16 @@ func Wait(durations ...time.Duration) Strategy {
 
 // Backoff creates a Strategy that waits before each attempt, with a duration as
 // defined by the given backoff.Algorithm.
-func Backoff(algorithm backoff.Algorithm) Strategy {
+func Backoff(algorithm func(attempt uint) time.Duration) Strategy {
 	return BackoffWithJitter(algorithm, noJitter())
 }
 
 // BackoffWithJitter creates a Strategy that waits before each attempt, with a
 // duration as defined by the given backoff.Algorithm and jitter.Transformation.
-func BackoffWithJitter(algorithm backoff.Algorithm, transformation jitter.Transformation) Strategy {
+func BackoffWithJitter(
+	algorithm func(attempt uint) time.Duration,
+	transformation func(duration time.Duration) time.Duration,
+) Strategy {
 	return func(attempt uint, _ error) bool {
 		if 0 < attempt {
 			time.Sleep(transformation(algorithm(attempt)))
@@ -76,7 +74,7 @@ func BackoffWithJitter(algorithm backoff.Algorithm, transformation jitter.Transf
 }
 
 // noJitter creates a jitter.Transformation that simply returns the input.
-func noJitter() jitter.Transformation {
+func noJitter() func(time.Duration) time.Duration {
 	return func(duration time.Duration) time.Duration {
 		return duration
 	}
