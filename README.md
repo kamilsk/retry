@@ -126,7 +126,7 @@ $ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..
 
 [![asciicast](https://asciinema.org/a/150367.png)](https://asciinema.org/a/150367)
 
-See more details [here](cmd/retry).
+See more details [here][cli].
 
 ## Installation
 
@@ -155,6 +155,7 @@ made with ❤️ by [OctoLab][octolab]
 
 [awesome]:         https://github.com/avelino/awesome-go#utilities
 [build]:           https://travis-ci.org/kamilsk/retry
+[cli]:             https://github.com/kamilsk/retry.cli
 [docs]:            https://godoc.org/github.com/kamilsk/retry
 [gitter]:          https://gitter.im/kamilsk/retry
 [license]:         LICENSE
