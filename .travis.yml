@@ -13,6 +13,7 @@ sudo: false
 
 before_install:
 - export GO111MODULE=on
+- export GOFLAGS=-mod=vendor
 
 script:
 - make test
