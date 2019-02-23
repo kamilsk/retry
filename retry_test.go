@@ -1,4 +1,4 @@
-package retry_test
+package retry
 
 import (
 	"context"
@@ -6,8 +6,6 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/kamilsk/retry/v4"
-	. "github.com/kamilsk/retry/v4/strategy"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +27,7 @@ func TestRetry(t *testing.T) {
 		{
 			"zero iterations",
 			newClosedBreaker(),
-			[]func(attempt uint, err error) bool{Delay(delta), Limit(10000)},
+			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
 			Assert{0, func(t assert.TestingT, err error, _ ...interface{}) bool {
 				return assert.Error(t, err) && assert.True(t, IsInterrupted(err))
@@ -45,14 +43,14 @@ func TestRetry(t *testing.T) {
 		{
 			"two iterations",
 			nil,
-			[]func(attempt uint, err error) bool{Limit(2)},
+			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
 			Assert{2, assert.Error},
 		},
 		{
 			"three iterations",
 			newBreaker(),
-			[]func(attempt uint, err error) bool{Limit(3)},
+			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(t assert.TestingT, err error, _ ...interface{}) bool {
 				return assert.EqualError(t, err, "three iterations")
@@ -99,7 +97,7 @@ func TestTry(t *testing.T) {
 		{
 			"zero iterations",
 			newClosedBreaker(),
-			[]func(attempt uint, err error) bool{Delay(delta), Limit(10000)},
+			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
 			Assert{0, func(t assert.TestingT, err error, _ ...interface{}) bool {
 				return assert.Error(t, err) && assert.True(t, IsInterrupted(err))
@@ -115,14 +113,14 @@ func TestTry(t *testing.T) {
 		{
 			"two iterations",
 			nil,
-			[]func(attempt uint, err error) bool{Limit(2)},
+			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
 			Assert{2, assert.Error},
 		},
 		{
 			"three iterations",
 			newPanicBreaker(),
-			[]func(attempt uint, err error) bool{Limit(3)},
+			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(t assert.TestingT, err error, _ ...interface{}) bool {
 				return assert.EqualError(t, err, "three iterations")
@@ -173,7 +171,7 @@ func TestTryContext(t *testing.T) {
 				cancel()
 				return ctx
 			}(),
-			[]func(attempt uint, err error) bool{Delay(delta), Limit(10000)},
+			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
 			Assert{0, func(t assert.TestingT, err error, _ ...interface{}) bool {
 				return assert.Error(t, err) && assert.True(t, IsInterrupted(err))
@@ -189,14 +187,14 @@ func TestTryContext(t *testing.T) {
 		{
 			"two iterations",
 			nil,
-			[]func(attempt uint, err error) bool{Limit(2)},
+			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
 			Assert{2, assert.Error},
 		},
 		{
 			"three iterations",
 			context.Background(),
-			[]func(attempt uint, err error) bool{Limit(3)},
+			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(t assert.TestingT, err error, _ ...interface{}) bool {
 				return assert.EqualError(t, err, "three iterations")
@@ -228,6 +226,22 @@ func TestTryContext(t *testing.T) {
 		assert.Equal(t, "Catch Me If You Can", cause)
 		cancel()
 	})
+}
+
+func delay(duration time.Duration) func(uint, error) bool {
+	return func(attempt uint, _ error) bool {
+		if 0 == attempt {
+			time.Sleep(duration)
+		}
+
+		return true
+	}
+}
+
+func limit(attemptLimit uint) func(uint, error) bool {
+	return func(attempt uint, _ error) bool {
+		return attempt < attemptLimit
+	}
 }
 
 func newBreaker() *contextBreaker {

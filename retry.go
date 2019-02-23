@@ -1,5 +1,5 @@
-// Package retry provides functional mechanism based on channels
-// to perform actions repetitively until successful.
+// Package retry provides functional mechanism to perform actions repetitively
+// until successful.
 package retry
 
 import (

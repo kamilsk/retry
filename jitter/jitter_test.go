@@ -1,11 +1,9 @@
-package jitter_test
+package jitter
 
 import (
 	"math/rand"
 	"testing"
 	"time"
-
-	. "github.com/kamilsk/retry/v4/jitter"
 )
 
 func TestFull(t *testing.T) {

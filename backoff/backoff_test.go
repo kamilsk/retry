@@ -1,11 +1,9 @@
-package backoff_test
+package backoff
 
 import (
 	"math"
 	"testing"
 	"time"
-
-	. "github.com/kamilsk/retry/v4/backoff"
 )
 
 func TestIncremental(t *testing.T) {

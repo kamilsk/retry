@@ -1,10 +1,8 @@
-package strategy_test
+package strategy
 
 import (
 	"testing"
 	"time"
-
-	. "github.com/kamilsk/retry/v4/strategy"
 )
 
 // timeMarginOfError represents the acceptable amount of time that may pass for
