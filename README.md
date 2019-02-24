@@ -1,37 +1,12 @@
 > # ♻️ retry
 >
-> Functional mechanism to perform actions repetitively until successful.
+> The most advanced functional mechanism to perform actions repetitively until successful.
 
 [![Awesome][icon_awesome]][awesome]
 [![Patreon][icon_patreon]][support]
 [![GoDoc][icon_docs]][docs]
 [![Research][icon_research]][research]
 [![License][icon_license]][license]
-
-## Important news
-
-The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
-
-```bash
-$ dep ensure -add github.com/kamilsk/retry@3.3.3
-```
-
-The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions **v3.4.x**
-to better integration with [Go Modules][gomod].
-
-```bash
-$ go get -u github.com/kamilsk/retry/v3@v3.4.4
-```
-
-The **[v4][]** branch is an actual development branch.
-
-```bash
-$ go get -u github.com/kamilsk/retry/v4
-
-$ dep ensure -add github.com/kamilsk/retry@v4.0.0-rc5
-```
-
-Version **v4.x.y** focused on integration with the 🚧 [breaker][] and the 🧰 [platform][] packages.
 
 ## Usage
 
@@ -116,34 +91,48 @@ if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 // work with response
 ```
 
+### Integration
+
+The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
+
+```bash
+$ dep ensure -add github.com/kamilsk/retry@3.3.3
+```
+
+The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions **v3.4.x**
+to better integration with [Go Modules][gomod].
+
+```bash
+$ go get -u github.com/kamilsk/retry/v3@v3.4.4
+```
+
+The **[v4][]** branch is an actual development branch.
+
+```bash
+$ go get -u github.com/kamilsk/retry/v4
+
+$ dep ensure -add github.com/kamilsk/retry@v4.0.0
+```
+
+Version **v4** focused on integration with the 🚧 [breaker][] package.
+
 ### Console tool for command execution with retries
 
 This example shows how to repeat console command until successful.
 
 ```bash
-$ retry --infinite -timeout 10m -backoff=lin:500ms -- /bin/sh -c 'echo "trying..."; exit $((1 + RANDOM % 10 > 5))'
+$ retry -timeout 10m -backoff lin:500ms -- /bin/sh -c 'echo "trying..."; exit $((1 + RANDOM % 10 > 5))'
 ```
 
 [![asciicast](https://asciinema.org/a/150367.png)](https://asciinema.org/a/150367)
 
 See more details [here][cli].
 
-## Installation
-
-```bash
-$ go get github.com/kamilsk/retry
-$ # or use mirror
-$ egg bitbucket.org/kamilsk/retry
-```
-
-> [egg][]<sup id="anchor-egg">[1](#egg)</sup> is an `extended go get`.
-
 ## Update
 
 This library is using [SemVer](https://semver.org/) for versioning, and it is not
-[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe.
-
-<sup id="egg">1</sup> The project is still in prototyping. [↩](#anchor-egg)
+[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. You can use [dep][],
+[glide][] or [Go Modules][gomod] to manage its version.
 
 ---
 
@@ -166,8 +155,10 @@ made with ❤️ by [OctoLab][octolab]
 [v3]:              https://github.com/kamilsk/retry/tree/v3
 [v4]:              https://github.com/kamilsk/retry/projects/4
 
-[egg]:             https://github.com/kamilsk/egg
 [breaker]:         https://github.com/kamilsk/breaker
+[dep]:             https://golang.github.io/dep/
+[egg]:             https://github.com/kamilsk/egg
+[glide]:           https://glide.sh/
 [gomod]:           https://github.com/golang/go/wiki/Modules
 [platform]:        https://github.com/kamilsk/platform
 
