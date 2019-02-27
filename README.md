@@ -91,6 +91,27 @@ if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 // work with response
 ```
 
+#### Complex example
+
+```go
+what := func(uint) error {
+	return do.Some("heavy work")
+}
+how := []func(uint, error) bool{
+	strategy.Limit(3),
+	strategy.BackoffWithJitter(
+		backoff.Fibonacci(10*time.Millisecond),
+		jitter.NormalDistribution(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
+			0.25,
+		),
+	),
+}
+if err := retry.Try(ctx, what, how...); err != nil {
+	log.Fatal(err)
+}
+```
+
 ### Integration
 
 The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
