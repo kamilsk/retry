@@ -51,7 +51,7 @@ if err := retry.Try(interrupter, action, strategy.Limit(3)); err != nil {
 // work with response
 ```
 
-Or use Context
+or use Context
 
 ```go
 ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
