@@ -5,9 +5,13 @@ SHELL := /bin/bash -euo pipefail
 deps:
 	@(go mod tidy && go mod vendor && go mod verify)
 
+.PHONY: update
+update:
+	@(go get -u)
 
-.PHONY: goimports
-goimports:
+
+.PHONY: format
+format:
 	@(goimports -ungroup -w .)
 
 
@@ -34,3 +38,11 @@ test-with-coverage-profile:   #| Runs tests with coverage and collects the resul
 .PHONY: test-example
 test-example:                 #| Runs example tests with coverage and collects the result.
 	@(go test -covermode count -coverprofile -run=Example -timeout 1s -v example.out ./...)
+
+
+.PHONY: sync
+sync:
+	@(git stash && git pull --rebase && git stash pop || true)
+
+.PHONY: upgrade
+upgrade: sync update deps format test-with-coverage-formatted
