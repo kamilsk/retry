@@ -97,7 +97,7 @@ if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 what := func(uint) error {
 	return do.Some("heavy work")
 }
-how := []func(uint, error) bool{
+how := retry.How{
 	strategy.Limit(3),
 	strategy.BackoffWithJitter(
 		backoff.Fibonacci(10*time.Millisecond),
