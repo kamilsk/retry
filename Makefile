@@ -1,4 +1,5 @@
 SHELL := /bin/bash -euo pipefail
+PKGS  := go list ./... | grep -v vendor | grep -v ^_
 
 
 .PHONY: deps
@@ -34,6 +35,19 @@ test-with-coverage-formatted: #| Runs tests with coverage and formats the result
 .PHONY: test-with-coverage-profile
 test-with-coverage-profile:   #| Runs tests with coverage and collects the result.
 	@(go test -covermode count -coverprofile cover.out -timeout 1s ./...)
+
+.PHONY: test-with-coverage-profile-old
+test-with-coverage-profile-old:
+	@(echo 'mode: count' > 'cover.out')
+	@(set -e; for package in $$($(PKGS)); do \
+	    go test -covermode count \
+	            -coverprofile "coverage_$${package##*/}.out" \
+	            -timeout 1s "$${package}"; \
+	    if [ -f "coverage_$${package##*/}.out" ]; then \
+	        sed '1d' "coverage_$${package##*/}.out" >> cover.out; \
+	        rm "coverage_$${package##*/}.out"; \
+	    fi \
+	done)
 
 .PHONY: test-example
 test-example:                 #| Runs example tests with coverage and collects the result.
