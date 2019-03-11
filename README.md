@@ -42,6 +42,8 @@ action := func(uint) error {
 	response, err = http.Get("https://github.com/kamilsk/retry")
 	return err
 }
+
+// you can also combine multiple Breakers into one
 interrupter := breaker.MultiplexTwo(
 	breaker.BreakByTimeout(time.Minute),
 	breaker.BreakBySignal(os.Interrupt),
@@ -80,13 +82,10 @@ action := func(ctx context.Context, _ uint) error {
 	response, err = http.DefaultClient.Do(req)
 	return err
 }
-ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
-br, ctx := breaker.WithContext(ctx)
-defer func() {
-	// they do the same thing
-	br.Close()
-	close()
-}()
+
+// you can also combine Context and Breaker together
+interrupter, ctx := breaker.WithContext(request.Context())
+defer interrupter.Close()
 
 if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 	// handle error
