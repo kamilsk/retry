@@ -1,4 +1,4 @@
-// Package strategy provides a way to change the way that retry is performed.
+// Package strategy provides a way to define how retry is performed.
 package strategy
 
 import "time"

@@ -19,11 +19,14 @@ type BreakCloser interface {
 }
 
 // Action defines a callable function that package retry can handle.
-// It is a draft for the future 5.x release.
 type Action func(attempt uint) error
 
 // How is an alias for batch of Strategies.
-// It is a draft for the future 5.x release.
+//
+//  how := retry.How{
+//  	strategy.Limit(3),
+//  }
+//
 type How []func(attempt uint, err error) bool
 
 // Interface defines a behavior of stateful executor of Actions in parallel.
