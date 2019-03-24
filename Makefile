@@ -34,7 +34,7 @@ test-with-coverage-formatted: #| Runs tests with coverage and formats the result
 
 .PHONY: test-with-coverage-profile
 test-with-coverage-profile:   #| Runs tests with coverage and collects the result.
-	@(go test -covermode count -coverprofile cover.out -timeout 1s ./...)
+	@(go test -covermode count -coverprofile c.out -timeout 1s ./...)
 
 .PHONY: test-with-coverage-profile-old
 test-with-coverage-profile-old:

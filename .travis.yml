@@ -15,9 +15,18 @@ sudo: false
 before_install:
 - export GO111MODULE=on
 - export GOFLAGS=-mod=vendor
+- export CODECLIMATE=https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+
+before_script:
+- if [[ $TRAVIS_GO_VERSION == 1.10* ]]; then curl -L $CODECLIMATE > ./cc-test-reporter; fi
+- if [[ $TRAVIS_GO_VERSION == 1.10* ]]; then chmod +x ./cc-test-reporter; fi
+- if [[ $TRAVIS_GO_VERSION == 1.10* ]]; then ./cc-test-reporter before-build; fi
 
 script:
-- make test
+- if [[ $TRAVIS_GO_VERSION == 1.10* ]]; then make test-with-coverage-profile; else make test; fi
+
+after_script:
+- if [[ $TRAVIS_GO_VERSION == 1.10* ]]; then ./cc-test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT; fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
