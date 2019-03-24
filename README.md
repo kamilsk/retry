@@ -132,7 +132,9 @@ $ go get -u github.com/kamilsk/retry/v3@v3.4.4
 The **[v4][]** branch is an actual development branch.
 
 ```bash
-$ go get -u github.com/kamilsk/retry/v4
+$ go get -u github.com/kamilsk/retry    # inside GOPATH and for old Go versions
+
+$ go get -u github.com/kamilsk/retry/v4 # inside Go module, works well since Go 1.11
 
 $ dep ensure -add github.com/kamilsk/retry@v4.0.0
 ```
