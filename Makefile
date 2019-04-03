@@ -8,7 +8,7 @@ deps:
 
 .PHONY: update
 update:
-	@(go get -u)
+	@(go get -mod= -u)
 
 
 .PHONY: format
