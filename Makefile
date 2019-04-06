@@ -2,6 +2,9 @@ SHELL := /bin/bash -euo pipefail
 PKGS  := go list ./... | grep -v vendor | grep -v ^_
 
 
+.DEFAULT_GOAL = test-with-coverage-formatted
+
+
 .PHONY: deps
 deps:
 	@(go mod tidy && go mod vendor && go mod verify)
