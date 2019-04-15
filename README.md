@@ -1,6 +1,6 @@
 > # ♻️ retry
 >
-> The most advanced functional mechanism to perform actions repetitively until successful.
+> The most advanced interruptible mechanism to perform actions repetitively until successful.
 
 [![Awesome][icon_awesome]][awesome]
 [![Patreon][icon_patreon]][support]
@@ -156,8 +156,8 @@ See more details [here][cli].
 ## Update
 
 This library is using [SemVer](https://semver.org/) for versioning, and it is not
-[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. You can use [dep][],
-[glide][] or [Go Modules][gomod] to manage its version.
+[BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe. You can use [dep][] or [go modules][gomod]
+to manage its version.
 
 ---
 
@@ -183,7 +183,6 @@ made with ❤️ by [OctoLab][octolab]
 [breaker]:         https://github.com/kamilsk/breaker
 [dep]:             https://golang.github.io/dep/
 [egg]:             https://github.com/kamilsk/egg
-[glide]:           https://glide.sh/
 [gomod]:           https://github.com/golang/go/wiki/Modules
 [platform]:        https://github.com/kamilsk/platform
 
