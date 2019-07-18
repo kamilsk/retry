@@ -1,6 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
+labels: type:bug, status:pending, help wanted
 ---
 
 **Describe the bug**
@@ -17,8 +18,8 @@ A clear and concise description of what you expected to happen.
 
 **Environment (please complete the following information):**
 
-- OS: [e.g. mac, linux]
-- OS version: [uname -a]
+- Package version:
+- Go version:
 
 **Additional context**
 
