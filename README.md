@@ -8,11 +8,21 @@
 [![Coverage][icon_coverage]][page_coverage]
 [![Awesome][icon_awesome]][page_awesome]
 
-## Usage
+## 💡 Idea
 
-### Quick start
+The package based on [github.com/Rican7/retry](https://github.com/Rican7/retry) but fully reworked.
 
-#### retry.Retry
+Full description of the idea is available
+[here](https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3).
+
+## 🏆 Motivation
+
+I developed distributed systems in [Lazada][lazada], and later in [Avito][avito],
+which communicate with each other through a network, and I need a package to make these communications more reliable.
+
+## 🤼‍♂️ How to
+
+### retry.Retry
 
 ```go
 var response *http.Response
@@ -29,7 +39,7 @@ if err := retry.Retry(breaker.BreakByTimeout(time.Minute), action, strategy.Limi
 // work with response
 ```
 
-#### retry.Try
+### retry.Try
 
 ```go
 var response *http.Response
@@ -65,7 +75,7 @@ if err := retry.Try(ctx, action, strategy.Limit(3)); err != nil {
 // work with response
 ```
 
-#### retry.TryContext
+### retry.TryContext
 
 ```go
 var response *http.Response
@@ -90,7 +100,7 @@ if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
 // work with response
 ```
 
-#### Complex example
+### Complex example
 
 ```go
 what := func(uint) error {
@@ -177,8 +187,10 @@ made with ❤️ for everyone
 [v3]:              https://github.com/kamilsk/retry/tree/v3
 [v4]:              https://github.com/kamilsk/retry/projects/4
 
+[avito]:           https://github.com/avito-tech
 [breaker]:         https://github.com/kamilsk/breaker
 [cli]:             https://github.com/kamilsk/retry.cli
 [dep]:             https://golang.github.io/dep/
 [egg]:             https://github.com/kamilsk/egg
 [gomod]:           https://github.com/golang/go/wiki/Modules
+[lazada]:          https://github.com/lazada

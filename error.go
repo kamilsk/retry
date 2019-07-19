@@ -8,6 +8,7 @@ func (err Error) Error() string {
 	return string(err)
 }
 
+// Interrupted is the error returned by retry when the context is canceled.
 const Interrupted Error = "operation interrupted"
 
 // IsInterrupted checks that the error is related to the Breaker interruption.
