@@ -1,10 +1,9 @@
-// Package retry provides the most advanced functional mechanism
-// to perform actions repetitively until successful until successful.
+// Package retry provides the most advanced interruptible mechanism
+// to perform actions repetitively until successful.
 package retry
 
 import (
 	"context"
-	"errors"
 	"sync/atomic"
 )
 
@@ -49,30 +48,8 @@ func TryContext(
 	return retry(ctx, currying(ctx, action), strategies...)
 }
 
-// IsInterrupted checks that the error is related to the Breaker interruption
-// on Retry call.
-func IsInterrupted(err error) bool {
-	return err == errInterrupted
-}
-
-// IsRecovered checks that the error is related to unhandled Action's panic
-// and returns an original cause of panic.
-func IsRecovered(err error) (interface{}, bool) {
-	if h, is := err.(panicHandler); is {
-		return h.recovered, true
-	}
-	return nil, false
-}
-
-var (
-	errPanic       = errors.New("unhandled action's panic")
-	errInterrupted = errors.New("operation was interrupted")
-)
-
 func currying(ctx context.Context, action func(context.Context, uint) error) func(uint) error {
-	return func(attempt uint) error {
-		return action(ctx, attempt)
-	}
+	return func(attempt uint) error { return action(ctx, attempt) }
 }
 
 func retry(
@@ -83,33 +60,25 @@ func retry(
 	if (breaker == nil || breaker.Done() == nil) && len(strategies) == 0 {
 		return action(0)
 	}
-	var (
-		interrupted  uint32
-		interruption <-chan struct{}
-	)
-	if breaker != nil {
-		interruption = breaker.Done()
-	}
 
+	var interrupted uint32
 	done := make(chan error, 1)
-	go func() {
+	go func(breaker *uint32) {
 		var err error
 
 		defer close(done)
 		defer func() { done <- err }()
 		defer panicHandler{}.recover(&err)
 
-		for attempt := uint(0); shouldAttempt(attempt, err, strategies...) &&
-			!atomic.CompareAndSwapUint32(&interrupted, 1, 0); attempt++ {
-
+		for attempt := uint(0); shouldAttempt(breaker, attempt, err, strategies...); attempt++ {
 			err = action(attempt)
 		}
-	}()
+	}(&interrupted)
 
 	select {
-	case <-interruption:
+	case <-breaker.Done():
 		atomic.CompareAndSwapUint32(&interrupted, 0, 1)
-		return errInterrupted
+		return Interrupted
 	case err := <-done:
 		return err
 	}
@@ -117,23 +86,12 @@ func retry(
 
 // shouldAttempt evaluates the provided strategies with the given attempt to
 // determine if the Retry loop should make another attempt.
-func shouldAttempt(attempt uint, err error, strategies ...func(uint, error) bool) bool {
+func shouldAttempt(breaker *uint32, attempt uint, err error, strategies ...func(uint, error) bool) bool {
 	should := attempt == 0 || err != nil
 
 	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
 		should = should && strategies[i](attempt, err)
 	}
 
-	return should
-}
-
-type panicHandler struct {
-	error
-	recovered interface{}
-}
-
-func (panicHandler) recover(err *error) {
-	if r := recover(); r != nil {
-		*err = panicHandler{errPanic, r}
-	}
+	return should && !atomic.CompareAndSwapUint32(breaker, 1, 0)
 }
