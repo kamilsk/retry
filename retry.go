@@ -62,13 +62,14 @@ func retry(
 	}
 
 	var interrupted uint32
-	done := make(chan error, 1)
+	done := make(chan result, 1)
 	go func(breaker *uint32) {
 		var err error
 
-		defer close(done)
-		defer func() { done <- err }()
-		defer panicHandler{}.recover(&err)
+		defer func() {
+			done <- result{err, recover()}
+			close(done)
+		}()
 
 		for attempt := uint(0); shouldAttempt(breaker, attempt, err, strategies...); attempt++ {
 			err = action(attempt)
@@ -80,7 +81,12 @@ func retry(
 		atomic.CompareAndSwapUint32(&interrupted, 0, 1)
 		return Interrupted
 	case err := <-done:
-		return err
+		if _, is := IsRecovered(err); is {
+			return err
+			// TODO:v5 throw origin
+			// panic(origin)
+		}
+		return err.error
 	}
 }
 
