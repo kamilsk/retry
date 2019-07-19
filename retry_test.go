@@ -16,59 +16,53 @@ func TestRetry(t *testing.T) {
 		Error    func(error) bool
 	}
 
-	tests := []struct {
-		name       string
+	tests := map[string]struct {
 		breaker    BreakCloser
 		strategies []func(attempt uint, err error) bool
 		error      error
 		assert     Assert
 	}{
-		{
-			"zero iterations",
+		"zero iterations": {
 			newClosedBreaker(),
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, IsInterrupted},
+			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
 		},
-		{
-			"one iteration",
+		"one iteration": {
 			newBreaker(),
 			nil,
 			nil,
 			Assert{1, func(err error) bool { return err == nil }},
 		},
-		{
-			"two iterations",
+		"two iterations": {
 			newBreaker(),
 			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
-			Assert{2, func(err error) bool { return err != nil }},
+			Assert{2, func(err error) bool { return err != nil && err.Error() == "two iterations" }},
 		},
-		{
-			"three iterations",
+		"three iterations": {
 			newBreaker(),
 			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
 		},
 	}
-	for _, test := range tests {
-		tc := test
-		t.Run(test.name, func(t *testing.T) {
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
 			var total uint
 			action := func(attempt uint) error {
 				total = attempt + 1
-				return tc.error
+				return test.error
 			}
-			err := Retry(tc.breaker, action, tc.strategies...)
-			if !tc.assert.Error(err) {
+			err := Retry(test.breaker, action, test.strategies...)
+			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
 			if _, is := IsRecovered(err); is {
 				t.Error("recovered panic is not expected")
 			}
-			if tc.assert.Attempts != total {
-				t.Errorf("expected %d attempts, obtained %d", tc.assert.Attempts, total)
+			if test.assert.Attempts != total {
+				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
 			}
 		})
 	}
@@ -90,59 +84,53 @@ func TestTry(t *testing.T) {
 		Error    func(error) bool
 	}
 
-	tests := []struct {
-		name       string
+	tests := map[string]struct {
 		breaker    Breaker
 		strategies []func(attempt uint, err error) bool
 		error      error
 		assert     Assert
 	}{
-		{
-			"zero iterations",
+		"zero iterations": {
 			newClosedBreaker(),
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, IsInterrupted},
+			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
 		},
-		{
-			"one iteration",
+		"one iteration": {
 			newBreaker(),
 			nil,
 			nil,
 			Assert{1, func(err error) bool { return err == nil }},
 		},
-		{
-			"two iterations",
+		"two iterations": {
 			newBreaker(),
 			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
-			Assert{2, func(err error) bool { return err != nil }},
+			Assert{2, func(err error) bool { return err != nil && err.Error() == "two iterations" }},
 		},
-		{
-			"three iterations",
+		"three iterations": {
 			newPanicBreaker(),
 			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
 		},
 	}
-	for _, test := range tests {
-		tc := test
-		t.Run(test.name, func(t *testing.T) {
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
 			var total uint
 			action := func(attempt uint) error {
 				total = attempt + 1
-				return tc.error
+				return test.error
 			}
-			err := Try(tc.breaker, action, tc.strategies...)
-			if !tc.assert.Error(err) {
+			err := Try(test.breaker, action, test.strategies...)
+			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
 			if _, is := IsRecovered(err); is {
 				t.Error("recovered panic is not expected")
 			}
-			if tc.assert.Attempts != total {
-				t.Errorf("expected %d attempts, obtained %d", tc.assert.Attempts, total)
+			if test.assert.Attempts != total {
+				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
 			}
 		})
 	}
@@ -164,15 +152,13 @@ func TestTryContext(t *testing.T) {
 		Error    func(error) bool
 	}
 
-	tests := []struct {
-		name       string
+	tests := map[string]struct {
 		ctx        context.Context
 		strategies []func(attempt uint, err error) bool
 		error      error
 		assert     Assert
 	}{
-		{
-			"zero iterations",
+		"zero iterations": {
 			func() context.Context {
 				ctx, cancel := context.WithCancel(context.Background())
 				cancel()
@@ -180,50 +166,46 @@ func TestTryContext(t *testing.T) {
 			}(),
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, IsInterrupted},
+			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
 		},
-		{
-			"one iteration",
+		"one iteration": {
 			context.Background(),
 			nil,
 			nil,
 			Assert{1, func(err error) bool { return err == nil }},
 		},
-		{
-			"two iterations",
+		"two iterations": {
 			context.Background(),
 			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
-			Assert{2, func(err error) bool { return err != nil }},
+			Assert{2, func(err error) bool { return err != nil && err.Error() == "two iterations" }},
 		},
-		{
-			"three iterations",
+		"three iterations": {
 			context.Background(),
 			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
 		},
 	}
-	for _, test := range tests {
-		tc := test
-		t.Run(test.name, func(t *testing.T) {
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
 			var total uint
 			action := func(ctx context.Context, attempt uint) error {
-				if !reflect.DeepEqual(tc.ctx, ctx) {
+				if !reflect.DeepEqual(test.ctx, ctx) {
 					t.Fatal("an unexpected context obtained")
 				}
 				total = attempt + 1
-				return tc.error
+				return test.error
 			}
-			err := TryContext(tc.ctx, action, tc.strategies...)
-			if !tc.assert.Error(err) {
+			err := TryContext(test.ctx, action, test.strategies...)
+			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
 			if _, is := IsRecovered(err); is {
 				t.Error("recovered panic is not expected")
 			}
-			if tc.assert.Attempts != total {
-				t.Errorf("expected %d attempts, obtained %d", tc.assert.Attempts, total)
+			if test.assert.Attempts != total {
+				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
 			}
 		})
 	}

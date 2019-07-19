@@ -30,7 +30,7 @@ type Action func(attempt uint) error
 type How []func(attempt uint, err error) bool
 
 // Interface defines a behavior of stateful executor of Actions in parallel.
-// It is a draft for the future 5.x release.
+// TODO:v5 complete the draft
 type Interface interface {
 	Try(Breaker, Action, ...How) Interface
 }
