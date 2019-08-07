@@ -25,8 +25,7 @@ func Example() {
 				err = fmt.Errorf("unexpected panic: %v", r)
 			}
 		}()
-		err = SendRequest()
-		return
+		return SendRequest()
 	}
 
 	how := retry.How{
