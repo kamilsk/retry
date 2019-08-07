@@ -17,10 +17,11 @@ func Retry(
 	action func(attempt uint) error,
 	strategies ...func(attempt uint, err error) bool,
 ) error {
+	err := retry(breaker, action, strategies...)
 	if breaker != nil {
-		defer breaker.Close()
+		breaker.Close()
 	}
-	return retry(breaker, action, strategies...)
+	return err
 }
 
 // Try takes action and performs it, repetitively, until successful.
@@ -45,7 +46,10 @@ func TryContext(
 	action func(ctx context.Context, attempt uint) error,
 	strategies ...func(attempt uint, err error) bool,
 ) error {
-	return retry(ctx, currying(ctx, action), strategies...)
+	cascade, cancel := context.WithCancel(ctx)
+	err := retry(ctx, currying(cascade, action), strategies...)
+	cancel()
+	return err
 }
 
 func currying(ctx context.Context, action func(context.Context, uint) error) func(uint) error {
@@ -57,12 +61,9 @@ func retry(
 	action func(attempt uint) error,
 	strategies ...func(attempt uint, err error) bool,
 ) error {
-	if (breaker == nil || breaker.Done() == nil) && len(strategies) == 0 {
-		return action(0)
-	}
-
 	var interrupted uint32
 	done := make(chan result, 1)
+
 	go func(breaker *uint32) {
 		var err error
 

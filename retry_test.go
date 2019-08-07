@@ -153,7 +153,7 @@ func TestTryContext(t *testing.T) {
 	}
 
 	tests := map[string]struct {
-		ctx        context.Context
+		ctx        func () context.Context
 		strategies []func(attempt uint, err error) bool
 		error      error
 		assert     Assert
@@ -163,25 +163,25 @@ func TestTryContext(t *testing.T) {
 				ctx, cancel := context.WithCancel(context.Background())
 				cancel()
 				return ctx
-			}(),
+			},
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
 			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
 		},
 		"one iteration": {
-			context.Background(),
+			context.Background,
 			nil,
 			nil,
 			Assert{1, func(err error) bool { return err == nil }},
 		},
 		"two iterations": {
-			context.Background(),
+			context.Background,
 			[]func(attempt uint, err error) bool{limit(2)},
 			errors.New("two iterations"),
 			Assert{2, func(err error) bool { return err != nil && err.Error() == "two iterations" }},
 		},
 		"three iterations": {
-			context.Background(),
+			context.Background,
 			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
@@ -191,13 +191,10 @@ func TestTryContext(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			var total uint
 			action := func(ctx context.Context, attempt uint) error {
-				if !reflect.DeepEqual(test.ctx, ctx) {
-					t.Fatal("an unexpected context obtained")
-				}
 				total = attempt + 1
 				return test.error
 			}
-			err := TryContext(test.ctx, action, test.strategies...)
+			err := TryContext(test.ctx(), action, test.strategies...)
 			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
