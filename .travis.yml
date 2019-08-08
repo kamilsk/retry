@@ -6,6 +6,11 @@ cache:
   - $HOME/.cache/go-build
   - $HOME/gopath/pkg/mod
 
+env:
+  global:
+  - CODECLIMATE=https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+  - GO111MODULE=on
+
 go:
 - master
 - 1.x
@@ -16,9 +21,6 @@ go:
 - 1.11.x
 - 1.12.x
 
-before_install:
-- export CODECLIMATE=https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-
 before_script:
 - if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then curl -L $CODECLIMATE > ./cc-test-reporter; fi
 - if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then chmod +x ./cc-test-reporter; fi
@@ -28,7 +30,9 @@ script:
 - if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then make test-with-coverage-profile; else make test; fi
 
 after_script:
-- if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then ./cc-test-reporter after-build -t gocov --exit-code $TRAVIS_TEST_RESULT; fi
+- if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then export EXIT_CODE=$TRAVIS_TEST_RESULT; fi
+- if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then export PREFIX=$(basename $(go list -m)); fi
+- if [[ $TRAVIS_GO_VERSION == 1.12* ]]; then ./cc-test-reporter after-build -t gocov -p $PREFIX; fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN
