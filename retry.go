@@ -18,9 +18,7 @@ func Retry(
 	strategies ...func(attempt uint, err error) bool,
 ) error {
 	err := retry(breaker, action, strategies...)
-	if breaker != nil {
-		breaker.Close()
-	}
+	breaker.Close()
 	return err
 }
 
