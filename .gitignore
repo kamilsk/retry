@@ -1,2 +1,5 @@
 # code coverage and quality reports
 *.out
+
+# binaries
+cc-test-reporter
