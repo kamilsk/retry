@@ -174,21 +174,6 @@ The library uses [SemVer](https://semver.org) for versioning, and it is not
 You can use [go modules](https://github.com/golang/go/wiki/Modules) or
 [dep](https://golang.github.io/dep/) to manage its version.
 
-The **[master][legacy]** is a feature frozen branch for versions **3.3.x** and no longer maintained.
-
-```bash
-$ dep ensure -add github.com/kamilsk/retry@3.3.3
-```
-
-The **[v3][]** branch is a continuation of the **[master][legacy]** branch for versions **v3.4.x**
-to better integration with [go modules](https://github.com/golang/go/wiki/Modules).
-
-```bash
-$ go get -u github.com/kamilsk/retry/v3@v3.4.4
-```
-
-The **[v4][]** branch is an actual development branch.
-
 ```bash
 $ go get -u github.com/kamilsk/retry    # inside GOPATH and for old Go versions
 
@@ -234,10 +219,6 @@ made with ❤️ for everyone
 [design]:           https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
 [egg]:              https://github.com/kamilsk/egg
 [promo]:            https://github.com/kamilsk/retry
-
-[legacy]:           https://github.com/kamilsk/retry/tree/master
-[v3]:               https://github.com/kamilsk/retry/tree/v3
-[v4]:               https://github.com/kamilsk/retry/projects/4
 
 [tmp.docs]:         https://nicedoc.io/kamilsk/retry?theme=dark
 [tmp.history]:      https://github.githistory.xyz/kamilsk/retry/blob/v4/README.md
