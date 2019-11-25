@@ -32,12 +32,12 @@ func TestLimit(t *testing.T) {
 }
 
 func TestDelay(t *testing.T) {
-	const delayDuration = time.Duration(10 * timeMarginOfError)
+	const delayDuration = 10 * timeMarginOfError
 
 	policy := Delay(delayDuration)
 
 	if now := time.Now(); !policy(0, nil) || delayDuration > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", time.Duration(delayDuration))
+		t.Errorf("strategy expected to return true in %s", delayDuration)
 	}
 
 	if now := time.Now(); !policy(5, nil) || (delayDuration/10) < time.Since(now) {
@@ -58,7 +58,7 @@ func TestWait(t *testing.T) {
 }
 
 func TestWaitWithDuration(t *testing.T) {
-	const waitDuration = time.Duration(10 * timeMarginOfError)
+	const waitDuration = 10 * timeMarginOfError
 
 	policy := Wait(waitDuration)
 
@@ -67,16 +67,16 @@ func TestWaitWithDuration(t *testing.T) {
 	}
 
 	if now := time.Now(); !policy(1, nil) || waitDuration > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", time.Duration(waitDuration))
+		t.Errorf("strategy expected to return true in %s", waitDuration)
 	}
 }
 
 func TestWaitWithMultipleDurations(t *testing.T) {
 	waitDurations := []time.Duration{
-		time.Duration(10 * timeMarginOfError),
-		time.Duration(20 * timeMarginOfError),
-		time.Duration(30 * timeMarginOfError),
-		time.Duration(40 * timeMarginOfError),
+		10 * timeMarginOfError,
+		20 * timeMarginOfError,
+		30 * timeMarginOfError,
+		40 * timeMarginOfError,
 	}
 
 	policy := Wait(waitDurations...)
@@ -86,7 +86,7 @@ func TestWaitWithMultipleDurations(t *testing.T) {
 	}
 
 	if now := time.Now(); !policy(1, nil) || waitDurations[0] > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", time.Duration(waitDurations[0]))
+		t.Errorf("strategy expected to return true in %s", waitDurations[0])
 	}
 
 	if now := time.Now(); !policy(3, nil) || waitDurations[2] > time.Since(now) {
@@ -99,7 +99,7 @@ func TestWaitWithMultipleDurations(t *testing.T) {
 }
 
 func TestBackoff(t *testing.T) {
-	const backoffDuration = time.Duration(10 * timeMarginOfError)
+	const backoffDuration = 10 * timeMarginOfError
 	const algorithmDurationBase = timeMarginOfError
 
 	algorithm := func(attempt uint) time.Duration {
@@ -122,7 +122,7 @@ func TestBackoff(t *testing.T) {
 }
 
 func TestBackoffWithJitter(t *testing.T) {
-	const backoffDuration = time.Duration(10 * timeMarginOfError)
+	const backoffDuration = 10 * timeMarginOfError
 	const algorithmDurationBase = timeMarginOfError
 
 	algorithm := func(attempt uint) time.Duration {
@@ -130,7 +130,7 @@ func TestBackoffWithJitter(t *testing.T) {
 	}
 
 	transformation := func(duration time.Duration) time.Duration {
-		return duration - time.Duration(10*timeMarginOfError)
+		return duration - 10*timeMarginOfError
 	}
 
 	policy := BackoffWithJitter(algorithm, transformation)

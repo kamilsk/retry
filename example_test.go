@@ -19,14 +19,7 @@ import (
 var generator = rand.New(rand.NewSource(0))
 
 func Example() {
-	what := func(uint) (err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = fmt.Errorf("unexpected panic: %v", r)
-			}
-		}()
-		return SendRequest()
-	}
+	what := func(uint) (err error) { return SendRequest() }
 
 	how := retry.How{
 		strategy.Limit(5),

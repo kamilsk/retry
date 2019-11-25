@@ -1,5 +1,13 @@
 package retry
 
+import "context"
+
+// Action defines a callable function that package retry can handle.
+type Action func(attempt uint) error
+
+// InterruptibleAction defines a callable function that package retry can handle.
+type InterruptibleAction func(ctx context.Context, attempt uint) error
+
 // A Breaker carries a cancellation signal to break an action execution.
 //
 // It is a subset of context.Context and github.com/kamilsk/breaker.Breaker.
@@ -18,9 +26,6 @@ type BreakCloser interface {
 	Close()
 }
 
-// Action defines a callable function that package retry can handle.
-type Action func(attempt uint) error
-
 // How is an alias for batch of Strategies.
 //
 //  how := retry.How{
@@ -28,9 +33,3 @@ type Action func(attempt uint) error
 //  }
 //
 type How []func(attempt uint, err error) bool
-
-// Interface defines a behavior of stateful executor of Actions in parallel.
-// TODO:v5 complete the draft
-type Interface interface {
-	Try(Breaker, Action, ...How) Interface
-}

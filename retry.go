@@ -2,12 +2,9 @@
 // to perform actions repetitively until successful.
 package retry
 
-import (
-	"context"
-	"sync/atomic"
-)
+import "sync/atomic"
 
-// Retry takes action and performs it, repetitively, until successful.
+// Retry takes an action and performs it, repetitively, until successful.
 // When it is done it releases resources associated with the Breaker.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
@@ -22,7 +19,7 @@ func Retry(
 	return err
 }
 
-// Try takes action and performs it, repetitively, until successful.
+// Try takes an action and performs it, repetitively, until successful.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
@@ -32,26 +29,6 @@ func Try(
 	strategies ...func(attempt uint, err error) bool,
 ) error {
 	return retry(breaker, action, strategies...)
-}
-
-// TryContext takes action and performs it, repetitively, until successful.
-// It uses the Context as a Breaker to prevent unnecessary action execution.
-//
-// Optionally, strategies may be passed that assess whether or not an attempt
-// should be made.
-func TryContext(
-	ctx context.Context,
-	action func(ctx context.Context, attempt uint) error,
-	strategies ...func(attempt uint, err error) bool,
-) error {
-	cascade, cancel := context.WithCancel(ctx)
-	err := retry(ctx, currying(cascade, action), strategies...)
-	cancel()
-	return err
-}
-
-func currying(ctx context.Context, action func(context.Context, uint) error) func(uint) error {
-	return func(attempt uint) error { return action(ctx, attempt) }
 }
 
 func retry(
@@ -77,7 +54,7 @@ func retry(
 
 	select {
 	case <-breaker.Done():
-		atomic.CompareAndSwapUint32(&interrupted, 0, 1)
+		atomic.StoreUint32(&interrupted, 1)
 		return Interrupted
 	case err := <-done:
 		if _, is := IsRecovered(err); is {
@@ -98,5 +75,5 @@ func shouldAttempt(breaker *uint32, attempt uint, err error, strategies ...func(
 		should = should && strategies[i](attempt, err)
 	}
 
-	return should && !atomic.CompareAndSwapUint32(breaker, 1, 0)
+	return should && atomic.LoadUint32(breaker) == 0
 }

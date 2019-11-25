@@ -11,7 +11,7 @@
 ## 💡 Idea
 
 The package based on [github.com/Rican7/retry](https://github.com/Rican7/retry) but fully reworked
-and focused on integration with the 🚧 [breaker][] package.
+and focused on integration with the 🚧 [breaker][] and the built-in [context][] packages.
 
 Full description of the idea is available [here][design].
 
@@ -216,6 +216,7 @@ made with ❤️ for everyone
 [cli]:              https://github.com/kamilsk/retry.cli
 [cli.demo]:         https://asciinema.org/a/150367
 [cli.preview]:      https://asciinema.org/a/150367.png
+[context]:          https://pkg.go.dev/context
 [design]:           https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
 [egg]:              https://github.com/kamilsk/egg
 [promo]:            https://github.com/kamilsk/retry

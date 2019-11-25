@@ -3,7 +3,7 @@ package retry
 // Error defines package errors.
 type Error string
 
-// Error implements the error interface.
+// Error returns a string representation of an error.
 func (err Error) Error() string {
 	return string(err)
 }
