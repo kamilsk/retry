@@ -213,7 +213,7 @@ made with ❤️ for everyone
 [page_quality]:     https://goreportcard.com/report/github.com/kamilsk/retry
 
 [breaker]:          https://github.com/kamilsk/breaker
-[cli]:              https://github.com/kamilsk/retry.cli
+[cli]:              https://github.com/kamilsk/try
 [cli.demo]:         https://asciinema.org/a/150367
 [cli.preview]:      https://asciinema.org/a/150367.png
 [context]:          https://pkg.go.dev/context

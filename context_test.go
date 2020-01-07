@@ -5,6 +5,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestTryContext(t *testing.T) {
@@ -46,6 +47,15 @@ func TestTryContext(t *testing.T) {
 			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
+		},
+		"long iteration": {
+			func() context.Context {
+				ctx, _ := context.WithTimeout(context.Background(), delta)
+				return ctx
+			},
+			[]func(attempt uint, err error) bool{delay(time.Hour)},
+			errors.New("long iteration"),
+			Assert{0, func(err error) bool { return err == Interrupted }},
 		},
 	}
 	for name, test := range tests {
