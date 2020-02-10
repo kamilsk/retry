@@ -125,10 +125,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/kamilsk/retry/v4"
-	"github.com/kamilsk/retry/v4/backoff"
-	"github.com/kamilsk/retry/v4/jitter"
-	"github.com/kamilsk/retry/v4/strategy"
+	"github.com/kamilsk/retry/v5"
+	"github.com/kamilsk/retry/v5/backoff"
+	"github.com/kamilsk/retry/v5/jitter"
+	"github.com/kamilsk/retry/v5/strategy"
 )
 
 func main() {
@@ -168,15 +168,10 @@ func SendRequest() error {
 
 The library uses [SemVer](https://semver.org) for versioning, and it is not
 [BC](https://en.wikipedia.org/wiki/Backward_compatibility)-safe through major releases.
-You can use [go modules](https://github.com/golang/go/wiki/Modules) or
-[dep](https://golang.github.io/dep/) to manage its version.
+You can use [go modules](https://github.com/golang/go/wiki/Modules) to manage its version.
 
 ```bash
-# inside GOPATH and for old Go versions
-$ go get -u github.com/kamilsk/retry
-$ dep ensure -add github.com/kamilsk/retry@v4.0.0
-# inside Go module, works well since Go 1.11
-$ go get -u github.com/kamilsk/retry/v4
+$ go get github.com/kamilsk/retry/v5@latest
 ```
 
 ## 🤲 Outcomes

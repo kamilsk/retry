@@ -8,10 +8,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/kamilsk/retry/v4"
-	"github.com/kamilsk/retry/v4/backoff"
-	"github.com/kamilsk/retry/v4/jitter"
-	"github.com/kamilsk/retry/v4/strategy"
+	"github.com/kamilsk/retry/v5"
+	"github.com/kamilsk/retry/v5/backoff"
+	"github.com/kamilsk/retry/v5/jitter"
+	"github.com/kamilsk/retry/v5/strategy"
 )
 
 var generator = rand.New(rand.NewSource(0))

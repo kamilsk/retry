@@ -41,31 +41,25 @@ func retry(
 	action func(attempt uint) error,
 	strategies ...func(attempt uint, err error) bool,
 ) error {
-	var interrupted uint32
-	done := make(chan result, 1)
+	var (
+		err         error
+		interrupted uint32
+	)
+	done := make(chan struct{})
 
 	go func(breaker *uint32) {
-		var err error
-
-		defer func() {
-			done <- result{err, recover()}
-			close(done)
-		}()
-
 		for attempt := uint(0); shouldAttempt(breaker, attempt, err, strategies...); attempt++ {
 			err = action(attempt)
 		}
+		close(done)
 	}(&interrupted)
 
 	select {
 	case <-breaker.Done():
 		atomic.StoreUint32(&interrupted, 1)
 		return Interrupted
-	case err := <-done:
-		if _, is := IsRecovered(err); is {
-			return err
-		}
-		return err.error
+	case <-done:
+		return err
 	}
 }
 

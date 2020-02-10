@@ -2,7 +2,6 @@ package retry
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -25,7 +24,7 @@ func TestRetry(t *testing.T) {
 			newClosedBreaker(),
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
+			Assert{0, func(err error) bool { return err == Interrupted }},
 		},
 		"one iteration": {
 			newBreaker(),
@@ -57,24 +56,11 @@ func TestRetry(t *testing.T) {
 			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
-			if _, is := IsRecovered(err); is {
-				t.Error("recovered panic is not expected")
-			}
 			if test.assert.Attempts != total {
 				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
 			}
 		})
 	}
-	t.Run("unexpected panic", func(t *testing.T) {
-		err := Retry(newBreaker(), func(uint) error { panic("Catch Me If You Can") })
-		cause, is := IsRecovered(err)
-		if !is {
-			t.Fatal("recovered panic is expected")
-		}
-		if !reflect.DeepEqual(cause, "Catch Me If You Can") {
-			t.Fatal("Catch Me If You Can is expected")
-		}
-	})
 }
 
 func TestTry(t *testing.T) {
@@ -93,7 +79,7 @@ func TestTry(t *testing.T) {
 			newClosedBreaker(),
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
+			Assert{0, func(err error) bool { return err == Interrupted }},
 		},
 		"one iteration": {
 			newBreaker(),
@@ -125,22 +111,9 @@ func TestTry(t *testing.T) {
 			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
-			if _, is := IsRecovered(err); is {
-				t.Error("recovered panic is not expected")
-			}
 			if test.assert.Attempts != total {
 				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
 			}
 		})
 	}
-	t.Run("unexpected panic", func(t *testing.T) {
-		err := Try(newBreaker(), func(uint) error { panic("Catch Me If You Can") })
-		cause, is := IsRecovered(err)
-		if !is {
-			t.Fatal("recovered panic is expected")
-		}
-		if !reflect.DeepEqual(cause, "Catch Me If You Can") {
-			t.Fatal("Catch Me If You Can is expected")
-		}
-	})
 }

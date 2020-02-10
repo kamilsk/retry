@@ -3,7 +3,6 @@ package retry
 import (
 	"context"
 	"errors"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -28,7 +27,7 @@ func TestTryContext(t *testing.T) {
 			},
 			[]func(attempt uint, err error) bool{delay(delta), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, func(err error) bool { return IsInterrupted(err) && err.Error() == string(Interrupted) }},
+			Assert{0, func(err error) bool { return err == Interrupted }},
 		},
 		"one iteration": {
 			context.Background,
@@ -73,26 +72,9 @@ func TestTryContext(t *testing.T) {
 			if !test.assert.Error(err) {
 				t.Error("fail error assertion")
 			}
-			if _, is := IsRecovered(err); is {
-				t.Error("recovered panic is not expected")
-			}
 			if test.assert.Attempts != total {
 				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
 			}
 		})
 	}
-
-	// TODO:v5 will be removed
-	t.Run("unexpected panic", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
-		err := TryContext(ctx, func(context.Context, uint) error { panic("Catch Me If You Can") })
-		cause, is := IsRecovered(err)
-		if !is {
-			t.Fatal("recovered panic is expected")
-		}
-		if !reflect.DeepEqual(cause, "Catch Me If You Can") {
-			t.Fatal("Catch Me If You Can is expected")
-		}
-		cancel()
-	})
 }
