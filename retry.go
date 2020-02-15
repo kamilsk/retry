@@ -59,8 +59,6 @@ func retry(
 	case err := <-done:
 		if _, is := IsRecovered(err); is {
 			return err
-			// TODO:v5 throw origin
-			// panic(origin)
 		}
 		return err.error
 	}

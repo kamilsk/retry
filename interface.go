@@ -6,6 +6,9 @@ import "context"
 type Action func(attempt uint) error
 
 // InterruptibleAction defines a callable function that package retry can handle.
+//
+// Deprecated: use Action instead, it will be extended.
+// TODO:v5 will be removed
 type InterruptibleAction func(ctx context.Context, attempt uint) error
 
 // A Breaker carries a cancellation signal to break an action execution.
@@ -20,6 +23,9 @@ type Breaker interface {
 // and can release resources associated with it.
 //
 // It is a subset of github.com/kamilsk/breaker.Breaker.
+//
+// Deprecated: use Breaker instead, it will be extended.
+// TODO:v5 will be removed
 type BreakCloser interface {
 	Breaker
 	// Close closes the Done channel and releases resources associated with it.

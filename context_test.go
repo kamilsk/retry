@@ -77,6 +77,7 @@ func TestTryContext(t *testing.T) {
 			}
 		})
 	}
+
 	// TODO:v5 will be removed
 	t.Run("unexpected panic", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())

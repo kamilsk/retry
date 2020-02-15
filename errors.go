@@ -12,6 +12,7 @@ func (err Error) Error() string {
 const Interrupted Error = "operation interrupted"
 
 // IsInterrupted checks that the error is related to the Breaker interruption.
+//
 // Deprecated: use err == retry.Interrupted instead.
 // TODO:v5 will be removed
 func IsInterrupted(err error) bool {
@@ -20,6 +21,7 @@ func IsInterrupted(err error) bool {
 
 // IsRecovered checks that the error is related to unhandled Action's panic
 // and returns an original cause of panic.
+//
 // Deprecated: retry won't handle unexpected panic and throw it.
 // TODO:v5 will be removed
 func IsRecovered(err error) (interface{}, bool) {
