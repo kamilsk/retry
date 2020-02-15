@@ -9,6 +9,9 @@ import "sync/atomic"
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
+//
+// Deprecated: will be replaced by Do function (current Try).
+// TODO:v5 will be removed
 func Retry(
 	breaker BreakCloser,
 	action func(attempt uint) error,
@@ -23,6 +26,8 @@ func Retry(
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
+//
+// TODO:v5 will be renamed to Do
 func Try(
 	breaker Breaker,
 	action func(attempt uint) error,

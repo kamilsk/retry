@@ -7,6 +7,9 @@ import "context"
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
+//
+// Deprecated: will be replaced by Do function (current Try).
+// TODO:v5 will be removed
 func TryContext(
 	ctx context.Context,
 	action func(ctx context.Context, attempt uint) error,
