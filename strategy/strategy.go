@@ -16,17 +16,29 @@ type Strategy func(breaker Breaker, attempt uint) bool
 // Limit creates a Strategy that limits the number of attempts
 // that Retry will make.
 func Limit(value uint) Strategy {
-	return func(_ Breaker, attempt uint) bool {
-		return attempt < value
+	return func(breaker Breaker, attempt uint) bool {
+		select {
+		case <-breaker.Done():
+			return false
+		default:
+			return attempt < value
+		}
 	}
 }
 
 // Delay creates a Strategy that waits the given duration
 // before the first attempt is made.
 func Delay(duration time.Duration) Strategy {
-	return func(_ Breaker, attempt uint) bool {
+	return func(breaker Breaker, attempt uint) bool {
 		if 0 == attempt {
-			time.Sleep(duration)
+			timer := time.NewTimer(duration)
+			select {
+			case <-breaker.Done():
+				_ = timer.Stop()
+				return false
+			case <-timer.C:
+				_ = timer.Stop()
+			}
 		}
 
 		return true
@@ -37,7 +49,7 @@ func Delay(duration time.Duration) Strategy {
 // the first. If the number of attempts is greater than the number of durations
 // provided, then the strategy uses the last duration provided.
 func Wait(durations ...time.Duration) Strategy {
-	return func(_ Breaker, attempt uint) bool {
+	return func(breaker Breaker, attempt uint) bool {
 		if 0 < attempt && 0 < len(durations) {
 			durationIndex := int(attempt - 1)
 
@@ -45,7 +57,14 @@ func Wait(durations ...time.Duration) Strategy {
 				durationIndex = len(durations) - 1
 			}
 
-			time.Sleep(durations[durationIndex])
+			timer := time.NewTimer(durations[durationIndex])
+			select {
+			case <-breaker.Done():
+				_ = timer.Stop()
+				return false
+			case <-timer.C:
+				_ = timer.Stop()
+			}
 		}
 
 		return true
@@ -64,9 +83,16 @@ func BackoffWithJitter(
 	algorithm func(attempt uint) time.Duration,
 	transformation func(duration time.Duration) time.Duration,
 ) Strategy {
-	return func(_ Breaker, attempt uint) bool {
+	return func(breaker Breaker, attempt uint) bool {
 		if 0 < attempt {
-			time.Sleep(transformation(algorithm(attempt)))
+			timer := time.NewTimer(transformation(algorithm(attempt)))
+			select {
+			case <-breaker.Done():
+				_ = timer.Stop()
+				return false
+			case <-timer.C:
+				_ = timer.Stop()
+			}
 		}
 
 		return true
