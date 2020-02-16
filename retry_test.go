@@ -37,7 +37,7 @@ func TestDo(t *testing.T) {
 			Assert{2, func(err error) bool { return err != nil && err.Error() == "two iterations" }},
 		},
 		"three iterations": {
-			newPanicBreaker(),
+			newBreaker(),
 			[]func(attempt uint, err error) bool{limit(3)},
 			errors.New("three iterations"),
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},

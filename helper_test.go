@@ -32,10 +32,6 @@ func newClosedBreaker() *contextBreaker {
 	return breaker
 }
 
-func newPanicBreaker() Breaker {
-	return &panicBreaker{newBreaker()}
-}
-
 type contextBreaker struct {
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -49,10 +45,6 @@ func (breaker *contextBreaker) Close() {
 	breaker.cancel()
 }
 
-type panicBreaker struct {
-	*contextBreaker
-}
-
-func (*panicBreaker) Close() {
-	panic("unexpected method call")
+func (breaker *contextBreaker) Err() error {
+	return breaker.ctx.Err()
 }
