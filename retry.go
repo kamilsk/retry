@@ -29,7 +29,7 @@ func Do(
 	select {
 	case <-breaker.Done():
 		atomic.StoreUint32(&interrupted, 1)
-		return Interrupted
+		return breaker.Err()
 	case <-done:
 		return err
 	}

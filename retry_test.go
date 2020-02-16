@@ -1,6 +1,7 @@
 package retry
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -22,7 +23,7 @@ func TestDo(t *testing.T) {
 			newClosedBreaker(),
 			[]func(attempt uint, err error) bool{delay(10 * time.Millisecond), limit(10000)},
 			errors.New("zero iterations"),
-			Assert{0, func(err error) bool { return err == Interrupted }},
+			Assert{0, func(err error) bool { return err == context.Canceled }},
 		},
 		"one iteration": {
 			newBreaker(),
