@@ -34,7 +34,7 @@ func Example() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	if err := retry.Try(ctx, what, how...); err != nil {
+	if err := retry.Do(ctx, what, how...); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("success communication")

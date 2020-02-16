@@ -32,7 +32,7 @@ func newClosedBreaker() *contextBreaker {
 	return breaker
 }
 
-func newPanicBreaker() BreakCloser {
+func newPanicBreaker() Breaker {
 	return &panicBreaker{newBreaker()}
 }
 
