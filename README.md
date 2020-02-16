@@ -24,27 +24,7 @@ these communications more reliable.
 
 ## 🤼‍♂️ How to
 
-### retry.Retry
-
-```go
-var response *http.Response
-
-action := func(uint) error {
-	var err error
-	response, err = http.Get("https://github.com/kamilsk/retry")
-	return err
-}
-
-if err := retry.Retry(breaker.BreakByTimeout(time.Minute), action, strategy.Limit(3)); err != nil {
-	if err == retry.Interrupted {
-		// timeout exceeded
-	}
-	// handle error
-}
-// work with response
-```
-
-### retry.Try
+### retry.Do
 
 ```go
 var response *http.Response
@@ -62,7 +42,7 @@ interrupter := breaker.MultiplexTwo(
 )
 defer interrupter.Close()
 
-if err := retry.Try(interrupter, action, strategy.Limit(3)); err != nil {
+if err := retry.Do(interrupter, action, strategy.Limit(3)); err != nil {
 	if err == retry.Interrupted {
 		// timeout exceeded
 	}
@@ -77,35 +57,7 @@ or use Context
 ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
 defer cancel()
 
-if err := retry.Try(ctx, action, strategy.Limit(3)); err != nil {
-	if err == retry.Interrupted {
-		// timeout exceeded
-	}
-	// handle error
-}
-// work with response
-```
-
-### retry.TryContext
-
-```go
-var response *http.Response
-
-action := func(ctx context.Context, _ uint) error {
-	req, err := http.NewRequest(http.MethodGet, "https://github.com/kamilsk/retry", nil)
-	if err != nil {
-		return err
-	}
-	req = req.WithContext(ctx)
-	response, err = http.DefaultClient.Do(req)
-	return err
-}
-
-// you can combine Context and Breaker together
-interrupter, ctx := breaker.WithContext(request.Context())
-defer interrupter.Close()
-
-if err := retry.TryContext(ctx, action, strategy.Limit(3)); err != nil {
+if err := retry.Do(ctx, action, strategy.Limit(3)); err != nil {
 	if err == retry.Interrupted {
 		// timeout exceeded
 	}
@@ -154,7 +106,7 @@ func main() {
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)
-	if err := retry.Try(ctx, what, how...); err != nil {
+	if err := retry.Do(ctx, what, how...); err != nil {
 		log.Fatal(err)
 	}
 }
