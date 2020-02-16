@@ -11,20 +11,20 @@ import "time"
 // The strategy will be passed an "attempt" number on each successive retry
 // iteration, starting with a `0` value before the first attempt is actually
 // made. This allows for a pre-action delay, etc.
-type Strategy func(attempt uint, err error) bool
+type Strategy func(breaker Breaker, attempt uint) bool
 
-// Limit creates a Strategy that limits the number of attempts that Retry will
-// make.
-func Limit(attemptLimit uint) Strategy {
-	return func(attempt uint, _ error) bool {
-		return attempt < attemptLimit
+// Limit creates a Strategy that limits the number of attempts
+// that Retry will make.
+func Limit(value uint) Strategy {
+	return func(_ Breaker, attempt uint) bool {
+		return attempt < value
 	}
 }
 
-// Delay creates a Strategy that waits the given duration before the first
-// attempt is made.
+// Delay creates a Strategy that waits the given duration
+// before the first attempt is made.
 func Delay(duration time.Duration) Strategy {
-	return func(attempt uint, _ error) bool {
+	return func(_ Breaker, attempt uint) bool {
 		if 0 == attempt {
 			time.Sleep(duration)
 		}
@@ -37,7 +37,7 @@ func Delay(duration time.Duration) Strategy {
 // the first. If the number of attempts is greater than the number of durations
 // provided, then the strategy uses the last duration provided.
 func Wait(durations ...time.Duration) Strategy {
-	return func(attempt uint, _ error) bool {
+	return func(_ Breaker, attempt uint) bool {
 		if 0 < attempt && 0 < len(durations) {
 			durationIndex := int(attempt - 1)
 
@@ -64,7 +64,7 @@ func BackoffWithJitter(
 	algorithm func(attempt uint) time.Duration,
 	transformation func(duration time.Duration) time.Duration,
 ) Strategy {
-	return func(attempt uint, _ error) bool {
+	return func(_ Breaker, attempt uint) bool {
 		if 0 < attempt {
 			time.Sleep(transformation(algorithm(attempt)))
 		}

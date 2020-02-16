@@ -1,9 +1,11 @@
-package backoff
+package backoff_test
 
 import (
 	"math"
 	"testing"
 	"time"
+
+	. "github.com/kamilsk/retry/v5/backoff"
 )
 
 func TestConstant(t *testing.T) {

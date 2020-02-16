@@ -17,7 +17,7 @@ import (
 var generator = rand.New(rand.NewSource(0))
 
 func Example() {
-	what := func(uint) (err error) { return SendRequest() }
+	what := SendRequest
 
 	how := retry.How{
 		strategy.Limit(5),
@@ -31,10 +31,10 @@ func Example() {
 		strategy.CheckNetworkError(strategy.Skip),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	breaker, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	if err := retry.Do(ctx, what, how...); err != nil {
+	if err := retry.Do(breaker, what, how...); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("success communication")

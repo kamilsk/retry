@@ -2,33 +2,40 @@
 // to perform actions repetitively until successful.
 package retry
 
-import "sync/atomic"
+import "github.com/kamilsk/retry/v5/strategy"
+
+// Action defines a callable function that package retry can handle.
+type Action func() error
+
+// How is an alias for batch of Strategies.
+//
+//  how := retry.How{
+//  	strategy.Limit(3),
+//  }
+//
+type How []func(strategy.Breaker, uint) bool
 
 // Do takes an action and performs it, repetitively, until successful.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
 func Do(
-	breaker Breaker,
-	action func(attempt uint) error,
-	strategies ...func(attempt uint, err error) bool,
+	breaker strategy.Breaker,
+	action func() error,
+	strategies ...func(strategy.Breaker, uint) bool,
 ) error {
-	var (
-		err         error
-		interrupted uint32
-	)
+	var err error
 	done := make(chan struct{})
 
-	go func(breaker *uint32) {
+	go func() {
 		for attempt := uint(0); shouldAttempt(breaker, attempt, err, strategies...); attempt++ {
-			err = action(attempt)
+			err = action()
 		}
 		close(done)
-	}(&interrupted)
+	}()
 
 	select {
 	case <-breaker.Done():
-		atomic.StoreUint32(&interrupted, 1)
 		return breaker.Err()
 	case <-done:
 		return err
@@ -37,12 +44,12 @@ func Do(
 
 // shouldAttempt evaluates the provided strategies with the given attempt to
 // determine if the Retry loop should make another attempt.
-func shouldAttempt(breaker *uint32, attempt uint, err error, strategies ...func(uint, error) bool) bool {
+func shouldAttempt(breaker strategy.Breaker, attempt uint, err error, strategies ...func(strategy.Breaker, uint) bool) bool {
 	should := attempt == 0 || err != nil
 
 	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-		should = should && strategies[i](attempt, err)
+		should = should && strategies[i](breaker, attempt)
 	}
 
-	return should && atomic.LoadUint32(breaker) == 0
+	return should
 }

@@ -1,7 +1,4 @@
-package retry
-
-// Action defines a callable function that package retry can handle.
-type Action func(attempt uint) error
+package strategy
 
 // A Breaker carries a cancellation signal to break an action execution.
 //
@@ -16,11 +13,3 @@ type Breaker interface {
 	// return the same error.
 	Err() error
 }
-
-// How is an alias for batch of Strategies.
-//
-//  how := retry.How{
-//  	strategy.Limit(3),
-//  }
-//
-type How []func(attempt uint, err error) bool
