@@ -25,31 +25,63 @@ func Do(
 	strategies ...func(strategy.Breaker, uint) bool,
 ) error {
 	var err error
-	done := make(chan struct{})
+	for attempt, should := uint(0), true; should; attempt++ {
+		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
+			should = should && strategies[i](breaker, attempt)
+		}
+		select {
+		case <-breaker.Done():
+			return breaker.Err()
+		default:
+			if should {
+				err = action()
+			}
+		}
+		should = should && err != nil
+	}
+	return err
+}
+
+// DoAsync takes an action and performs it, repetitively, until successful.
+//
+// Optionally, strategies may be passed that assess whether or not an attempt
+// should be made.
+func DoAsync(
+	breaker strategy.Breaker,
+	action func() error,
+	strategies ...func(strategy.Breaker, uint) bool,
+) error {
+	done := make(chan error, 1)
 
 	go func() {
-		for attempt := uint(0); shouldAttempt(breaker, attempt, err, strategies...); attempt++ {
-			err = action()
+		defer func() {
+			if r := recover(); r != nil {
+				// TODO set error
+			}
+		}()
+		var err error
+		for attempt, should := uint(0), true; should; attempt++ {
+			for i, repeat := 0, len(strategies); should && i < repeat; i++ {
+				should = should && strategies[i](breaker, attempt)
+			}
+			select {
+			case <-breaker.Done():
+				return
+			default:
+				if should {
+					err = action()
+				}
+			}
+			should = should && err != nil
 		}
+		done <- err
 		close(done)
 	}()
 
 	select {
 	case <-breaker.Done():
 		return breaker.Err()
-	case <-done:
+	case err := <-done:
 		return err
 	}
-}
-
-// shouldAttempt evaluates the provided strategies with the given attempt to
-// determine if the Retry loop should make another attempt.
-func shouldAttempt(breaker strategy.Breaker, attempt uint, err error, strategies ...func(strategy.Breaker, uint) bool) bool {
-	should := attempt == 0 || err != nil
-
-	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-		should = should && strategies[i](breaker, attempt)
-	}
-
-	return should
 }
