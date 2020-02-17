@@ -58,24 +58,9 @@ func DoAsync(
 			if r := recover(); r != nil {
 				// TODO set error
 			}
+			close(done)
 		}()
-		var err error
-		for attempt, should := uint(0), true; should; attempt++ {
-			for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-				should = should && strategies[i](breaker, attempt)
-			}
-			select {
-			case <-breaker.Done():
-				return
-			default:
-				if should {
-					err = action()
-				}
-			}
-			should = should && err != nil
-		}
-		done <- err
-		close(done)
+		done <- Do(breaker, action, strategies...)
 	}()
 
 	select {

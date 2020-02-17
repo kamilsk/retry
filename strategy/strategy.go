@@ -17,12 +17,7 @@ type Strategy func(breaker Breaker, attempt uint) bool
 // that Retry will make.
 func Limit(value uint) Strategy {
 	return func(breaker Breaker, attempt uint) bool {
-		select {
-		case <-breaker.Done():
-			return false
-		default:
-			return attempt < value
-		}
+		return attempt < value
 	}
 }
 
