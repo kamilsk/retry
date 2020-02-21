@@ -6,6 +6,21 @@ import (
 	"time"
 )
 
+func TestConstant(t *testing.T) {
+	const duration = time.Millisecond
+
+	algorithm := Constant(duration)
+
+	for i := uint(0); i < 10; i++ {
+		result := algorithm(i)
+		expected := duration
+
+		if result != expected {
+			t.Errorf("algorithm expected to return a %s duration, but received %s instead", expected, result)
+		}
+	}
+}
+
 func TestIncremental(t *testing.T) {
 	const duration = time.Millisecond
 	const increment = time.Nanosecond

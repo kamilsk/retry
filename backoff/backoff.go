@@ -11,7 +11,15 @@ import (
 // the given retry attempt number.
 type Algorithm func(attempt uint) time.Duration
 
-// Incremental creates a Algorithm that increments the initial duration
+// Constant creates an Algorithm that returns the initial duration
+// by the all time.
+func Constant(duration time.Duration) Algorithm {
+	return func(uint) time.Duration {
+		return duration
+	}
+}
+
+// Incremental creates an Algorithm that increments the initial duration
 // by the given increment for each attempt.
 func Incremental(initial, increment time.Duration) Algorithm {
 	return func(attempt uint) time.Duration {
@@ -19,15 +27,13 @@ func Incremental(initial, increment time.Duration) Algorithm {
 	}
 }
 
-// Linear creates a Algorithm that linearly multiplies the factor
+// Linear creates an Algorithm that linearly multiplies the factor
 // duration by the attempt number for each attempt.
 func Linear(factor time.Duration) Algorithm {
-	return func(attempt uint) time.Duration {
-		return factor * time.Duration(attempt)
-	}
+	return Incremental(0, factor)
 }
 
-// Exponential creates a Algorithm that multiplies the factor duration by
+// Exponential creates an Algorithm that multiplies the factor duration by
 // an exponentially increasing factor for each attempt, where the factor is
 // calculated as the given base raised to the attempt number.
 func Exponential(factor time.Duration, base float64) Algorithm {
@@ -36,14 +42,14 @@ func Exponential(factor time.Duration, base float64) Algorithm {
 	}
 }
 
-// BinaryExponential creates a Algorithm that multiplies the factor
+// BinaryExponential creates an Algorithm that multiplies the factor
 // duration by an exponentially increasing factor for each attempt, where the
 // factor is calculated as `2` raised to the attempt number (2^attempt).
 func BinaryExponential(factor time.Duration) Algorithm {
 	return Exponential(factor, 2)
 }
 
-// Fibonacci creates a Algorithm that multiplies the factor duration by
+// Fibonacci creates an Algorithm that multiplies the factor duration by
 // an increasing factor for each attempt, where the factor is the Nth number in
 // the Fibonacci sequence.
 func Fibonacci(factor time.Duration) Algorithm {
