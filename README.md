@@ -3,23 +3,24 @@
 > The most advanced interruptible mechanism to perform actions repetitively until successful.
 
 [![Build][build.icon]][build.page]
-[![Quality][quality.icon]][quality.page]
 [![Documentation][docs.icon]][docs.page]
-[![Coverage][coverage.icon]][coverage.page]
+[![Quality][quality.icon]][quality.page]
 [![Template][template.icon]][template.page]
+[![Coverage][coverage.icon]][coverage.page]
 [![Awesome][awesome.icon]][awesome.page]
 
 ## 💡 Idea
 
-The package based on [github.com/Rican7/retry](https://github.com/Rican7/retry) but fully reworked
-and focused on integration with the 🚧 [breaker][] and the built-in [context][] packages.
+The package based on [Rican7/retry][] but fully reworked and focused on integration
+with the 🚧 [breaker][] and the built-in [context][] packages.
 
 Full description of the idea is available [here][design.page].
 
 ## 🏆 Motivation
 
-I developed distributed systems at [Lazada](https://github.com/lazada), and later at [Avito](https://tech.avito.ru),
-which communicate with each other through a network, and I need a package to make these communications more reliable.
+I developed distributed systems at [Lazada][], and later at [Avito][],
+which communicate with each other through a network, and I need a package to make
+these communications more reliable.
 
 ## 🤼‍♂️ How to
 
@@ -216,11 +217,14 @@ made with ❤️ for everyone
 [template.page]:    https://github.com/octomation/go-module
 [template.icon]:    https://img.shields.io/badge/template-go--module-blue
 
+[Avito]:            https://tech.avito.ru
 [breaker]:          https://github.com/kamilsk/breaker
 [cli]:              https://github.com/kamilsk/try
 [cli.demo]:         https://asciinema.org/a/150367
 [cli.preview]:      https://asciinema.org/a/150367.png
 [context]:          https://pkg.go.dev/context
+[Lazada]:           https://github.com/lazada
+[Rican7/retry]:     https://github.com/Rican7/retry
 
 [tmp.docs]:         https://nicedoc.io/kamilsk/retry?theme=dark
 [tmp.history]:      https://github.githistory.xyz/kamilsk/retry/blob/v4/README.md
