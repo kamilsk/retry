@@ -11,12 +11,12 @@ import "time"
 // The strategy will be passed an "attempt" number on each successive retry
 // iteration, starting with a `0` value before the first attempt is actually
 // made. This allows for a pre-action delay, etc.
-type Strategy func(breaker Breaker, attempt uint) bool
+type Strategy func(breaker Breaker, attempt uint, err error) bool
 
 // Limit creates a Strategy that limits the number of attempts
 // that Retry will make.
 func Limit(value uint) Strategy {
-	return func(breaker Breaker, attempt uint) bool {
+	return func(_ Breaker, attempt uint, _ error) bool {
 		return attempt < value
 	}
 }
@@ -24,8 +24,8 @@ func Limit(value uint) Strategy {
 // Delay creates a Strategy that waits the given duration
 // before the first attempt is made.
 func Delay(duration time.Duration) Strategy {
-	return func(breaker Breaker, attempt uint) bool {
-		if 0 == attempt {
+	return func(breaker Breaker, attempt uint, _ error) bool {
+		if attempt == 0 {
 			timer := time.NewTimer(duration)
 			select {
 			case <-breaker.Done():
@@ -44,8 +44,8 @@ func Delay(duration time.Duration) Strategy {
 // the first. If the number of attempts is greater than the number of durations
 // provided, then the strategy uses the last duration provided.
 func Wait(durations ...time.Duration) Strategy {
-	return func(breaker Breaker, attempt uint) bool {
-		if 0 < attempt && 0 < len(durations) {
+	return func(breaker Breaker, attempt uint, _ error) bool {
+		if attempt > 0 && len(durations) > 0 {
 			durationIndex := int(attempt - 1)
 
 			if len(durations) <= durationIndex {
@@ -69,7 +69,9 @@ func Wait(durations ...time.Duration) Strategy {
 // Backoff creates a Strategy that waits before each attempt, with a duration as
 // defined by the given backoff.Algorithm.
 func Backoff(algorithm func(attempt uint) time.Duration) Strategy {
-	return BackoffWithJitter(algorithm, noJitter())
+	return BackoffWithJitter(algorithm, func(duration time.Duration) time.Duration {
+		return duration
+	})
 }
 
 // BackoffWithJitter creates a Strategy that waits before each attempt, with a
@@ -78,8 +80,8 @@ func BackoffWithJitter(
 	algorithm func(attempt uint) time.Duration,
 	transformation func(duration time.Duration) time.Duration,
 ) Strategy {
-	return func(breaker Breaker, attempt uint) bool {
-		if 0 < attempt {
+	return func(breaker Breaker, attempt uint, _ error) bool {
+		if attempt > 0 {
 			timer := time.NewTimer(transformation(algorithm(attempt)))
 			select {
 			case <-breaker.Done():
@@ -91,12 +93,5 @@ func BackoffWithJitter(
 		}
 
 		return true
-	}
-}
-
-// noJitter creates a jitter.Transformation that simply returns the input.
-func noJitter() func(time.Duration) time.Duration {
-	return func(duration time.Duration) time.Duration {
-		return duration
 	}
 }

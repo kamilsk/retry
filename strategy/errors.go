@@ -16,7 +16,7 @@ type Error interface {
 // CheckError creates a Strategy that checks an error and returns
 // if an error is retriable or not. Otherwise, it returns the defaults.
 func CheckError(defaults bool) Strategy {
-	return func(_ uint, err error) bool {
+	return func(_ Breaker, _ uint, err error) bool {
 		if err == nil {
 			return true
 		}
@@ -31,7 +31,7 @@ func CheckError(defaults bool) Strategy {
 // if an error is the temporary network error.
 // The Strategy returns the defaults if an error is not a network error.
 func CheckNetworkError(defaults bool) Strategy {
-	return func(_ uint, err error) bool {
+	return func(_ Breaker, _ uint, err error) bool {
 		if err == nil {
 			return true
 		}
