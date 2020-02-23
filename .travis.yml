@@ -3,34 +3,45 @@ language: go
 
 cache:
   directories:
-  - $HOME/.cache/go-build
-  - $HOME/gopath/pkg/mod
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
 
 env:
   global:
-  - CODECLIMATE=https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-  - GO111MODULE=on
-  - GOFLAGS=-mod=vendor
+    - CODECLIMATE=https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
 
 go:
-- master
-- 1.x
-- 1.11.x
-- 1.12.x
-- 1.13.x
+  - master
+  - 1.x
+  - 1.11.x
+  - 1.12.x
+  - 1.13.x
+
+matrix:
+  allow_failures:
+    - go: master
 
 before_script:
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then curl -L $CODECLIMATE > ./cc-test-reporter; fi
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then chmod +x ./cc-test-reporter; fi
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then ./cc-test-reporter before-build; fi
+- |
+  if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then
+    curl -L $CODECLIMATE > bin/cc-test-reporter
+    chmod +x bin/cc-test-reporter
+    bin/cc-test-reporter before-build
+  fi
 
 script:
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then make test-with-coverage-profile; else make test; fi
+- |
+  if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then
+    make test-with-coverage-profile
+  else
+    make test
+  fi
 
 after_script:
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then export EXIT_CODE=$TRAVIS_TEST_RESULT; fi
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then export PREFIX=$(basename $(go list -m)); fi
-- if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then ./cc-test-reporter after-build -t gocov -p $PREFIX; fi
+- |
+  if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then
+    bin/cc-test-reporter after-build -t gocov -p $(basename $(go list -m)) --exit-code $TRAVIS_TEST_RESULT
+  fi
 
 notifications:
   slack: octolab:1eMS7IqOArBipiu31jYVd0cN

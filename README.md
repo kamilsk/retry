@@ -2,18 +2,19 @@
 >
 > The most advanced interruptible mechanism to perform actions repetitively until successful.
 
-[![Build][icon_build]][page_build]
-[![Quality][icon_quality]][page_quality]
-[![Documentation][icon_docs]][page_docs]
-[![Coverage][icon_coverage]][page_coverage]
-[![Awesome][icon_awesome]][page_awesome]
+[![Build][build.icon]][build.page]
+[![Quality][quality.icon]][quality.page]
+[![Documentation][docs.icon]][docs.page]
+[![Coverage][coverage.icon]][coverage.page]
+[![Template][template.icon]][template.page]
+[![Awesome][awesome.icon]][awesome.page]
 
 ## 💡 Idea
 
 The package based on [github.com/Rican7/retry](https://github.com/Rican7/retry) but fully reworked
 and focused on integration with the 🚧 [breaker][] and the built-in [context][] packages.
 
-Full description of the idea is available [here][design].
+Full description of the idea is available [here][design.page].
 
 ## 🏆 Motivation
 
@@ -175,11 +176,11 @@ You can use [go modules](https://github.com/golang/go/wiki/Modules) or
 [dep](https://golang.github.io/dep/) to manage its version.
 
 ```bash
-$ go get -u github.com/kamilsk/retry    # inside GOPATH and for old Go versions
-
-$ go get -u github.com/kamilsk/retry/v4 # inside Go module, works well since Go 1.11
-
+# inside GOPATH and for old Go versions
+$ go get -u github.com/kamilsk/retry
 $ dep ensure -add github.com/kamilsk/retry@v4.0.0
+# inside Go module, works well since Go 1.11
+$ go get -u github.com/kamilsk/retry/v4
 ```
 
 ## 🤲 Outcomes
@@ -200,26 +201,26 @@ See more details [here][cli].
 
 made with ❤️ for everyone
 
-[icon_awesome]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
-[icon_build]:       https://travis-ci.org/kamilsk/retry.svg?branch=v4
-[icon_coverage]:    https://api.codeclimate.com/v1/badges/ed88afbc0754e49e9d2d/test_coverage
-[icon_docs]:        https://godoc.org/github.com/kamilsk/retry?status.svg
-[icon_quality]:     https://goreportcard.com/badge/github.com/kamilsk/retry
-
-[page_awesome]:     https://github.com/avelino/awesome-go#utilities
-[page_build]:       https://travis-ci.org/kamilsk/retry
-[page_coverage]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
-[page_docs]:        https://godoc.org/github.com/kamilsk/retry
-[page_quality]:     https://goreportcard.com/report/github.com/kamilsk/retry
+[awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
+[awesome.page]:     https://github.com/avelino/awesome-go#utilities
+[build.icon]:       https://travis-ci.org/kamilsk/retry.svg?branch=v4
+[build.page]:       https://travis-ci.org/kamilsk/retry
+[coverage.icon]:    https://api.codeclimate.com/v1/badges/ed88afbc0754e49e9d2d/test_coverage
+[coverage.page]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
+[design.page]:      https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
+[docs.page]:        https://pkg.go.dev/github.com/kamilsk/retry/v4
+[docs.icon]:        https://img.shields.io/badge/docs-pkg.go.dev-blue
+[promo.page]:       https://github.com/kamilsk/retry
+[quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry
+[quality.page]:     https://goreportcard.com/report/github.com/kamilsk/retry
+[template.page]:    https://github.com/octomation/go-module
+[template.icon]:    https://img.shields.io/badge/template-go--module-blue
 
 [breaker]:          https://github.com/kamilsk/breaker
 [cli]:              https://github.com/kamilsk/try
 [cli.demo]:         https://asciinema.org/a/150367
 [cli.preview]:      https://asciinema.org/a/150367.png
 [context]:          https://pkg.go.dev/context
-[design]:           https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
-[egg]:              https://github.com/kamilsk/egg
-[promo]:            https://github.com/kamilsk/retry
 
 [tmp.docs]:         https://nicedoc.io/kamilsk/retry?theme=dark
 [tmp.history]:      https://github.githistory.xyz/kamilsk/retry/blob/v4/README.md
