@@ -150,12 +150,7 @@ func main() {
 				0.25,
 			),
 		),
-		func(attempt uint, err error) bool {
-			if network, is := err.(net.Error); is {
-				return network.Temporary()
-			}
-			return attempt == 0 || err != nil
-		},
+		strategy.CheckNetworkError(),
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)
