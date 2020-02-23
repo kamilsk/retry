@@ -9,7 +9,7 @@ func CheckNetworkError(_ uint, err error) bool {
 		return true
 	}
 	if err, is := err.(net.Error); is {
-		return err.Temporary()
+		return err.Temporary() || err.Timeout()
 	}
 	return true
 }
