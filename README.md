@@ -150,7 +150,7 @@ func main() {
 				0.25,
 			),
 		),
-		strategy.CheckNetworkError(),
+		strategy.CheckNetworkError(strategy.Skip),
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)

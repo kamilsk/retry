@@ -50,7 +50,11 @@ func TestTryContext(t *testing.T) {
 		},
 		"long iteration": {
 			func() context.Context {
-				ctx, _ := context.WithTimeout(context.Background(), delta)
+				ctx, cancel := context.WithTimeout(context.Background(), delta)
+				defer func() {
+					time.Sleep(2 * delta)
+					cancel()
+				}()
 				return ctx
 			},
 			[]func(attempt uint, err error) bool{delay(time.Hour)},

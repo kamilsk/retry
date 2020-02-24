@@ -28,15 +28,12 @@ func Example() {
 				0.25,
 			),
 		),
-		func(attempt uint, err error) bool {
-			if network, is := err.(net.Error); is {
-				return network.Temporary()
-			}
-			return attempt == 0 || err != nil
-		},
+		strategy.CheckNetworkError(strategy.Skip),
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
 	if err := retry.Try(ctx, what, how...); err != nil {
 		log.Fatal(err)
 	}
