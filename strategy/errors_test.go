@@ -7,6 +7,40 @@ import (
 	"testing"
 )
 
+func TestCheckError(t *testing.T) {
+	generator := rand.New(rand.NewSource(0))
+
+	tests := map[string]struct {
+		error    error
+		defaults bool
+		expected bool
+	}{
+		"nil error": {
+			nil,
+			Skip,
+			true,
+		},
+		"retriable error": {
+			exampleError("test"),
+			Strict,
+			true,
+		},
+		"not retriable error": {
+			errors.New("test"),
+			Skip,
+			true,
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			policy := CheckError(Skip)
+			if test.expected != policy(uint(generator.Uint32()), test.error) {
+				t.Errorf("strategy expected to return %v", test.expected)
+			}
+		})
+	}
+}
+
 func TestCheckNetworkError(t *testing.T) {
 	generator := rand.New(rand.NewSource(0))
 
@@ -50,3 +84,8 @@ func TestCheckNetworkError(t *testing.T) {
 		})
 	}
 }
+
+type exampleError string
+
+func (err exampleError) Error() string   { return string(err) }
+func (err exampleError) Retriable() bool { return true }
