@@ -1,6 +1,7 @@
 package strategy
 
 import (
+	"context"
 	"errors"
 	"math/rand"
 	"net"
@@ -8,7 +9,7 @@ import (
 )
 
 func TestCheckError(t *testing.T) {
-	generator := rand.New(rand.NewSource(0))
+	breaker, generator := context.Background(), rand.New(rand.NewSource(0))
 
 	tests := map[string]struct {
 		error    error
@@ -34,7 +35,7 @@ func TestCheckError(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			policy := CheckError(Skip)
-			if test.expected != policy(uint(generator.Uint32()), test.error) {
+			if test.expected != policy(breaker, uint(generator.Uint32()), test.error) {
 				t.Errorf("strategy expected to return %v", test.expected)
 			}
 		})
@@ -42,7 +43,7 @@ func TestCheckError(t *testing.T) {
 }
 
 func TestCheckNetworkError(t *testing.T) {
-	generator := rand.New(rand.NewSource(0))
+	breaker, generator := context.Background(), rand.New(rand.NewSource(0))
 
 	tests := map[string]struct {
 		error    error
@@ -78,7 +79,7 @@ func TestCheckNetworkError(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			policy := CheckNetworkError(Skip)
-			if test.expected != policy(uint(generator.Uint32()), test.error) {
+			if test.expected != policy(breaker, uint(generator.Uint32()), test.error) {
 				t.Errorf("strategy expected to return %v", test.expected)
 			}
 		})

@@ -13,7 +13,7 @@ type Action func() error
 //  	strategy.Limit(3),
 //  }
 //
-type How []func(strategy.Breaker, uint) bool
+type How []func(strategy.Breaker, uint, error) bool
 
 // Do takes an action and performs it, repetitively, until successful.
 //
@@ -22,12 +22,12 @@ type How []func(strategy.Breaker, uint) bool
 func Do(
 	breaker strategy.Breaker,
 	action func() error,
-	strategies ...func(strategy.Breaker, uint) bool,
+	strategies ...func(strategy.Breaker, uint, error) bool,
 ) error {
 	var err error
 	for attempt, should := uint(0), true; should; attempt++ {
 		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-			should = should && strategies[i](breaker, attempt)
+			should = should && strategies[i](breaker, attempt, err)
 		}
 		select {
 		case <-breaker.Done():
@@ -49,7 +49,7 @@ func Do(
 func DoAsync(
 	breaker strategy.Breaker,
 	action func() error,
-	strategies ...func(strategy.Breaker, uint) bool,
+	strategies ...func(strategy.Breaker, uint, error) bool,
 ) error {
 	done := make(chan error, 1)
 
