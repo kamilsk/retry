@@ -2,7 +2,11 @@
 // to perform actions repetitively until successful.
 package retry
 
-import "github.com/kamilsk/retry/v5/strategy"
+import (
+	"fmt"
+
+	"github.com/kamilsk/retry/v5/strategy"
+)
 
 // Action defines a callable function that package retry can handle.
 type Action func() error
@@ -56,7 +60,11 @@ func DoAsync(
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				// TODO set error
+				err, ok := r.(error)
+				if !ok {
+					err = fmt.Errorf("retry: unexpected panic: %#v", r)
+				}
+				done <- err
 			}
 			close(done)
 		}()
