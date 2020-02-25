@@ -7,12 +7,6 @@ const (
 	Strict = false
 )
 
-// An Error represents a retriable error.
-type Error interface {
-	error
-	Retriable() bool // Is the error retriable?
-}
-
 // CheckError creates a Strategy that checks an error and returns
 // if an error is retriable or not. Otherwise, it returns the defaults.
 func CheckError(defaults bool) Strategy {

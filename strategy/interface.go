@@ -13,3 +13,9 @@ type Breaker interface {
 	// return the same error.
 	Err() error
 }
+
+// An Error represents a retriable error.
+type Error interface {
+	error
+	Retriable() bool // Is the error retriable?
+}

@@ -15,14 +15,11 @@ type Transformation func(duration time.Duration) time.Duration
 // duration in [0, n) randomly, where n is the given duration.
 //
 // The given generator is what is used to determine the random transformation.
-// If a nil generator is passed, a default one will be provided.
 //
 // Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
 func Full(generator *rand.Rand) Transformation {
-	random := fallbackNewRandom(generator)
-
 	return func(duration time.Duration) time.Duration {
-		return time.Duration(random.Int63n(int64(duration)))
+		return time.Duration(generator.Int63n(int64(duration)))
 	}
 }
 
@@ -30,14 +27,11 @@ func Full(generator *rand.Rand) Transformation {
 // duration in [n/2, n) randomly, where n is the given duration.
 //
 // The given generator is what is used to determine the random transformation.
-// If a nil generator is passed, a default one will be provided.
 //
 // Inspired by https://www.awsarchitectureblog.com/2015/03/backoff.html
 func Equal(generator *rand.Rand) Transformation {
-	random := fallbackNewRandom(generator)
-
 	return func(duration time.Duration) time.Duration {
-		return (duration / 2) + time.Duration(random.Int63n(int64(duration))/2)
+		return (duration / 2) + time.Duration(generator.Int63n(int64(duration))/2)
 	}
 }
 
@@ -45,17 +39,13 @@ func Equal(generator *rand.Rand) Transformation {
 // duration that deviates from the input randomly by a given factor.
 //
 // The given generator is what is used to determine the random transformation.
-// If a nil generator is passed, a default one will be provided.
 //
 // Inspired by https://developers.google.com/api-client-library/java/google-http-java-client/backoff
 func Deviation(generator *rand.Rand, factor float64) Transformation {
-	random := fallbackNewRandom(generator)
-
 	return func(duration time.Duration) time.Duration {
 		min := int64(math.Floor(float64(duration) * (1 - factor)))
 		max := int64(math.Ceil(float64(duration) * (1 + factor)))
-
-		return time.Duration(random.Int63n(max-min) + min)
+		return time.Duration(generator.Int63n(max-min) + min)
 	}
 }
 
@@ -64,22 +54,8 @@ func Deviation(generator *rand.Rand, factor float64) Transformation {
 // standard deviation.
 //
 // The given generator is what is used to determine the random transformation.
-// If a nil generator is passed, a default one will be provided.
 func NormalDistribution(generator *rand.Rand, standardDeviation float64) Transformation {
-	random := fallbackNewRandom(generator)
-
 	return func(duration time.Duration) time.Duration {
-		return time.Duration(random.NormFloat64()*standardDeviation + float64(duration))
+		return time.Duration(generator.NormFloat64()*standardDeviation + float64(duration))
 	}
-}
-
-// fallbackNewRandom returns the passed in random instance if it's not nil,
-// and otherwise returns a new random instance seeded with the current time.
-func fallbackNewRandom(random *rand.Rand) *rand.Rand {
-	// Return the passed in value if it's already not null
-	if nil != random {
-		return random
-	}
-
-	return rand.New(rand.NewSource(time.Now().UnixNano()))
 }

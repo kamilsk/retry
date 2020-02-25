@@ -89,35 +89,3 @@ func TestNormalDistribution(t *testing.T) {
 		}
 	}
 }
-
-func TestNilGenerator(t *testing.T) {
-	const duration = time.Millisecond
-
-	var transformation Transformation
-	{
-		transformation = Full(nil)
-		if obtained := transformation(duration); duration == obtained {
-			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
-		}
-	}
-	{
-		transformation = Equal(nil)
-		if obtained := transformation(duration); duration == obtained {
-			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
-		}
-	}
-	{
-		const factor = 0.5
-		transformation = Deviation(nil, factor)
-		if obtained := transformation(duration); duration == obtained {
-			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
-		}
-	}
-	{
-		const standardDeviation = float64(duration / 2)
-		transformation = NormalDistribution(nil, standardDeviation)
-		if obtained := transformation(duration); duration == obtained {
-			t.Errorf("transformation expected to return a not equal to  %s duration, but received equal", duration)
-		}
-	}
-}

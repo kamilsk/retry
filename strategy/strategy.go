@@ -35,7 +35,6 @@ func Delay(duration time.Duration) Strategy {
 				_ = timer.Stop()
 			}
 		}
-
 		return true
 	}
 }
@@ -47,11 +46,9 @@ func Wait(durations ...time.Duration) Strategy {
 	return func(breaker Breaker, attempt uint, _ error) bool {
 		if attempt > 0 && len(durations) > 0 {
 			durationIndex := int(attempt - 1)
-
 			if len(durations) <= durationIndex {
 				durationIndex = len(durations) - 1
 			}
-
 			timer := time.NewTimer(durations[durationIndex])
 			select {
 			case <-breaker.Done():
@@ -61,7 +58,6 @@ func Wait(durations ...time.Duration) Strategy {
 				_ = timer.Stop()
 			}
 		}
-
 		return true
 	}
 }
@@ -91,7 +87,6 @@ func BackoffWithJitter(
 				_ = timer.Stop()
 			}
 		}
-
 		return true
 	}
 }
