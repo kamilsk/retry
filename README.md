@@ -29,7 +29,7 @@ these communications more reliable.
 ```go
 var response *http.Response
 
-action := func(uint) error {
+action := func() error {
 	var err error
 	response, err = http.Get("https://github.com/kamilsk/retry")
 	return err
@@ -43,8 +43,8 @@ interrupter := breaker.MultiplexTwo(
 defer interrupter.Close()
 
 if err := retry.Do(interrupter, action, strategy.Limit(3)); err != nil {
-	if err == retry.Interrupted {
-		// timeout exceeded
+	if err == breaker.Interrupted {
+		// operation was interrupted
 	}
 	// handle error
 }
@@ -58,8 +58,8 @@ ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
 defer cancel()
 
 if err := retry.Do(ctx, action, strategy.Limit(3)); err != nil {
-	if err == retry.Interrupted {
-		// timeout exceeded
+	if err == context.Canceled || err == context.DeadlineExceeded {
+		// operation was interrupted
 	}
 	// handle error
 }
@@ -84,14 +84,7 @@ import (
 )
 
 func main() {
-	what := func(uint) (err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = fmt.Errorf("unexpected panic: %v", r)
-			}
-		}()
-		return SendRequest()
-	}
+	what := SendRequest
 
 	how := retry.How{
 		strategy.Limit(5),
@@ -105,8 +98,10 @@ func main() {
 		strategy.CheckNetworkError(strategy.Skip),
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
-	if err := retry.Do(ctx, what, how...); err != nil {
+	breaker, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	if err := retry.Do(breaker, what, how...); err != nil {
 		log.Fatal(err)
 	}
 }
