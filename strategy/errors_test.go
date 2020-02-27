@@ -86,6 +86,8 @@ func TestCheckNetworkError(t *testing.T) {
 	}
 }
 
+// helpers
+
 type exampleError string
 
 func (err exampleError) Error() string   { return string(err) }

@@ -16,6 +16,7 @@ go:
   - 1.11.x
   - 1.12.x
   - 1.13.x
+  - 1.14.x
 
 jobs:
   allow_failures:
@@ -23,7 +24,7 @@ jobs:
 
 before_script:
   - |
-    if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then
+    if [[ $TRAVIS_GO_VERSION == 1.14* ]]; then
       curl -L $CODECLIMATE > /home/travis/gopath/bin/cc-test-reporter
       chmod +x /home/travis/gopath/bin/cc-test-reporter
       cc-test-reporter before-build
@@ -31,7 +32,7 @@ before_script:
 
 script:
   - |
-    if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then
+    if [[ $TRAVIS_GO_VERSION == 1.14* ]]; then
       make test-with-coverage-profile
     else
       make test
@@ -39,7 +40,7 @@ script:
 
 after_script:
   - |
-    if [[ $TRAVIS_GO_VERSION == 1.13* ]]; then
+    if [[ $TRAVIS_GO_VERSION == 1.14* ]]; then
       cc-test-reporter after-build -t gocov -p $(basename $(go list -m)) --exit-code $TRAVIS_TEST_RESULT
     fi
 

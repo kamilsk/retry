@@ -2,149 +2,456 @@ package strategy_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	. "github.com/kamilsk/retry/v5/strategy"
 )
 
-// timeMarginOfError represents the acceptable amount of time that may pass for
-// a time-based (sleep) unit before considering invalid.
-const timeMarginOfError = time.Millisecond
-
 func TestLimit(t *testing.T) {
-	breaker, policy := context.Background(), Limit(3)
-
-	if !policy(breaker, 0, nil) {
-		t.Error("strategy expected to return true")
+	tests := map[string]struct {
+		value    uint
+		args     tuple
+		expected bool
+	}{
+		"first call": {
+			2,
+			tuple{context.Background(), 0, nil},
+			true,
+		},
+		"first call with error": {
+			2,
+			tuple{context.Background(), 0, errors.New("ignored")},
+			true,
+		},
+		"first call with interrupted breaker": {
+			2,
+			tuple{interrupted(), 0, nil},
+			true,
+		},
+		"next call": {
+			2,
+			tuple{context.Background(), 1, nil},
+			true,
+		},
+		"next call with error": {
+			2,
+			tuple{context.Background(), 1, errors.New("ignored")},
+			true,
+		},
+		"next call with interrupted breaker": {
+			2,
+			tuple{interrupted(), 1, nil},
+			true,
+		},
+		"last call": {
+			2,
+			tuple{context.Background(), 999, nil},
+			false,
+		},
+		"last call with error": {
+			2,
+			tuple{context.Background(), 999, errors.New("ignored")},
+			false,
+		},
+		"last call with interrupted breaker": {
+			2,
+			tuple{interrupted(), 999, nil},
+			false,
+		},
 	}
-
-	if !policy(breaker, 1, nil) {
-		t.Error("strategy expected to return true")
-	}
-
-	if !policy(breaker, 2, nil) {
-		t.Error("strategy expected to return true")
-	}
-
-	if policy(breaker, 3, nil) {
-		t.Error("strategy expected to return false")
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			policy := Limit(test.value)
+			if obtained := policy(test.args.unpack()); test.expected != obtained {
+				t.Errorf("expected: %v, obtained: %v", test.expected, obtained)
+			}
+		})
 	}
 }
 
 func TestDelay(t *testing.T) {
-	const delayDuration = 10 * timeMarginOfError
-
-	breaker, policy := context.Background(), Delay(delayDuration)
-
-	if now := time.Now(); !policy(breaker, 0, nil) || delayDuration > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", delayDuration)
+	tests := map[string]struct {
+		duration time.Duration
+		args     tuple
+		expected bool
+		assert   func(time.Time, time.Duration) bool
+	}{
+		"first call": {
+			time.Millisecond,
+			tuple{context.Background(), 0, nil},
+			true,
+			func(past time.Time, expected time.Duration) bool {
+				return time.Since(past) > expected
+			},
+		},
+		"first call with error": {
+			time.Millisecond,
+			tuple{context.Background(), 0, errors.New("ignored")},
+			true,
+			func(past time.Time, expected time.Duration) bool {
+				return time.Since(past) > expected
+			},
+		},
+		"first call with interrupted breaker": {
+			time.Millisecond,
+			tuple{interrupted(), 0, nil},
+			false,
+			func(past time.Time, expected time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call": {
+			time.Millisecond,
+			tuple{context.Background(), 999, nil},
+			true,
+			func(past time.Time, expected time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call with error": {
+			time.Millisecond,
+			tuple{context.Background(), 999, errors.New("ignored")},
+			true,
+			func(past time.Time, expected time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call with interrupted breaker": {
+			time.Millisecond,
+			tuple{interrupted(), 999, nil},
+			true,
+			func(past time.Time, expected time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
 	}
-
-	if now := time.Now(); !policy(breaker, 5, nil) || (delayDuration/10) < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			policy, now := Delay(test.duration), time.Now()
+			if obtained := policy(test.args.unpack()); test.expected != obtained {
+				t.Errorf("expected: %v, obtained: %v", test.expected, obtained)
+			}
+			if !test.assert(now, test.duration) {
+				t.Error("delay is not asserted")
+			}
+		})
 	}
 }
 
 func TestWait(t *testing.T) {
-	breaker, policy := context.Background(), Wait()
-
-	if now := time.Now(); !policy(breaker, 0, nil) || timeMarginOfError < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
+	tests := map[string]struct {
+		durations []time.Duration
+		args      tuple
+		expected  bool
+		assert    func(time.Time, []time.Duration) bool
+	}{
+		"first call with empty durations": {
+			nil,
+			tuple{context.Background(), 0, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with empty durations and error": {
+			nil,
+			tuple{context.Background(), 0, errors.New("ignored")},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with empty durations and interrupted breaker": {
+			nil,
+			tuple{interrupted(), 0, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call with empty durations": {
+			nil,
+			tuple{context.Background(), 999, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call with empty durations and error": {
+			nil,
+			tuple{context.Background(), 999, errors.New("ignored")},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call with empty durations and interrupted breaker": {
+			nil,
+			tuple{interrupted(), 999, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with multiple durations": {
+			[]time.Duration{time.Minute, time.Hour},
+			tuple{context.Background(), 0, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with multiple durations and error": {
+			[]time.Duration{time.Minute, time.Hour},
+			tuple{context.Background(), 0, errors.New("ignored")},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with multiple durations and interrupted breaker": {
+			[]time.Duration{time.Minute, time.Hour},
+			tuple{interrupted(), 0, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call with multiple durations": {
+			[]time.Duration{time.Millisecond, time.Hour},
+			tuple{context.Background(), 1, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) > durations[0]
+			},
+		},
+		"next call with multiple durations and error": {
+			[]time.Duration{time.Millisecond, time.Hour},
+			tuple{context.Background(), 1, errors.New("ignored")},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) > durations[0]
+			},
+		},
+		"next call with multiple durations and interrupted breaker": {
+			[]time.Duration{time.Minute, time.Hour},
+			tuple{interrupted(), 1, nil},
+			false,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"last call with multiple durations": {
+			[]time.Duration{time.Hour, time.Millisecond},
+			tuple{context.Background(), 999, nil},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) > durations[len(durations)-1]
+			},
+		},
+		"last call with multiple durations and error": {
+			[]time.Duration{time.Hour, time.Millisecond},
+			tuple{context.Background(), 999, errors.New("ignored")},
+			true,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) > durations[len(durations)-1]
+			},
+		},
+		"last call with multiple durations and interrupted breaker": {
+			[]time.Duration{time.Minute, time.Hour},
+			tuple{interrupted(), 999, nil},
+			false,
+			func(past time.Time, durations []time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
 	}
-
-	if now := time.Now(); !policy(breaker, 999, nil) || timeMarginOfError < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
-	}
-}
-
-func TestWaitWithDuration(t *testing.T) {
-	const waitDuration = 10 * timeMarginOfError
-
-	breaker, policy := context.Background(), Wait(waitDuration)
-
-	if now := time.Now(); !policy(breaker, 0, nil) || timeMarginOfError < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
-	}
-
-	if now := time.Now(); !policy(breaker, 1, nil) || waitDuration > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", waitDuration)
-	}
-}
-
-func TestWaitWithMultipleDurations(t *testing.T) {
-	waitDurations := []time.Duration{
-		10 * timeMarginOfError,
-		20 * timeMarginOfError,
-		30 * timeMarginOfError,
-		40 * timeMarginOfError,
-	}
-
-	breaker, policy := context.Background(), Wait(waitDurations...)
-
-	if now := time.Now(); !policy(breaker, 0, nil) || timeMarginOfError < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
-	}
-
-	if now := time.Now(); !policy(breaker, 1, nil) || waitDurations[0] > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", waitDurations[0])
-	}
-
-	if now := time.Now(); !policy(breaker, 3, nil) || waitDurations[2] > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", waitDurations[2])
-	}
-
-	if now := time.Now(); !policy(breaker, 999, nil) || waitDurations[len(waitDurations)-1] > time.Since(now) {
-		t.Errorf("strategy expected to return true in %s", waitDurations[len(waitDurations)-1])
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			policy, now := Wait(test.durations...), time.Now()
+			if obtained := policy(test.args.unpack()); test.expected != obtained {
+				t.Errorf("expected: %v, obtained: %v", test.expected, obtained)
+			}
+			if !test.assert(now, test.durations) {
+				t.Error("wait is not asserted")
+			}
+		})
 	}
 }
 
 func TestBackoff(t *testing.T) {
-	const backoffDuration = 10 * timeMarginOfError
-	const algorithmDurationBase = timeMarginOfError
-
-	algorithm := func(attempt uint) time.Duration {
-		return backoffDuration - (algorithmDurationBase * time.Duration(attempt))
+	tests := map[string]struct {
+		algorithm func(uint) time.Duration
+		args      tuple
+		expected  bool
+		assert    func(time.Time, time.Duration) bool
+	}{
+		"first call": {
+			func(uint) time.Duration { return time.Hour },
+			tuple{context.Background(), 0, nil},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with error": {
+			func(uint) time.Duration { return time.Hour },
+			tuple{context.Background(), 0, errors.New("ignored")},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with interrupted breaker": {
+			func(uint) time.Duration { return time.Hour },
+			tuple{interrupted(), 0, nil},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call": {
+			func(attempt uint) time.Duration {
+				return time.Duration(attempt) * time.Millisecond
+			},
+			tuple{context.Background(), 2, nil},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) > duration
+			},
+		},
+		"next call with error": {
+			func(attempt uint) time.Duration {
+				return time.Duration(attempt) * time.Millisecond
+			},
+			tuple{context.Background(), 2, errors.New("ignored")},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) > duration
+			},
+		},
+		"next call with interrupted breaker": {
+			func(uint) time.Duration { return time.Hour },
+			tuple{interrupted(), 999, nil},
+			false,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
 	}
-
-	breaker, policy := context.Background(), Backoff(algorithm)
-
-	if now := time.Now(); !policy(breaker, 0, nil) || timeMarginOfError < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
-	}
-
-	for i := uint(1); i < 10; i++ {
-		expectedResult := algorithm(i)
-
-		if now := time.Now(); !policy(breaker, i, nil) || expectedResult > time.Since(now) {
-			t.Errorf("strategy expected to return true in %s", expectedResult)
-		}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			policy, now := Backoff(test.algorithm), time.Now()
+			if obtained := policy(test.args.unpack()); test.expected != obtained {
+				t.Errorf("expected: %v, obtained: %v", test.expected, obtained)
+			}
+			if !test.assert(now, test.algorithm(test.args.attempt)) {
+				t.Error("backoff is not asserted")
+			}
+		})
 	}
 }
 
 func TestBackoffWithJitter(t *testing.T) {
-	const backoffDuration = 10 * timeMarginOfError
-	const algorithmDurationBase = timeMarginOfError
-
-	algorithm := func(attempt uint) time.Duration {
-		return backoffDuration - (algorithmDurationBase * time.Duration(attempt))
+	tests := map[string]struct {
+		algorithm      func(uint) time.Duration
+		transformation func(time.Duration) time.Duration
+		args           tuple
+		expected       bool
+		assert         func(time.Time, time.Duration) bool
+	}{
+		"first call": {
+			func(uint) time.Duration { return time.Hour },
+			func(duration time.Duration) time.Duration { return duration },
+			tuple{context.Background(), 0, nil},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with error": {
+			func(uint) time.Duration { return time.Hour },
+			func(duration time.Duration) time.Duration { return duration },
+			tuple{context.Background(), 0, errors.New("ignored")},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"first call with interrupted breaker": {
+			func(uint) time.Duration { return time.Hour },
+			func(duration time.Duration) time.Duration { return duration },
+			tuple{interrupted(), 0, nil},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
+		"next call": {
+			func(attempt uint) time.Duration {
+				return time.Hour + time.Duration(attempt)*time.Millisecond
+			},
+			func(duration time.Duration) time.Duration {
+				return duration - time.Hour
+			},
+			tuple{context.Background(), 2, nil},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) > duration
+			},
+		},
+		"next call with error": {
+			func(attempt uint) time.Duration {
+				return time.Hour + time.Duration(attempt)*time.Millisecond
+			},
+			func(duration time.Duration) time.Duration {
+				return duration - time.Hour
+			},
+			tuple{context.Background(), 2, errors.New("ignored")},
+			true,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) > duration
+			},
+		},
+		"next call with interrupted breaker": {
+			func(uint) time.Duration { return time.Hour },
+			func(duration time.Duration) time.Duration { return duration },
+			tuple{interrupted(), 999, nil},
+			false,
+			func(past time.Time, duration time.Duration) bool {
+				return time.Since(past) < time.Millisecond
+			},
+		},
 	}
-
-	transformation := func(duration time.Duration) time.Duration {
-		return duration - 10*timeMarginOfError
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			policy, now := BackoffWithJitter(test.algorithm, test.transformation), time.Now()
+			if obtained := policy(test.args.unpack()); test.expected != obtained {
+				t.Errorf("expected: %v, obtained: %v", test.expected, obtained)
+			}
+			if !test.assert(now, test.transformation(test.algorithm(test.args.attempt))) {
+				t.Error("backoff with jitter is not asserted")
+			}
+		})
 	}
+}
 
-	breaker, policy := context.Background(), BackoffWithJitter(algorithm, transformation)
+// helpers
 
-	if now := time.Now(); !policy(breaker, 0, nil) || timeMarginOfError < time.Since(now) {
-		t.Error("strategy expected to return true in ~0 time")
-	}
+func interrupted() Breaker {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	return ctx
+}
 
-	for i := uint(1); i < 10; i++ {
-		expectedResult := transformation(algorithm(i))
+type tuple struct {
+	breaker Breaker
+	attempt uint
+	error   error
+}
 
-		if now := time.Now(); !policy(breaker, i, nil) || expectedResult > time.Since(now) {
-			t.Errorf("strategy expected to return true in %s", expectedResult)
-		}
-	}
+func (tuple *tuple) unpack() (Breaker, uint, error) {
+	return tuple.breaker, tuple.attempt, tuple.error
 }

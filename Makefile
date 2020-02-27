@@ -44,6 +44,14 @@ deps:
 	@go mod download
 	@if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi
 
+.PHONY: deps-check
+deps-check:
+	@go mod verify
+	@if command -v egg > /dev/null; then \
+		egg deps check license; \
+		egg deps check version; \
+	fi
+
 .PHONY: deps-clean
 deps-clean:
 	@go clean -modcache
