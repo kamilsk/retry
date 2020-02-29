@@ -146,7 +146,7 @@ made with ❤️ for everyone
 [coverage.icon]:    https://api.codeclimate.com/v1/badges/ed88afbc0754e49e9d2d/test_coverage
 [coverage.page]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
 [design.page]:      https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
-[docs.page]:        https://pkg.go.dev/github.com/kamilsk/retry/v4
+[docs.page]:        https://pkg.go.dev/github.com/kamilsk/retry/v5
 [docs.icon]:        https://img.shields.io/badge/docs-pkg.go.dev-blue
 [promo.page]:       https://github.com/kamilsk/retry
 [quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry
