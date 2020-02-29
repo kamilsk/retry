@@ -17,12 +17,12 @@ func TestLimit(t *testing.T) {
 	}{
 		"first call": {
 			2,
-			tuple{context.Background(), 0, nil},
+			tuple{breaker(), 0, nil},
 			true,
 		},
 		"first call with error": {
 			2,
-			tuple{context.Background(), 0, errors.New("ignored")},
+			tuple{breaker(), 0, errors.New("ignored")},
 			true,
 		},
 		"first call with interrupted breaker": {
@@ -32,12 +32,12 @@ func TestLimit(t *testing.T) {
 		},
 		"next call": {
 			2,
-			tuple{context.Background(), 1, nil},
+			tuple{breaker(), 1, nil},
 			true,
 		},
 		"next call with error": {
 			2,
-			tuple{context.Background(), 1, errors.New("ignored")},
+			tuple{breaker(), 1, errors.New("ignored")},
 			true,
 		},
 		"next call with interrupted breaker": {
@@ -47,12 +47,12 @@ func TestLimit(t *testing.T) {
 		},
 		"last call": {
 			2,
-			tuple{context.Background(), 999, nil},
+			tuple{breaker(), 999, nil},
 			false,
 		},
 		"last call with error": {
 			2,
-			tuple{context.Background(), 999, errors.New("ignored")},
+			tuple{breaker(), 999, errors.New("ignored")},
 			false,
 		},
 		"last call with interrupted breaker": {
@@ -80,7 +80,7 @@ func TestDelay(t *testing.T) {
 	}{
 		"first call": {
 			time.Millisecond,
-			tuple{context.Background(), 0, nil},
+			tuple{breaker(), 0, nil},
 			true,
 			func(past time.Time, expected time.Duration) bool {
 				return time.Since(past) > expected
@@ -88,7 +88,7 @@ func TestDelay(t *testing.T) {
 		},
 		"first call with error": {
 			time.Millisecond,
-			tuple{context.Background(), 0, errors.New("ignored")},
+			tuple{breaker(), 0, errors.New("ignored")},
 			true,
 			func(past time.Time, expected time.Duration) bool {
 				return time.Since(past) > expected
@@ -104,7 +104,7 @@ func TestDelay(t *testing.T) {
 		},
 		"next call": {
 			time.Millisecond,
-			tuple{context.Background(), 999, nil},
+			tuple{breaker(), 999, nil},
 			true,
 			func(past time.Time, expected time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -112,7 +112,7 @@ func TestDelay(t *testing.T) {
 		},
 		"next call with error": {
 			time.Millisecond,
-			tuple{context.Background(), 999, errors.New("ignored")},
+			tuple{breaker(), 999, errors.New("ignored")},
 			true,
 			func(past time.Time, expected time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -149,7 +149,7 @@ func TestWait(t *testing.T) {
 	}{
 		"first call with empty durations": {
 			nil,
-			tuple{context.Background(), 0, nil},
+			tuple{breaker(), 0, nil},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -157,7 +157,7 @@ func TestWait(t *testing.T) {
 		},
 		"first call with empty durations and error": {
 			nil,
-			tuple{context.Background(), 0, errors.New("ignored")},
+			tuple{breaker(), 0, errors.New("ignored")},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -173,7 +173,7 @@ func TestWait(t *testing.T) {
 		},
 		"next call with empty durations": {
 			nil,
-			tuple{context.Background(), 999, nil},
+			tuple{breaker(), 999, nil},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -181,7 +181,7 @@ func TestWait(t *testing.T) {
 		},
 		"next call with empty durations and error": {
 			nil,
-			tuple{context.Background(), 999, errors.New("ignored")},
+			tuple{breaker(), 999, errors.New("ignored")},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -197,7 +197,7 @@ func TestWait(t *testing.T) {
 		},
 		"first call with multiple durations": {
 			[]time.Duration{time.Minute, time.Hour},
-			tuple{context.Background(), 0, nil},
+			tuple{breaker(), 0, nil},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -205,7 +205,7 @@ func TestWait(t *testing.T) {
 		},
 		"first call with multiple durations and error": {
 			[]time.Duration{time.Minute, time.Hour},
-			tuple{context.Background(), 0, errors.New("ignored")},
+			tuple{breaker(), 0, errors.New("ignored")},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -221,7 +221,7 @@ func TestWait(t *testing.T) {
 		},
 		"next call with multiple durations": {
 			[]time.Duration{time.Millisecond, time.Hour},
-			tuple{context.Background(), 1, nil},
+			tuple{breaker(), 1, nil},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) > durations[0]
@@ -229,7 +229,7 @@ func TestWait(t *testing.T) {
 		},
 		"next call with multiple durations and error": {
 			[]time.Duration{time.Millisecond, time.Hour},
-			tuple{context.Background(), 1, errors.New("ignored")},
+			tuple{breaker(), 1, errors.New("ignored")},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) > durations[0]
@@ -245,7 +245,7 @@ func TestWait(t *testing.T) {
 		},
 		"last call with multiple durations": {
 			[]time.Duration{time.Hour, time.Millisecond},
-			tuple{context.Background(), 999, nil},
+			tuple{breaker(), 999, nil},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) > durations[len(durations)-1]
@@ -253,7 +253,7 @@ func TestWait(t *testing.T) {
 		},
 		"last call with multiple durations and error": {
 			[]time.Duration{time.Hour, time.Millisecond},
-			tuple{context.Background(), 999, errors.New("ignored")},
+			tuple{breaker(), 999, errors.New("ignored")},
 			true,
 			func(past time.Time, durations []time.Duration) bool {
 				return time.Since(past) > durations[len(durations)-1]
@@ -290,7 +290,7 @@ func TestBackoff(t *testing.T) {
 	}{
 		"first call": {
 			func(uint) time.Duration { return time.Hour },
-			tuple{context.Background(), 0, nil},
+			tuple{breaker(), 0, nil},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -298,7 +298,7 @@ func TestBackoff(t *testing.T) {
 		},
 		"first call with error": {
 			func(uint) time.Duration { return time.Hour },
-			tuple{context.Background(), 0, errors.New("ignored")},
+			tuple{breaker(), 0, errors.New("ignored")},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -316,7 +316,7 @@ func TestBackoff(t *testing.T) {
 			func(attempt uint) time.Duration {
 				return time.Duration(attempt) * time.Millisecond
 			},
-			tuple{context.Background(), 2, nil},
+			tuple{breaker(), 2, nil},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) > duration
@@ -326,7 +326,7 @@ func TestBackoff(t *testing.T) {
 			func(attempt uint) time.Duration {
 				return time.Duration(attempt) * time.Millisecond
 			},
-			tuple{context.Background(), 2, errors.New("ignored")},
+			tuple{breaker(), 2, errors.New("ignored")},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) > duration
@@ -365,7 +365,7 @@ func TestBackoffWithJitter(t *testing.T) {
 		"first call": {
 			func(uint) time.Duration { return time.Hour },
 			func(duration time.Duration) time.Duration { return duration },
-			tuple{context.Background(), 0, nil},
+			tuple{breaker(), 0, nil},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -374,7 +374,7 @@ func TestBackoffWithJitter(t *testing.T) {
 		"first call with error": {
 			func(uint) time.Duration { return time.Hour },
 			func(duration time.Duration) time.Duration { return duration },
-			tuple{context.Background(), 0, errors.New("ignored")},
+			tuple{breaker(), 0, errors.New("ignored")},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) < time.Millisecond
@@ -396,7 +396,7 @@ func TestBackoffWithJitter(t *testing.T) {
 			func(duration time.Duration) time.Duration {
 				return duration - time.Hour
 			},
-			tuple{context.Background(), 2, nil},
+			tuple{breaker(), 2, nil},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) > duration
@@ -409,7 +409,7 @@ func TestBackoffWithJitter(t *testing.T) {
 			func(duration time.Duration) time.Duration {
 				return duration - time.Hour
 			},
-			tuple{context.Background(), 2, errors.New("ignored")},
+			tuple{breaker(), 2, errors.New("ignored")},
 			true,
 			func(past time.Time, duration time.Duration) bool {
 				return time.Since(past) > duration
@@ -439,6 +439,10 @@ func TestBackoffWithJitter(t *testing.T) {
 }
 
 // helpers
+
+func breaker() Breaker {
+	return context.Background()
+}
 
 func interrupted() Breaker {
 	ctx, cancel := context.WithCancel(context.Background())

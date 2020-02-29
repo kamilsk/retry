@@ -3,6 +3,8 @@ package retry_test
 import (
 	"context"
 	"errors"
+	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -11,87 +13,121 @@ import (
 )
 
 func TestDo(t *testing.T) {
-	type Assert struct {
-		Attempts uint
-		Error    func(error) bool
+	type expected struct {
+		attempts uint
+		error    error
 	}
-
 	tests := map[string]struct {
 		breaker    strategy.Breaker
 		strategies How
-		error      error
-		assert     Assert
+		action     func() error
+		expected   expected
 	}{
-		"zero iterations": {
-			newClosedBreaker(),
-			How{
-				strategy.Delay(10 * time.Millisecond),
-				strategy.Limit(10000),
-			},
-			errors.New("zero iterations"),
-			Assert{0, func(err error) bool { return err == context.Canceled }},
+		"success call": {
+			breaker(),
+			How{strategy.Wait(time.Hour)},
+			func() error { return nil },
+			expected{1, nil},
 		},
-		"one iteration": {
-			newBreaker(),
-			nil,
-			nil,
-			Assert{1, func(err error) bool { return err == nil }},
+		"failure call": {
+			breaker(),
+			How{strategy.Limit(10)},
+			func() error { return errors.New("failure") },
+			expected{10, errors.New("failure")},
 		},
-		"two iterations": {
-			newBreaker(),
-			How{strategy.Limit(2)},
-			errors.New("two iterations"),
-			Assert{2, func(err error) bool { return err != nil && err.Error() == "two iterations" }},
-		},
-		"three iterations": {
-			newBreaker(),
-			How{strategy.Limit(3)},
-			errors.New("three iterations"),
-			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
+		"call with interrupted breaker": {
+			interrupted(),
+			How{strategy.Delay(time.Hour)},
+			func() error { return errors.New("zero iterations") },
+			expected{0, context.Canceled},
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			var total uint
+			var attempts uint
 			action := func() error {
-				total += 1
-				return test.error
+				attempts += 1
+				return test.action()
 			}
 			err := Do(test.breaker, action, test.strategies...)
-			if !test.assert.Error(err) {
-				t.Error("fail error assertion")
+			if test.expected.attempts != attempts {
+				t.Errorf("expected: %d, obtained: %d", test.expected.attempts, attempts)
 			}
-			if test.assert.Attempts != total {
-				t.Errorf("expected %d attempts, obtained %d", test.assert.Attempts, total)
+			if !reflect.DeepEqual(test.expected.error, err) {
+				t.Error("result is not asserted")
 			}
 		})
 	}
 }
 
-func newBreaker() *contextBreaker {
+func TestDoAsync(t *testing.T) {
+	type expected struct {
+		attempts uint
+		error    error
+	}
+	tests := map[string]struct {
+		breaker    strategy.Breaker
+		strategies How
+		action     func() error
+		expected   expected
+	}{
+		"success call": {
+			breaker(),
+			How{strategy.Wait(time.Hour)},
+			func() error { return nil },
+			expected{1, nil},
+		},
+		"failure call": {
+			breaker(),
+			How{strategy.Limit(10)},
+			func() error { return errors.New("failure") },
+			expected{10, errors.New("failure")},
+		},
+		"call with interrupted breaker": {
+			interrupted(),
+			How{strategy.Delay(time.Hour)},
+			func() error { return errors.New("zero iterations") },
+			expected{0, context.Canceled},
+		},
+		"call with panicked error": {
+			breaker(),
+			How{strategy.Wait(time.Hour)},
+			func() error { panic(errors.New("failure")) },
+			expected{1, errors.New("failure")},
+		},
+		"call with non-error panic": {
+			breaker(),
+			How{strategy.Wait(time.Hour)},
+			func() error { panic("non-error") },
+			expected{1, fmt.Errorf("retry: unexpected panic: %#v", "non-error")},
+		},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			var attempts uint
+			action := func() error {
+				attempts += 1
+				return test.action()
+			}
+			err := DoAsync(test.breaker, action, test.strategies...)
+			if test.expected.attempts != attempts {
+				t.Errorf("expected: %d, obtained: %d", test.expected.attempts, attempts)
+			}
+			if !reflect.DeepEqual(test.expected.error, err) {
+				t.Error("result is not asserted")
+			}
+		})
+	}
+}
+
+// helpers
+
+func breaker() strategy.Breaker {
+	return context.Background()
+}
+
+func interrupted() strategy.Breaker {
 	ctx, cancel := context.WithCancel(context.Background())
-	return &contextBreaker{ctx, cancel}
-}
-
-func newClosedBreaker() *contextBreaker {
-	breaker := newBreaker()
-	breaker.Close()
-	return breaker
-}
-
-type contextBreaker struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-}
-
-func (breaker *contextBreaker) Done() <-chan struct{} {
-	return breaker.ctx.Done()
-}
-
-func (breaker *contextBreaker) Close() {
-	breaker.cancel()
-}
-
-func (breaker *contextBreaker) Err() error {
-	return breaker.ctx.Err()
+	cancel()
+	return ctx
 }
