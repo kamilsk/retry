@@ -44,7 +44,7 @@ func Exponential(factor time.Duration, base float64) Algorithm {
 
 // BinaryExponential creates an Algorithm that multiplies the factor
 // duration by an exponentially increasing factor for each attempt, where the
-// factor is calculated as `2` raised to the attempt number (2^attempt).
+// factor is calculated as 2 raised to the attempt number (2^attempt).
 func BinaryExponential(factor time.Duration) Algorithm {
 	return Exponential(factor, 2)
 }

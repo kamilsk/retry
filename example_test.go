@@ -2,6 +2,7 @@ package retry_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"math/rand"
@@ -28,7 +29,10 @@ func Example() {
 				0.25,
 			),
 		),
-		strategy.CheckNetworkError(strategy.Skip),
+		strategy.CheckError(
+			strategy.NetworkError(strategy.Skip),
+			DatabaseError(),
+		),
 	}
 
 	breaker, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -46,4 +50,16 @@ func SendRequest() error {
 		return &net.DNSError{Name: "unknown host", IsTemporary: true}
 	}
 	return nil
+}
+
+func DatabaseError() func(error) bool {
+	blacklist := []error{sql.ErrNoRows, sql.ErrConnDone, sql.ErrTxDone}
+	return func(err error) bool {
+		for _, preset := range blacklist {
+			if err == preset {
+				return false
+			}
+		}
+		return true
+	}
 }
