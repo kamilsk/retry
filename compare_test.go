@@ -9,9 +9,7 @@ import (
 	"github.com/kamilsk/retry/v5/strategy"
 )
 
-// The example shows the difference between Do and DoAsync
-// - if an action doesn't support the interrupt mechanism
-// - if a strategy doesn't support the interrupt mechanism
+// The example shows the difference between Do and DoAsync.
 func ExampleDo_badCases() {
 	var (
 		realTime = 100 * time.Millisecond
@@ -50,9 +48,7 @@ func ExampleDo_badCases() {
 	// Output: done
 }
 
-// The example shows the difference between Do and DoAsync
-// - if an action doesn't support the interrupt mechanism
-// - if a strategy doesn't support the interrupt mechanism
+// The example shows the difference between Do and DoAsync.
 func ExampleDoAsync_guarantees() {
 	var (
 		sleepTime  = 100 * time.Millisecond
