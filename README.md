@@ -155,18 +155,18 @@ See more details [here][cli].
 
 made with ❤️ for everyone
 
-[awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 [awesome.page]:     https://github.com/avelino/awesome-go#utilities
-[build.icon]:       https://travis-ci.org/kamilsk/retry.svg?branch=v4
+[awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 [build.page]:       https://travis-ci.org/kamilsk/retry
-[coverage.icon]:    https://api.codeclimate.com/v1/badges/ed88afbc0754e49e9d2d/test_coverage
+[build.icon]:       https://travis-ci.org/kamilsk/retry.svg?branch=v5
 [coverage.page]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
+[coverage.icon]:    https://api.codeclimate.com/v1/badges/ed88afbc0754e49e9d2d/test_coverage
 [design.page]:      https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
 [docs.page]:        https://pkg.go.dev/github.com/kamilsk/retry/v5
 [docs.icon]:        https://img.shields.io/badge/docs-pkg.go.dev-blue
 [promo.page]:       https://github.com/kamilsk/retry
-[quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry
 [quality.page]:     https://goreportcard.com/report/github.com/kamilsk/retry
+[quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry
 [template.page]:    https://github.com/octomation/go-module
 [template.icon]:    https://img.shields.io/badge/template-go--module-blue
 
@@ -180,4 +180,4 @@ made with ❤️ for everyone
 [Rican7/retry]:     https://github.com/Rican7/retry
 
 [tmp.docs]:         https://nicedoc.io/kamilsk/retry?theme=dark
-[tmp.history]:      https://github.githistory.xyz/kamilsk/retry/blob/v4/README.md
+[tmp.history]:      https://github.githistory.xyz/kamilsk/retry/blob/v5/README.md
