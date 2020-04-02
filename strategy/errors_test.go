@@ -21,12 +21,12 @@ func TestCheckError(t *testing.T) {
 			true,
 		},
 		"retriable error": {
-			exampleError("test"),
+			retriable("error"),
 			Strict,
 			true,
 		},
 		"not retriable error": {
-			errors.New("test"),
+			errors.New("error"),
 			Skip,
 			true,
 		},
@@ -60,7 +60,7 @@ func TestCheckNetworkError(t *testing.T) {
 			false,
 		},
 		"unknown network error": {
-			net.UnknownNetworkError("test"),
+			net.UnknownNetworkError("error"),
 			Strict,
 			false,
 		},
@@ -70,7 +70,7 @@ func TestCheckNetworkError(t *testing.T) {
 			true,
 		},
 		"not network error": {
-			errors.New("test"),
+			errors.New("error"),
 			Skip,
 			true,
 		},
@@ -85,7 +85,9 @@ func TestCheckNetworkError(t *testing.T) {
 	}
 }
 
-type exampleError string
+// helpers
 
-func (err exampleError) Error() string   { return string(err) }
-func (err exampleError) Retriable() bool { return true }
+type retriable string
+
+func (err retriable) Error() string   { return string(err) }
+func (err retriable) Retriable() bool { return true }

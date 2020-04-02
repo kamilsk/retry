@@ -17,7 +17,7 @@ import (
 var generator = rand.New(rand.NewSource(0))
 
 func Example() {
-	what := func(uint) (err error) { return SendRequest() }
+	what := func(uint) error { return SendRequest() }
 
 	how := retry.How{
 		strategy.Limit(5),

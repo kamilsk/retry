@@ -72,6 +72,7 @@ func retry(
 // shouldAttempt evaluates the provided strategies with the given attempt to
 // determine if the Retry loop should make another attempt.
 func shouldAttempt(breaker *uint32, attempt uint, err error, strategies ...func(uint, error) bool) bool {
+	err = unwrap(err)
 	should := attempt == 0 || err != nil
 
 	for i, repeat := 0, len(strategies); should && i < repeat; i++ {
@@ -79,4 +80,30 @@ func shouldAttempt(breaker *uint32, attempt uint, err error, strategies ...func(
 	}
 
 	return should && atomic.LoadUint32(breaker) == 0
+}
+
+func unwrap(err error) error {
+	// compatible with github.com/pkg/errors
+	type causer interface {
+		Cause() error
+	}
+	// compatible with built-in errors since 1.13
+	type wrapper interface {
+		Unwrap() error
+	}
+
+	for err != nil {
+		layer, is := err.(wrapper)
+		if is {
+			err = layer.Unwrap()
+			continue
+		}
+		cause, is := err.(causer)
+		if is {
+			err = cause.Cause()
+			continue
+		}
+		break
+	}
+	return err
 }
