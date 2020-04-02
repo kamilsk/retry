@@ -17,6 +17,7 @@ func TestDo(t *testing.T) {
 		attempts uint
 		error    error
 	}
+
 	tests := map[string]struct {
 		breaker    strategy.Breaker
 		strategies How
@@ -32,8 +33,8 @@ func TestDo(t *testing.T) {
 		"failure call": {
 			breaker(),
 			How{strategy.Limit(10)},
-			func() error { return errors.New("failure") },
-			expected{10, errors.New("failure")},
+			func() error { return layer{causer{errors.New("failure")}} },
+			expected{10, layer{causer{errors.New("failure")}}},
 		},
 		"call with interrupted breaker": {
 			interrupted(),
@@ -42,6 +43,7 @@ func TestDo(t *testing.T) {
 			expected{0, context.Canceled},
 		},
 	}
+
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			var attempts uint
@@ -65,6 +67,7 @@ func TestDoAsync(t *testing.T) {
 		attempts uint
 		error    error
 	}
+
 	tests := map[string]struct {
 		breaker    strategy.Breaker
 		strategies How
@@ -80,8 +83,8 @@ func TestDoAsync(t *testing.T) {
 		"failure call": {
 			breaker(),
 			How{strategy.Limit(10)},
-			func() error { return errors.New("failure") },
-			expected{10, errors.New("failure")},
+			func() error { return layer{causer{errors.New("failure")}} },
+			expected{10, layer{causer{errors.New("failure")}}},
 		},
 		"call with interrupted breaker": {
 			interrupted(),
@@ -102,6 +105,7 @@ func TestDoAsync(t *testing.T) {
 			expected{1, fmt.Errorf("retry: unexpected panic: %#v", "non-error")},
 		},
 	}
+
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			var attempts uint
@@ -131,3 +135,11 @@ func interrupted() strategy.Breaker {
 	cancel()
 	return ctx
 }
+
+type layer struct{ error }
+
+func (layer layer) Unwrap() error { return layer.error }
+
+type causer struct{ error }
+
+func (causer causer) Cause() error { return causer.error }

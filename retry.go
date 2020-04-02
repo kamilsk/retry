@@ -28,10 +28,11 @@ func Do(
 	action func() error,
 	strategies ...func(strategy.Breaker, uint, error) bool,
 ) error {
-	var err error
+	var err, clean error
 	for attempt, should := uint(0), true; should; attempt++ {
+		clean = unwrap(err)
 		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-			should = should && strategies[i](breaker, attempt, err)
+			should = should && strategies[i](breaker, attempt, clean)
 		}
 		select {
 		case <-breaker.Done():
@@ -77,4 +78,30 @@ func DoAsync(
 	case err := <-done:
 		return err
 	}
+}
+
+func unwrap(err error) error {
+	// compatible with github.com/pkg/errors
+	type causer interface {
+		Cause() error
+	}
+	// compatible with built-in errors since 1.13
+	type wrapper interface {
+		Unwrap() error
+	}
+
+	for err != nil {
+		layer, is := err.(wrapper)
+		if is {
+			err = layer.Unwrap()
+			continue
+		}
+		cause, is := err.(causer)
+		if is {
+			err = cause.Cause()
+			continue
+		}
+		break
+	}
+	return err
 }
