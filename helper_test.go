@@ -45,14 +45,16 @@ func (breaker *contextBreaker) Done() <-chan struct{} {
 	return breaker.ctx.Done()
 }
 
-func (breaker *contextBreaker) Close() {
-	breaker.cancel()
-}
+func (breaker *contextBreaker) Close() { breaker.cancel() }
 
-type panicBreaker struct {
-	*contextBreaker
-}
+type panicBreaker struct{ *contextBreaker }
 
-func (*panicBreaker) Close() {
-	panic("unexpected method call")
-}
+func (*panicBreaker) Close() { panic("unexpected method call") }
+
+type layer struct{ error }
+
+func (layer layer) Unwrap() error { return layer.error }
+
+type causer struct{ error }
+
+func (causer causer) Cause() error { return causer.error }

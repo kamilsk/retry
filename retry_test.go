@@ -42,10 +42,11 @@ func TestRetry(t *testing.T) {
 		"three iterations": {
 			newBreaker(),
 			[]func(attempt uint, err error) bool{limit(3)},
-			errors.New("three iterations"),
+			layer{causer{errors.New("three iterations")}},
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
 		},
 	}
+
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			var total uint
@@ -65,6 +66,7 @@ func TestRetry(t *testing.T) {
 			}
 		})
 	}
+
 	t.Run("unexpected panic", func(t *testing.T) {
 		err := Retry(newBreaker(), func(uint) error { panic("Catch Me If You Can") })
 		cause, is := IsRecovered(err)
@@ -110,10 +112,11 @@ func TestTry(t *testing.T) {
 		"three iterations": {
 			newPanicBreaker(),
 			[]func(attempt uint, err error) bool{limit(3)},
-			errors.New("three iterations"),
+			layer{causer{errors.New("three iterations")}},
 			Assert{3, func(err error) bool { return err != nil && err.Error() == "three iterations" }},
 		},
 	}
+
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			var total uint
@@ -133,6 +136,7 @@ func TestTry(t *testing.T) {
 			}
 		})
 	}
+
 	t.Run("unexpected panic", func(t *testing.T) {
 		err := Try(newBreaker(), func(uint) error { panic("Catch Me If You Can") })
 		cause, is := IsRecovered(err)

@@ -7,20 +7,20 @@ const (
 	Strict = false
 )
 
-// An Error represents a retriable error.
-type Error interface {
-	error
-	Retriable() bool // Is the error retriable?
-}
-
 // CheckError creates a Strategy that checks an error and returns
 // if an error is retriable or not. Otherwise, it returns the defaults.
 func CheckError(defaults bool) Strategy {
+	// compatible with go.octolab.org/errors
+	type retriable interface {
+		error
+		Retriable() bool // Is the error retriable?
+	}
+
 	return func(_ uint, err error) bool {
 		if err == nil {
 			return true
 		}
-		if err, is := err.(Error); is {
+		if err, is := err.(retriable); is {
 			return err.Retriable()
 		}
 		return defaults
