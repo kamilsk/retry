@@ -80,6 +80,7 @@ func DoAsync(
 	}
 }
 
+// equal to go.octolab.org/errors.Unwrap
 func unwrap(err error) error {
 	// compatible with github.com/pkg/errors
 	type causer interface {

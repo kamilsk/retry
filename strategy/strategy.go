@@ -109,7 +109,7 @@ type ErrorHandler func(error) bool
 // CheckError creates a Strategy that checks an error and returns
 // if an error is retriable or not. Otherwise, it returns the defaults.
 func CheckError(handlers ...func(error) bool) Strategy {
-	// compatible with go.octolab.org/errors
+	// equal to go.octolab.org/errors.Retriable
 	type retriable interface {
 		error
 		Retriable() bool // Is the error retriable?
