@@ -9,7 +9,7 @@ import (
 	"github.com/kamilsk/retry/v5/strategy"
 )
 
-// The example shows the difference between Do and DoAsync.
+// The example shows the difference between Do and Go.
 func ExampleDo_badCases() {
 	var (
 		realTime = 100 * time.Millisecond
@@ -48,7 +48,7 @@ func ExampleDo_badCases() {
 	// Output: done
 }
 
-// The example shows the difference between Do and DoAsync.
+// The example shows the difference between Do and Go.
 func ExampleDoAsync_guarantees() {
 	var (
 		sleepTime  = 100 * time.Millisecond
@@ -63,7 +63,7 @@ func ExampleDoAsync_guarantees() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.DoAsync(breaker, badAction))
+		Silent(retry.Go(breaker, badAction))
 		if time.Since(now)-needTime > time.Millisecond+inaccuracy {
 			fmt.Println("unexpected waiting time")
 		}
@@ -77,7 +77,7 @@ func ExampleDoAsync_guarantees() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.DoAsync(breaker, func() error { return nil }, badStrategy))
+		Silent(retry.Go(breaker, func() error { return nil }, badStrategy))
 		if time.Since(now)-needTime > time.Millisecond+inaccuracy {
 			fmt.Println("unexpected waiting time")
 		}

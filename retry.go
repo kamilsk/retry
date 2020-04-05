@@ -19,7 +19,7 @@ type Action func() error
 //
 type How []func(strategy.Breaker, uint, error) bool
 
-// Do takes an action and performs it, repetitively, until successful.
+// Do takes the action and performs it, repetitively, until successful.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
@@ -47,11 +47,12 @@ func Do(
 	return err
 }
 
-// DoAsync takes an action and performs it, repetitively, until successful.
+// Go takes the action and performs it, repetitively, until successful.
+// It differs from the Do method in that it performs the action in a goroutine.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
-func DoAsync(
+func Go(
 	breaker strategy.Breaker,
 	action func() error,
 	strategies ...func(strategy.Breaker, uint, error) bool,

@@ -62,7 +62,7 @@ func TestDo(t *testing.T) {
 	}
 }
 
-func TestDoAsync(t *testing.T) {
+func TestGo(t *testing.T) {
 	type expected struct {
 		attempts uint
 		error    error
@@ -113,7 +113,7 @@ func TestDoAsync(t *testing.T) {
 				attempts += 1
 				return test.action()
 			}
-			err := DoAsync(test.breaker, action, test.strategies...)
+			err := Go(test.breaker, action, test.strategies...)
 			if test.expected.attempts != attempts {
 				t.Errorf("expected: %d, obtained: %d", test.expected.attempts, attempts)
 			}
