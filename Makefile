@@ -67,7 +67,7 @@ update:
 	@if command -v egg > /dev/null; then \
 		packages="`egg deps list`"; \
 	else \
-		packages="`go list -f $(selector) -m all`"; \
+		packages="`go list -f $(selector) -m -mod=readonly all`"; \
 	fi; \
 	if [[ "`go version`" == *1.1[1-3]* ]]; then \
 		go get -d -mod= -u $$packages; \
@@ -78,7 +78,7 @@ update:
 
 .PHONY: update-all
 update-all:
-	@if [[ `go version` == *1.1[1-3]* ]]; then \
+	@if [[ "`go version`" == *1.1[1-3]* ]]; then \
 		go get -d -mod= -u ./...; \
 	else \
 		go get -d -u ./...; \
@@ -87,7 +87,11 @@ update-all:
 
 .PHONY: format
 format:
-	@goimports -local $(LOCAL) -ungroup -w $(PATHS)
+	@if command -v goimports > /dev/null; then \
+		goimports -local $(LOCAL) -ungroup -w $(PATHS); \
+	else \
+		gofmt -s -w $(PATHS); \
+	fi
 
 .PHONY: go-generate
 go-generate:
@@ -95,7 +99,11 @@ go-generate:
 
 .PHONY: lint
 lint:
-	@golangci-lint run ./...
+	@if command -v golangci-lint > /dev/null; then \
+		golangci-lint run ./...; \
+	else \
+		go vet $(PACKAGES); \
+	fi
 
 .PHONY: test
 test:
