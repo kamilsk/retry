@@ -21,25 +21,25 @@ func TestDo(t *testing.T) {
 	tests := map[string]struct {
 		breaker    strategy.Breaker
 		strategies How
-		action     func() error
+		action     func(context.Context) error
 		expected   expected
 	}{
 		"success call": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
-			func() error { return nil },
+			func(context.Context) error { return nil },
 			expected{1, nil},
 		},
 		"failure call": {
 			breaker(),
 			How{strategy.Limit(10)},
-			func() error { return layer{causer{errors.New("failure")}} },
+			func(context.Context) error { return layer{causer{errors.New("failure")}} },
 			expected{10, layer{causer{errors.New("failure")}}},
 		},
 		"call with interrupted breaker": {
 			interrupted(),
 			How{strategy.Delay(time.Hour)},
-			func() error { return errors.New("zero iterations") },
+			func(context.Context) error { return errors.New("zero iterations") },
 			expected{0, context.Canceled},
 		},
 	}
@@ -47,9 +47,9 @@ func TestDo(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			var attempts uint
-			action := func() error {
+			action := func(ctx context.Context) error {
 				attempts += 1
-				return test.action()
+				return test.action(ctx)
 			}
 			err := Do(test.breaker, action, test.strategies...)
 			if test.expected.attempts != attempts {
@@ -71,37 +71,37 @@ func TestGo(t *testing.T) {
 	tests := map[string]struct {
 		breaker    strategy.Breaker
 		strategies How
-		action     func() error
+		action     func(context.Context) error
 		expected   expected
 	}{
 		"success call": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
-			func() error { return nil },
+			func(context.Context) error { return nil },
 			expected{1, nil},
 		},
 		"failure call": {
 			breaker(),
 			How{strategy.Limit(10)},
-			func() error { return layer{causer{errors.New("failure")}} },
+			func(context.Context) error { return layer{causer{errors.New("failure")}} },
 			expected{10, layer{causer{errors.New("failure")}}},
 		},
 		"call with interrupted breaker": {
 			interrupted(),
 			How{strategy.Delay(time.Hour)},
-			func() error { return errors.New("zero iterations") },
+			func(context.Context) error { return errors.New("zero iterations") },
 			expected{0, context.Canceled},
 		},
 		"call with panicked error": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
-			func() error { panic(errors.New("failure")) },
+			func(context.Context) error { panic(errors.New("failure")) },
 			expected{1, errors.New("failure")},
 		},
 		"call with non-error panic": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
-			func() error { panic("non-error") },
+			func(context.Context) error { panic("non-error") },
 			expected{1, fmt.Errorf("retry: unexpected panic: %#v", "non-error")},
 		},
 	}
@@ -109,9 +109,9 @@ func TestGo(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			var attempts uint
-			action := func() error {
+			action := func(ctx context.Context) error {
 				attempts += 1
-				return test.action()
+				return test.action(ctx)
 			}
 			err := Go(test.breaker, action, test.strategies...)
 			if test.expected.attempts != attempts {

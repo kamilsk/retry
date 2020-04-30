@@ -3,13 +3,14 @@
 package retry
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/kamilsk/retry/v5/strategy"
 )
 
 // Action defines a callable function that package retry can handle.
-type Action func() error
+type Action func(context.Context) error
 
 // How is an alias for batch of Strategies.
 //
@@ -25,10 +26,11 @@ type How []func(strategy.Breaker, uint, error) bool
 // should be made.
 func Do(
 	breaker strategy.Breaker,
-	action func() error,
+	action func(context.Context) error,
 	strategies ...func(strategy.Breaker, uint, error) bool,
 ) error {
 	var err, clean error
+	ctx, cancel := context.WithCancel(context.Background())
 	for attempt, should := uint(0), true; should; attempt++ {
 		clean = unwrap(err)
 		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
@@ -36,14 +38,16 @@ func Do(
 		}
 		select {
 		case <-breaker.Done():
+			cancel()
 			return breaker.Err()
 		default:
 			if should {
-				err = action()
+				err = action(ctx)
 			}
 		}
 		should = should && err != nil
 	}
+	cancel()
 	return err
 }
 
@@ -54,7 +58,7 @@ func Do(
 // should be made.
 func Go(
 	breaker strategy.Breaker,
-	action func() error,
+	action func(context.Context) error,
 	strategies ...func(strategy.Breaker, uint, error) bool,
 ) error {
 	done := make(chan error, 1)

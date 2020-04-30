@@ -16,7 +16,7 @@ func ExampleDo_badCases() {
 		needTime = 5 * time.Millisecond
 	)
 	{
-		badAction := func() error {
+		badAction := func(context.Context) error {
 			time.Sleep(realTime)
 			return nil
 		}
@@ -37,7 +37,7 @@ func ExampleDo_badCases() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.Do(breaker, func() error { return nil }, badStrategy))
+		Silent(retry.Do(breaker, func(context.Context) error { return nil }, badStrategy))
 		if time.Since(now) < realTime {
 			fmt.Println("unexpected waiting time")
 		}
@@ -56,7 +56,7 @@ func ExampleDoAsync_guarantees() {
 		inaccuracy = time.Millisecond
 	)
 	{
-		badAction := func() error {
+		badAction := func(context.Context) error {
 			time.Sleep(sleepTime)
 			return nil
 		}
@@ -77,7 +77,7 @@ func ExampleDoAsync_guarantees() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.Go(breaker, func() error { return nil }, badStrategy))
+		Silent(retry.Go(breaker, func(context.Context) error { return nil }, badStrategy))
 		if time.Since(now)-needTime > time.Millisecond+inaccuracy {
 			fmt.Println("unexpected waiting time")
 		}
@@ -88,4 +88,4 @@ func ExampleDoAsync_guarantees() {
 	// Output: done
 }
 
-func Silent(error) {}
+func Silent(_ error) {}

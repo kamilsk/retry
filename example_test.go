@@ -45,7 +45,12 @@ func Example() {
 	// Output: success communication
 }
 
-func SendRequest() error {
+func SendRequest(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
 	if generator.Intn(5) > 3 {
 		return &net.DNSError{Name: "unknown host", IsTemporary: true}
 	}
