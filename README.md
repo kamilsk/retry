@@ -14,7 +14,7 @@
 The package based on [Rican7/retry][] but fully reworked and focused on integration
 with the 🚧 [breaker][] and the built-in [context][] packages.
 
-Full description of the idea is available [here][design.page].
+A full description of the idea is available [here][design.page].
 
 ## 🏆 Motivation
 
@@ -24,14 +24,21 @@ these communications more reliable.
 
 ## 🤼‍♂️ How to
 
+**Important**: retry/v5 compatible with [breaker][] version v1.2+ and above.
+
 ### retry.Do
 
 ```go
 var response *http.Response
 
-action := func() error {
+action := func(ctx context.Context) error {
 	var err error
-	response, err = http.Get("https://github.com/kamilsk/retry")
+	req := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet, "https://github.com/kamilsk/retry",
+		nil,
+	)
+	response, err = http.DefaultClient.Do(req)
 	return err
 }
 
@@ -110,7 +117,7 @@ func main() {
 	}
 }
 
-func SendRequest() error {
+func SendRequest(ctx context.Context) error {
 	// communicate with some service
 }
 
@@ -157,8 +164,8 @@ made with ❤️ for everyone
 
 [awesome.page]:     https://github.com/avelino/awesome-go#utilities
 [awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
-[build.page]:       https://travis-ci.org/kamilsk/retry
-[build.icon]:       https://travis-ci.org/kamilsk/retry.svg?branch=v5
+[build.page]:       https://travis-ci.com/kamilsk/retry
+[build.icon]:       https://travis-ci.com/kamilsk/retry.svg?branch=v5
 [coverage.page]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
 [coverage.icon]:    https://api.codeclimate.com/v1/badges/ed88afbc0754e49e9d2d/test_coverage
 [design.page]:      https://www.notion.so/octolab/retry-cab5722faae445d197e44fbe0225cc98?r=0b753cbf767346f5a6fd51194829a2f3
@@ -172,12 +179,9 @@ made with ❤️ for everyone
 
 [Avito]:            https://tech.avito.ru
 [breaker]:          https://github.com/kamilsk/breaker
-[cli]:              https://github.com/kamilsk/try
+[cli]:              https://github.com/octolab/try
 [cli.demo]:         https://asciinema.org/a/150367
 [cli.preview]:      https://asciinema.org/a/150367.png
 [context]:          https://pkg.go.dev/context
 [Lazada]:           https://github.com/lazada
 [Rican7/retry]:     https://github.com/Rican7/retry
-
-[tmp.docs]:         https://nicedoc.io/kamilsk/retry?theme=dark
-[tmp.history]:      https://github.githistory.xyz/kamilsk/retry/blob/v5/README.md

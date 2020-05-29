@@ -3,6 +3,7 @@
 .travis.yml     export-ignore
 
 /.github/       export-ignore
+/githooks/      export-ignore
 
 Makefile        export-ignore
 *.md            export-ignore

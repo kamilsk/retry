@@ -23,7 +23,7 @@ func ExampleDo_badCases() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.Do(breaker, badAction))
+		silent(retry.Do(breaker, badAction))
 		if time.Since(now) < realTime {
 			fmt.Println("unexpected waiting time")
 		}
@@ -37,7 +37,7 @@ func ExampleDo_badCases() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.Do(breaker, func(context.Context) error { return nil }, badStrategy))
+		silent(retry.Do(breaker, func(context.Context) error { return nil }, badStrategy))
 		if time.Since(now) < realTime {
 			fmt.Println("unexpected waiting time")
 		}
@@ -49,7 +49,7 @@ func ExampleDo_badCases() {
 }
 
 // The example shows the difference between Do and Go.
-func ExampleDoAsync_guarantees() {
+func ExampleGo_guarantees() {
 	var (
 		sleepTime  = 100 * time.Millisecond
 		needTime   = 5 * time.Millisecond
@@ -63,7 +63,7 @@ func ExampleDoAsync_guarantees() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.Go(breaker, badAction))
+		silent(retry.Go(breaker, badAction))
 		if time.Since(now)-needTime > time.Millisecond+inaccuracy {
 			fmt.Println("unexpected waiting time")
 		}
@@ -77,7 +77,7 @@ func ExampleDoAsync_guarantees() {
 		now := time.Now()
 		breaker, cancel := context.WithTimeout(context.Background(), needTime)
 
-		Silent(retry.Go(breaker, func(context.Context) error { return nil }, badStrategy))
+		silent(retry.Go(breaker, func(context.Context) error { return nil }, badStrategy))
 		if time.Since(now)-needTime > time.Millisecond+inaccuracy {
 			fmt.Println("unexpected waiting time")
 		}
@@ -88,4 +88,4 @@ func ExampleDoAsync_guarantees() {
 	// Output: done
 }
 
-func Silent(_ error) {}
+func silent(_ error) {}
