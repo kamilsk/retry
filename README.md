@@ -1,4 +1,4 @@
-> # ♻️ retry
+> # ♻️ retry [![Awesome][awesome.icon]][awesome.page]
 >
 > The most advanced interruptible mechanism to perform actions repetitively until successful.
 
@@ -7,7 +7,7 @@
 [![Quality][quality.icon]][quality.page]
 [![Template][template.icon]][template.page]
 [![Coverage][coverage.icon]][coverage.page]
-[![Awesome][awesome.icon]][awesome.page]
+[![Mirror][mirror.icon]][mirror.page]
 
 ## 💡 Idea
 
@@ -144,26 +144,10 @@ You can use [go modules](https://github.com/golang/go/wiki/Modules) to manage it
 $ go get github.com/kamilsk/retry/v5@latest
 ```
 
-## 🤲 Outcomes
-
-### Console tool for command execution with retries
-
-This example shows how to repeat console command until successful.
-
-```bash
-$ retry -timeout 10m -backoff lin:500ms -- /bin/sh -c 'echo "trying..."; exit $((1 + RANDOM % 10 > 5))'
-```
-
-[![asciicast][cli.preview]][cli.demo]
-
-See more details [here][cli].
-
 ---
 
 made with ❤️ for everyone
 
-[awesome.page]:     https://github.com/avelino/awesome-go#utilities
-[awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 [build.page]:       https://travis-ci.com/kamilsk/retry
 [build.icon]:       https://travis-ci.com/kamilsk/retry.svg?branch=v5
 [coverage.page]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
@@ -176,6 +160,11 @@ made with ❤️ for everyone
 [quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry
 [template.page]:    https://github.com/octomation/go-module
 [template.icon]:    https://img.shields.io/badge/template-go--module-blue
+[mirror.page]:      https://bitbucket.org/kamilsk/retry
+[mirror.icon]:      https://img.shields.io/badge/mirror-bitbucket-blue
+
+[awesome.page]:     https://github.com/avelino/awesome-go#utilities
+[awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 
 [Avito]:            https://tech.avito.ru
 [breaker]:          https://github.com/kamilsk/breaker
