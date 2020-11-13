@@ -24,115 +24,7 @@ these communications more reliable.
 
 ## 🤼‍♂️ How to
 
-**Important**: retry/v5 compatible with [breaker][] version v1.2+ and above.
-
-### retry.Do
-
-```go
-var response *http.Response
-
-action := func(ctx context.Context) error {
-	var err error
-	req := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet, "https://github.com/kamilsk/retry",
-		nil,
-	)
-	response, err = http.DefaultClient.Do(req)
-	return err
-}
-
-// you can combine multiple Breakers into one
-interrupter := breaker.MultiplexTwo(
-	breaker.BreakByTimeout(time.Minute),
-	breaker.BreakBySignal(os.Interrupt),
-)
-defer interrupter.Close()
-
-if err := retry.Do(interrupter, action, strategy.Limit(3)); err != nil {
-	if err == breaker.Interrupted {
-		// operation was interrupted
-	}
-	// handle error
-}
-// work with response
-```
-
-or use Context
-
-```go
-ctx, cancel := context.WithTimeout(request.Context(), time.Minute)
-defer cancel()
-
-if err := retry.Do(ctx, action, strategy.Limit(3)); err != nil {
-	if err == context.Canceled || err == context.DeadlineExceeded {
-		// operation was interrupted
-	}
-	// handle error
-}
-// work with response
-```
-
-### Complex example
-
-```go
-import (
-	"context"
-	"database/sql"
-	"fmt"
-	"log"
-	"math/rand"
-	"net"
-	"time"
-
-	"github.com/kamilsk/retry/v5"
-	"github.com/kamilsk/retry/v5/backoff"
-	"github.com/kamilsk/retry/v5/jitter"
-	"github.com/kamilsk/retry/v5/strategy"
-)
-
-func main() {
-	what := SendRequest
-
-	how := retry.How{
-		strategy.Limit(5),
-		strategy.BackoffWithJitter(
-			backoff.Fibonacci(10*time.Millisecond),
-			jitter.NormalDistribution(
-				rand.New(rand.NewSource(time.Now().UnixNano())),
-				0.25,
-			),
-		),
-		strategy.CheckError(
-			strategy.NetworkError(strategy.Skip),
-			DatabaseError(),
-		),
-	}
-
-	breaker, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	if err := retry.Do(breaker, what, how...); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func SendRequest(ctx context.Context) error {
-	// communicate with some service
-}
-
-func DatabaseError() func(error) bool {
-	blacklist := []error{sql.ErrNoRows, sql.ErrConnDone, sql.ErrTxDone}
-	return func(err error) bool {
-		for _, preset := range blacklist {
-			if err == preset {
-				return false
-			}
-		}
-		return true
-	}
-}
-```
+rewriting...
 
 ## 🧩 Integration
 
@@ -156,8 +48,8 @@ made with ❤️ for everyone
 [docs.page]:        https://pkg.go.dev/github.com/kamilsk/retry/v5
 [docs.icon]:        https://img.shields.io/badge/docs-pkg.go.dev-blue
 [promo.page]:       https://github.com/kamilsk/retry
-[quality.page]:     https://goreportcard.com/report/github.com/kamilsk/retry
-[quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry
+[quality.page]:     https://goreportcard.com/report/github.com/kamilsk/retry/v5
+[quality.icon]:     https://goreportcard.com/badge/github.com/kamilsk/retry/v5
 [template.page]:    https://github.com/octomation/go-module
 [template.icon]:    https://img.shields.io/badge/template-go--module-blue
 [mirror.page]:      https://bitbucket.org/kamilsk/retry
@@ -169,8 +61,6 @@ made with ❤️ for everyone
 [Avito]:            https://tech.avito.ru
 [breaker]:          https://github.com/kamilsk/breaker
 [cli]:              https://github.com/octolab/try
-[cli.demo]:         https://asciinema.org/a/150367
-[cli.preview]:      https://asciinema.org/a/150367.png
 [context]:          https://pkg.go.dev/context
 [Lazada]:           https://github.com/lazada
 [Rican7/retry]:     https://github.com/Rican7/retry

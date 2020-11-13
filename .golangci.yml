@@ -62,6 +62,7 @@ linters:
 #    - nolintlint         # https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/nolintlint/README.md
 #    - paralleltest       # https://github.com/kunwardeep/paralleltest
 #    - prealloc           # https://github.com/alexkohler/prealloc
+#    - predeclared        # https://github.com/nishanths/predeclared
 #    - rowserrcheck       # https://github.com/jingyugao/rowserrcheck
 #    - scopelint          # https://github.com/kyoh86/scopelint
 #    - sqlclosecheck      # https://github.com/ryanrolds/sqlclosecheck

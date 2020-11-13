@@ -12,13 +12,18 @@ SHELL ?= /bin/bash -euo pipefail
 
 todo:
 	@grep \
-		--exclude-dir=vendor \
-		--exclude-dir=node_modules \
 		--exclude=Makefile \
-		--text \
+		--exclude-dir={bin,components,node_modules,vendor} \
 		--color \
-		-nRo -E ' TODO:.*|SkipNow' .
+		--text \
+		-nRo -E ' TODO:.*|SkipNow' . || true
 .PHONY: todo
+
+rmdir:
+	@for dir in `git ls-files --others --exclude-standard --directory`; do \
+		find $${dir%%/} -depth -type d -empty | xargs rmdir; \
+	done
+.PHONY: rmdir
 
 GO111MODULE ?= on
 GOFLAGS     ?= -mod=
@@ -54,6 +59,8 @@ go-env:
 	@echo "PATHS:       $(strip $(PATHS))"
 	@echo "TIMEOUT:     $(TIMEOUT)"
 .PHONY: go-env
+
+export GOBIN := $(PWD)/bin/$(OS)/$(ARCH)
 
 deps-check:
 	@go mod verify
@@ -137,6 +144,10 @@ test-quick:
 	@go test -timeout $(TIMEOUT) $(PACKAGES)
 .PHONY: test-quick
 
+test-verbose:
+	@go test -race -timeout $(TIMEOUT) -v $(PACKAGES)
+.PHONY: test-verbose
+
 test-with-coverage:
 	@go test \
 		-cover \
@@ -169,6 +180,23 @@ test-integration-report: test-integration
 	@go tool cover -html integration.out
 .PHONY: test-integration-report
 
+TOOLFLAGS ?= -mod=
+
+tools-env:
+	@echo "GOBIN:       `go env GOBIN`"
+	@echo "TOOLFLAGS:   $(TOOLFLAGS)"
+.PHONY: tools-env
+
+toolset:
+	@( \
+		GOFLAGS=$(TOOLFLAGS); \
+		cd tools; \
+		go mod tidy; \
+		if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi; \
+		go generate -tags tools tools.go; \
+	)
+.PHONY: toolset
+
 ifdef GIT_HOOKS
 
 hooks: unhook
@@ -190,6 +218,12 @@ $(foreach hook,$(GIT_HOOKS),$(render_hook_tpl))
 
 endif
 
+git-check:
+	@git diff --exit-code >/dev/null
+	@git diff --cached --exit-code >/dev/null
+	@! git ls-files --others --exclude-standard | grep -q ^
+.PHONY: git-check
+
 ifdef GO_VERSIONS
 
 define go_tpl
@@ -208,6 +242,9 @@ $(foreach version,$(GO_VERSIONS),$(render_go_tpl))
 endif
 
 
+export PATH := $(GOBIN):$(PATH)
+
+
 init: deps test lint hooks
 	@git config core.autocrlf input
 .PHONY: init
@@ -215,10 +252,12 @@ init: deps test lint hooks
 clean: deps-clean test-clean
 .PHONY: clean
 
-deps: deps-fetch
+deps: deps-fetch toolset
 .PHONY: deps
 
-env: go-env
+env: go-env tools-env
+env:
+	@echo "PATH:        $(PATH)"
 .PHONY: env
 
 format: go-fmt
@@ -227,8 +266,11 @@ format: go-fmt
 generate: go-generate format
 .PHONY: generate
 
-refresh: deps-tidy update deps generate format test
+refresh: deps-tidy update deps generate test
 .PHONY: refresh
 
 update: deps-update
 .PHONY: update
+
+verify: deps-check generate git-check lint test
+.PHONY: verify
