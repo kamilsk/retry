@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"math/rand"
 	"net"
 	"time"
@@ -39,7 +38,7 @@ func Example() {
 	defer cancel()
 
 	if err := retry.Do(breaker, what, how...); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	fmt.Println("success communication")
 	// Output: success communication

@@ -62,9 +62,9 @@ func TestDo(t *testing.T) {
 	}
 
 	t.Run("preserve context values", func(t *testing.T) {
-		ctx := context.WithValue(context.TODO(), "test", "value")
+		ctx := context.WithValue(context.TODO(), key{}, "value")
 		action := func(ctx context.Context) error {
-			if !reflect.DeepEqual("value", ctx.Value("test")) {
+			if !reflect.DeepEqual("value", ctx.Value(key{})) {
 				t.Error("value is not preserved")
 			}
 			return nil
@@ -137,9 +137,9 @@ func TestGo(t *testing.T) {
 	}
 
 	t.Run("preserve context values", func(t *testing.T) {
-		ctx := context.WithValue(context.TODO(), "test", "value")
+		ctx := context.WithValue(context.TODO(), key{}, "value")
 		action := func(ctx context.Context) error {
-			if !reflect.DeepEqual("value", ctx.Value("test")) {
+			if !reflect.DeepEqual("value", ctx.Value(key{})) {
 				t.Error("value is not preserved")
 			}
 			return nil
@@ -151,6 +151,8 @@ func TestGo(t *testing.T) {
 }
 
 // helpers
+
+type key struct{}
 
 func breaker() strategy.Breaker {
 	return context.TODO()

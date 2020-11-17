@@ -42,7 +42,7 @@ script:
 after_script:
   - |
     if [[ $TRAVIS_GO_VERSION == 1.15* ]]; then
-      sed -i "s|$(go list -m)/||g" c.out; fi
+      sed -i "s|$(go list -m)/||g" c.out # https://github.com/codeclimate/test-reporter/issues/378
       cc-test-reporter after-build -t gocov -p $(go list -m) --exit-code $TRAVIS_TEST_RESULT
     fi
 
