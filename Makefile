@@ -4,11 +4,18 @@
 GIT_HOOKS     = post-merge pre-commit pre-push
 GO_VERSIONS   = 1.11 1.12 1.13 1.14 1.15
 GO111MODULE   = on
+SHELL         = /bin/bash -euo pipefail
 
+AT    := @
 OS    := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH  := $(shell uname -m | tr '[:upper:]' '[:lower:]')
 
 SHELL ?= /bin/bash -euo pipefail
+
+verbose:
+	$(eval AT :=)
+	@echo > /dev/null
+.PHONY: verbose
 
 todo:
 	@grep \
@@ -20,7 +27,7 @@ todo:
 .PHONY: todo
 
 rmdir:
-	@for dir in `git ls-files --others --exclude-standard --directory`; do \
+	$(AT) for dir in `git ls-files --others --exclude-standard --directory`; do \
 		find $${dir%%/} -depth -type d -empty | xargs rmdir; \
 	done
 .PHONY: rmdir
@@ -86,7 +93,7 @@ deps-tidy:
 
 deps-update: selector = '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}'
 deps-update:
-	@if command -v egg > /dev/null; then \
+	$(AT) if command -v egg > /dev/null; then \
 		packages="`egg deps list`"; \
 	else \
 		packages="`go list -f $(selector) -m -mod=readonly all`"; \
@@ -100,7 +107,7 @@ deps-update:
 .PHONY: deps-update
 
 deps-update-all:
-	@if [[ "`go version`" == *1.1[1-3]* ]]; then \
+	$(AT) if [[ "`go version`" == *1.1[1-3]* ]]; then \
 		go get -d -mod= -u ./...; \
 	else \
 		go get -d -u ./...; \
@@ -140,7 +147,9 @@ test-clean:
 	@go clean -testcache
 .PHONY: test-clean
 
+test-quick: GOTAGS = integration,tools
 test-quick:
+	@go test -run ^Fake$$ -tags $(GOTAGS) ./... | { grep -v 'no tests to run' || true; }
 	@go test -timeout $(TIMEOUT) $(PACKAGES)
 .PHONY: test-quick
 
@@ -162,18 +171,20 @@ test-with-coverage-report: test-with-coverage
 	@go tool cover -html c.out
 .PHONY: test-with-coverage-report
 
+test-integration: GOTAGS = integration
 test-integration:
 	@go test \
 		-cover \
 		-covermode atomic \
 		-coverprofile integration.out \
 		-race \
-		-tags integration \
+		-tags $(GOTAGS) \
 		./... | column -t | sort -r
 .PHONY: test-integration
 
+test-integration-quick: GOTAGS = integration
 test-integration-quick:
-	@go test -tags integration ./...
+	@go test -tags $(GOTAGS) ./...
 .PHONY: test-integration-quick
 
 test-integration-report: test-integration
@@ -187,20 +198,21 @@ tools-env:
 	@echo "TOOLFLAGS:   $(TOOLFLAGS)"
 .PHONY: tools-env
 
+toolset: GOTAGS = tools
 toolset:
-	@( \
+	$(AT) ( \
 		GOFLAGS=$(TOOLFLAGS); \
 		cd tools; \
 		go mod tidy; \
 		if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi; \
-		go generate -tags tools tools.go; \
+		go generate -tags $(GOTAGS) tools.go; \
 	)
 .PHONY: toolset
 
 ifdef GIT_HOOKS
 
 hooks: unhook
-	@for hook in $(GIT_HOOKS); do cp githooks/$$hook .git/hooks/; done
+	$(AT) for hook in $(GIT_HOOKS); do cp githooks/$$hook .git/hooks/; done
 .PHONY: hooks
 
 unhook:
@@ -219,9 +231,9 @@ $(foreach hook,$(GIT_HOOKS),$(render_hook_tpl))
 endif
 
 git-check:
-	@git diff --exit-code >/dev/null
-	@git diff --cached --exit-code >/dev/null
-	@! git ls-files --others --exclude-standard | grep -q ^
+	$(AT) git diff --exit-code >/dev/null
+	$(AT) git diff --cached --exit-code >/dev/null
+	$(AT) ! git ls-files --others --exclude-standard | grep -q ^
 .PHONY: git-check
 
 ifdef GO_VERSIONS
@@ -272,5 +284,5 @@ refresh: deps-tidy update deps generate test
 update: deps-update
 .PHONY: update
 
-verify: deps-check generate git-check lint test
+verify: deps-check generate test lint git-check
 .PHONY: verify
