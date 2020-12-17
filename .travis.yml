@@ -9,6 +9,7 @@ cache:
 env:
   global:
     - CODECLIMATE=https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+    - GO111MODULE=on
 
 go:
   - master
@@ -24,6 +25,7 @@ jobs:
     - go: master
 
 before_script:
+  - make env deps-fetch
   - |
     if [[ $TRAVIS_GO_VERSION == 1.15* ]]; then
       curl -sL $CODECLIMATE > /home/travis/gopath/bin/cc-test-reporter

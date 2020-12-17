@@ -1,4 +1,4 @@
-> # ♻️ retry [![Awesome][awesome.icon]][awesome.page]
+> # ♻️ retry [![Awesome Go][awesome.icon]][awesome.page]
 >
 > The most advanced interruptible mechanism to perform actions repetitively until successful.
 
@@ -36,9 +36,15 @@ You can use [go modules](https://github.com/golang/go/wiki/Modules) to manage it
 $ go get github.com/kamilsk/retry/v5@latest
 ```
 
----
+## 🤲 Outcomes
 
-made with ❤️ for everyone
+### Console tool to execute commands until successful
+
+...
+
+See more details [here][cli].
+
+<p align="right">made with ❤️ for everyone</p>
 
 [build.page]:       https://travis-ci.com/kamilsk/retry
 [build.icon]:       https://travis-ci.com/kamilsk/retry.svg?branch=v5
@@ -58,7 +64,7 @@ made with ❤️ for everyone
 [awesome.page]:     https://github.com/avelino/awesome-go#utilities
 [awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
 
-[Avito]:            https://tech.avito.ru
+[Avito]:            https://tech.avito.ru/
 [breaker]:          https://github.com/kamilsk/breaker
 [cli]:              https://github.com/octolab/try
 [context]:          https://pkg.go.dev/context
