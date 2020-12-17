@@ -10,6 +10,7 @@ import (
 
 	"github.com/kamilsk/retry/v5"
 	"github.com/kamilsk/retry/v5/backoff"
+	"github.com/kamilsk/retry/v5/exp"
 	"github.com/kamilsk/retry/v5/jitter"
 	"github.com/kamilsk/retry/v5/strategy"
 )
@@ -28,8 +29,10 @@ func Example() {
 				0.25,
 			),
 		),
-		strategy.CheckError(
-			strategy.NetworkError(strategy.Skip),
+
+		// experimental
+		exp.CheckError(
+			exp.NetworkError(exp.Skip),
 			DatabaseError(),
 		),
 	}
