@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	. "github.com/kamilsk/retry/v5/exp"
-	"github.com/kamilsk/retry/v5/strategy"
 )
 
 func TestCheckError(t *testing.T) {
@@ -26,7 +25,7 @@ func TestCheckError(t *testing.T) {
 		},
 		"nil error with strict handlers": {
 			nil,
-			[]func(error) bool{NetworkError(Strict)},
+			[]func(error) bool{NetworkError(Stop)},
 			true,
 		},
 		"retriable error without handlers": {
@@ -36,7 +35,7 @@ func TestCheckError(t *testing.T) {
 		},
 		"retriable error with strict handlers": {
 			retriable("yes"),
-			[]func(error) bool{NetworkError(Strict)},
+			[]func(error) bool{NetworkError(Stop)},
 			true,
 		},
 		"non-retriable error without handlers": {
@@ -51,7 +50,7 @@ func TestCheckError(t *testing.T) {
 		},
 		"network address error with strict check": {
 			&net.AddrError{},
-			[]func(error) bool{NetworkError(Strict)},
+			[]func(error) bool{NetworkError(Stop)},
 			false,
 		},
 		"network address error without strict check": {
@@ -61,12 +60,12 @@ func TestCheckError(t *testing.T) {
 		},
 		"temporary dns error": {
 			&net.DNSError{IsTemporary: true},
-			[]func(error) bool{NetworkError(Strict)},
+			[]func(error) bool{NetworkError(Stop)},
 			true,
 		},
 		"an error with strict check": {
 			errors.New("test"),
-			[]func(error) bool{NetworkError(Strict)},
+			[]func(error) bool{NetworkError(Stop)},
 			false,
 		},
 		"an error without strict check": {
@@ -79,7 +78,7 @@ func TestCheckError(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			policy, attempt := CheckError(test.handlers...), uint(generator.Uint32())
-			if obtained := policy(breaker(), attempt, test.error); test.expected != obtained {
+			if obtained := policy(context.TODO(), attempt, test.error); test.expected != obtained {
 				t.Errorf("expected: %v, obtained: %v", test.expected, obtained)
 			}
 		})
@@ -87,10 +86,6 @@ func TestCheckError(t *testing.T) {
 }
 
 // helpers
-
-func breaker() strategy.Breaker {
-	return context.Background()
-}
 
 type retriable string
 

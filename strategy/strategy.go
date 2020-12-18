@@ -3,6 +3,18 @@ package strategy
 
 import "time"
 
+// A Breaker carries a cancellation signal to interrupt an action execution.
+//
+// It is a subset of the built-in Context and github.com/kamilsk/breaker interfaces.
+type Breaker = interface {
+	// Done returns a channel that's closed when a cancellation signal occurred.
+	Done() <-chan struct{}
+	// If Done is not yet closed, Err returns nil.
+	// If Done is closed, Err returns a non-nil error.
+	// After Err returns a non-nil error, successive calls to Err return the same error.
+	Err() error
+}
+
 // Strategy defines a function that Retry calls before every successive attempt
 // to determine whether it should make the next attempt or not. Returning true
 // allows for the next attempt to be made. Returning false halts the retrying
