@@ -11,8 +11,34 @@
 
 ## 💡 Idea
 
-The package based on [Rican7/retry][] but fully reworked and focused on integration
-with the 🚧 [breaker][] and the built-in [context][] packages.
+The retry based on [Rican7/retry][] but fully reworked and focused on integration
+with the 🚧 [breaker][] and the built-in [context][] package.
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+defer cancel()
+
+action := func(ctx context.Context) (err error) {
+	req := req.Clone(ctx)
+	resp, err = http.DefaultClient.Do(req)
+	return err
+}
+
+how := []retry.How{
+	strategy.Limit(5),
+	strategy.BackoffWithJitter(
+		backoff.Fibonacci(10*time.Millisecond),
+		jitter.NormalDistribution(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
+			0.25,
+		),
+	),
+}
+
+if err := retry.Do(ctx, action, how...); err != nil {
+	log.Fatal(err)
+}
+```
 
 A full description of the idea is available [here][design.page].
 
