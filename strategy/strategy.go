@@ -25,17 +25,17 @@ func Limit(value uint) Strategy {
 // before the first attempt is made.
 func Delay(duration time.Duration) Strategy {
 	return func(breaker Breaker, attempt uint, _ error) bool {
+		keep := true
 		if attempt == 0 {
 			timer := time.NewTimer(duration)
 			select {
-			case <-breaker.Done():
-				_ = timer.Stop()
-				return false
 			case <-timer.C:
-				_ = timer.Stop()
+			case <-breaker.Done():
+				keep = false
 			}
+			stop(timer)
 		}
-		return true
+		return keep
 	}
 }
 
@@ -44,6 +44,7 @@ func Delay(duration time.Duration) Strategy {
 // provided, then the strategy uses the last duration provided.
 func Wait(durations ...time.Duration) Strategy {
 	return func(breaker Breaker, attempt uint, _ error) bool {
+		keep := true
 		if attempt > 0 && len(durations) > 0 {
 			durationIndex := int(attempt - 1)
 			if len(durations) <= durationIndex {
@@ -51,14 +52,13 @@ func Wait(durations ...time.Duration) Strategy {
 			}
 			timer := time.NewTimer(durations[durationIndex])
 			select {
-			case <-breaker.Done():
-				_ = timer.Stop()
-				return false
 			case <-timer.C:
-				_ = timer.Stop()
+			case <-breaker.Done():
+				keep = false
 			}
+			stop(timer)
 		}
-		return true
+		return keep
 	}
 }
 
@@ -77,16 +77,25 @@ func BackoffWithJitter(
 	transformation func(duration time.Duration) time.Duration,
 ) Strategy {
 	return func(breaker Breaker, attempt uint, _ error) bool {
+		keep := true
 		if attempt > 0 {
 			timer := time.NewTimer(transformation(algorithm(attempt)))
 			select {
-			case <-breaker.Done():
-				_ = timer.Stop()
-				return false
 			case <-timer.C:
-				_ = timer.Stop()
+			case <-breaker.Done():
+				keep = false
 			}
+			stop(timer)
 		}
-		return true
+		return keep
+	}
+}
+
+func stop(timer *time.Timer) {
+	if !timer.Stop() {
+		select {
+		case <-timer.C:
+		default:
+		}
 	}
 }
