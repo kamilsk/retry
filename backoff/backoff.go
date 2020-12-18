@@ -9,7 +9,7 @@ import (
 
 // Algorithm defines a function that calculates a time.Duration based on
 // the given retry attempt number.
-type Algorithm func(attempt uint) time.Duration
+type Algorithm = func(attempt uint) time.Duration
 
 // Constant creates an Algorithm that returns the initial duration
 // by the all time.

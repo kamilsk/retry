@@ -11,7 +11,7 @@ import "time"
 // The strategy will be passed an "attempt" number on each successive retry
 // iteration, starting with a 0 value before the first attempt is actually
 // made. This allows for a pre-action delay, etc.
-type Strategy func(breaker Breaker, attempt uint, err error) bool
+type Strategy = func(breaker Breaker, attempt uint, err error) bool
 
 // Limit creates a Strategy that limits the number of attempts
 // that Retry will make.

@@ -9,7 +9,7 @@ import (
 
 // Transformation defines a function that calculates a time.Duration based on
 // the given duration.
-type Transformation func(duration time.Duration) time.Duration
+type Transformation = func(duration time.Duration) time.Duration
 
 // Full creates a Transformation that transforms a duration into a result
 // duration in [0, n) randomly, where n is the given duration.

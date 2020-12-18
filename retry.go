@@ -13,7 +13,7 @@ import (
 )
 
 // Action defines a callable function that package retry can handle.
-type Action func(context.Context) error
+type Action = func(context.Context) error
 
 // How is an alias for batch of Strategies.
 //
@@ -21,7 +21,7 @@ type Action func(context.Context) error
 //  	strategy.Limit(3),
 //  }
 //
-type How []func(strategy.Breaker, uint, error) bool
+type How = []func(strategy.Breaker, uint, error) bool
 
 // Do takes the action and performs it, repetitively, until successful.
 //

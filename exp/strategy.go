@@ -16,7 +16,7 @@ const (
 // Returning true allows for the next attempt to be made.
 // Returning false halts the retrying process and returns the last error
 // returned by the called Action.
-type ErrorHandler func(error) bool
+type ErrorHandler = func(error) bool
 
 // CheckError creates a Strategy that checks an error and returns
 // if an error is retriable or not. Otherwise, it returns the defaults.
