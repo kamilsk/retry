@@ -24,23 +24,29 @@ func TestDo(t *testing.T) {
 		action     func(context.Context) error
 		expected   expected
 	}{
-		"success call": {
+		"successful action call": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
 			func(context.Context) error { return nil },
 			expected{1, nil},
 		},
-		"failure call": {
+		"failed action call": {
 			breaker(),
 			How{strategy.Limit(10)},
 			func(context.Context) error { return layer{causer{errors.New("failure")}} },
 			expected{10, layer{causer{errors.New("failure")}}},
 		},
-		"call with interrupted breaker": {
+		"action call with interrupted breaker": {
 			interrupted(),
 			How{strategy.Delay(time.Hour)},
 			func(context.Context) error { return errors.New("zero iterations") },
 			expected{0, context.Canceled},
+		},
+		"have no action call": {
+			breaker(),
+			How{strategy.Limit(0)},
+			func(context.Context) error { return layer{causer{errors.New("failure")}} },
+			expected{0, Error("have no any try")},
 		},
 	}
 
@@ -48,7 +54,7 @@ func TestDo(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			var attempts uint
 			action := func(ctx context.Context) error {
-				attempts += 1
+				attempts++
 				return test.action(ctx)
 			}
 			err := Do(test.breaker, action, test.strategies...)
@@ -56,7 +62,7 @@ func TestDo(t *testing.T) {
 				t.Errorf("expected: %d, obtained: %d", test.expected.attempts, attempts)
 			}
 			if !reflect.DeepEqual(test.expected.error, err) {
-				t.Error("result is not asserted")
+				t.Errorf("expected: %#v, obtained: %#v", test.expected.error, err)
 			}
 		})
 	}
@@ -70,7 +76,7 @@ func TestDo(t *testing.T) {
 			return nil
 		}
 		if err := Do(ctx, action); err != nil {
-			t.Error("result is not asserted")
+			t.Error("unexpected error")
 		}
 	})
 }
@@ -87,31 +93,37 @@ func TestGo(t *testing.T) {
 		action     func(context.Context) error
 		expected   expected
 	}{
-		"success call": {
+		"successful action call": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
 			func(context.Context) error { return nil },
 			expected{1, nil},
 		},
-		"failure call": {
+		"failed action call": {
 			breaker(),
 			How{strategy.Limit(10)},
 			func(context.Context) error { return layer{causer{errors.New("failure")}} },
 			expected{10, layer{causer{errors.New("failure")}}},
 		},
-		"call with interrupted breaker": {
+		"action call with interrupted breaker": {
 			interrupted(),
 			How{strategy.Delay(time.Hour)},
 			func(context.Context) error { return errors.New("zero iterations") },
 			expected{0, context.Canceled},
 		},
-		"call with panicked error": {
+		"have no action call": {
+			breaker(),
+			How{strategy.Limit(0)},
+			func(context.Context) error { return layer{causer{errors.New("failure")}} },
+			expected{0, Error("have no any try")},
+		},
+		"action call with error panic": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
 			func(context.Context) error { panic(errors.New("failure")) },
 			expected{1, errors.New("failure")},
 		},
-		"call with non-error panic": {
+		"action call with non-error panic": {
 			breaker(),
 			How{strategy.Wait(time.Hour)},
 			func(context.Context) error { panic("non-error") },
@@ -123,7 +135,7 @@ func TestGo(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			var attempts uint
 			action := func(ctx context.Context) error {
-				attempts += 1
+				attempts++
 				return test.action(ctx)
 			}
 			err := Go(test.breaker, action, test.strategies...)
@@ -131,7 +143,7 @@ func TestGo(t *testing.T) {
 				t.Errorf("expected: %d, obtained: %d", test.expected.attempts, attempts)
 			}
 			if !reflect.DeepEqual(test.expected.error, err) {
-				t.Error("result is not asserted")
+				t.Errorf("expected: %#v, obtained: %#v", test.expected.error, err)
 			}
 		})
 	}
@@ -145,7 +157,7 @@ func TestGo(t *testing.T) {
 			return nil
 		}
 		if err := Go(ctx, action); err != nil {
-			t.Error("result is not asserted")
+			t.Error("unexpected error")
 		}
 	})
 }
