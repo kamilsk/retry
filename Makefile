@@ -1,23 +1,34 @@
 # sourced by https://github.com/octomation/makefiles
 
 .DEFAULT_GOAL = test-with-coverage
-GIT_HOOKS     = post-merge pre-commit
-GO_VERSIONS   = 1.11 1.12 1.13 1.14
+GIT_HOOKS     = post-merge pre-commit pre-push
+GO_VERSIONS   = 1.11 1.12 1.13 1.14 1.15
+GO111MODULE   = on
 
-SHELL := /bin/bash -euo pipefail # `explain set -euo pipefail`
+OS    := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+ARCH  := $(shell uname -m | tr '[:upper:]' '[:lower:]')
 
-OS   = $(shell uname -s | tr '[:upper:]' '[:lower:]')
-ARCH = $(shell uname -m | tr '[:upper:]' '[:lower:]')
+SHELL ?= /bin/bash -euo pipefail
 
-GO111MODULE = on
-GOFLAGS     = -mod=vendor
-GOPRIVATE   = go.octolab.net
-GOPROXY     = direct
-LOCAL       = $(MODULE)
-MODULE      = `GO111MODULE=on go list -m $(GOFLAGS)`
-PACKAGES    = `GO111MODULE=on go list $(GOFLAGS) ./...`
-PATHS       = $(shell echo $(PACKAGES) | sed -e "s|$(MODULE)/||g" | sed -e "s|$(MODULE)|$(PWD)/*.go|g")
-TIMEOUT     = 1s
+todo:
+	@grep \
+		--exclude-dir=vendor \
+		--exclude-dir=node_modules \
+		--exclude=Makefile \
+		--text \
+		--color \
+		-nRo -E ' TODO:.*|SkipNow' .
+.PHONY: todo
+
+GO111MODULE ?= on
+GOFLAGS     ?= -mod=
+GOPRIVATE   ?= go.octolab.net
+GOPROXY     ?= direct
+LOCAL       ?= $(MODULE)
+MODULE      ?= `GO111MODULE=on go list -m $(GOFLAGS)`
+PACKAGES    ?= `GO111MODULE=on go list $(GOFLAGS) ./...`
+PATHS       ?= $(shell echo $(PACKAGES) | sed -e "s|$(MODULE)/||g" | sed -e "s|$(MODULE)|$(PWD)/*.go|g")
+TIMEOUT     ?= 1s
 
 ifeq (, $(PACKAGES))
 	PACKAGES = $(MODULE)
@@ -32,7 +43,6 @@ export GOFLAGS     := $(GOFLAGS)
 export GOPRIVATE   := $(GOPRIVATE)
 export GOPROXY     := $(GOPROXY)
 
-.PHONY: go-env
 go-env:
 	@echo "GO111MODULE: `go env GO111MODULE`"
 	@echo "GOFLAGS:     $(strip `go env GOFLAGS`)"
@@ -43,30 +53,30 @@ go-env:
 	@echo "PACKAGES:    $(PACKAGES)"
 	@echo "PATHS:       $(strip $(PATHS))"
 	@echo "TIMEOUT:     $(TIMEOUT)"
+.PHONY: go-env
 
-.PHONY: deps-check
 deps-check:
 	@go mod verify
 	@if command -v egg > /dev/null; then \
 		egg deps check license; \
 		egg deps check version; \
 	fi
+.PHONY: deps-check
 
-.PHONY: deps-clean
 deps-clean:
 	@go clean -modcache
+.PHONY: deps-clean
 
-.PHONY: deps-fetch
 deps-fetch:
 	@go mod download
 	@if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi
+.PHONY: deps-fetch
 
-.PHONY: deps-tidy
 deps-tidy:
 	@go mod tidy
 	@if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi
+.PHONY: deps-tidy
 
-.PHONY: deps-update
 deps-update: selector = '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}'
 deps-update:
 	@if command -v egg > /dev/null; then \
@@ -80,8 +90,8 @@ deps-update:
 		go get -d -u $$packages; \
 	fi; \
 	if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi
+.PHONY: deps-update
 
-.PHONY: deps-update-all
 deps-update-all:
 	@if [[ "`go version`" == *1.1[1-3]* ]]; then \
 		go get -d -mod= -u ./...; \
@@ -89,58 +99,107 @@ deps-update-all:
 		go get -d -u ./...; \
 	fi; \
 	if [[ "`go env GOFLAGS`" =~ -mod=vendor ]]; then go mod vendor; fi
+.PHONY: deps-update-all
 
-.PHONY: go-fmt
 go-fmt:
 	@if command -v goimports > /dev/null; then \
 		goimports -local $(LOCAL) -ungroup -w $(PATHS); \
 	else \
 		gofmt -s -w $(PATHS); \
 	fi
+.PHONY: go-fmt
 
-.PHONY: go-generate
 go-generate:
 	@go generate $(PACKAGES)
+.PHONY: go-generate
 
-.PHONY: lint
 lint:
-	@if command -v golangci-lint > /dev/null; then \
-		golangci-lint run ./...; \
-	else \
-		go vet $(PACKAGES); \
-	fi
+	@golangci-lint run ./...
+	@looppointer ./...
+.PHONY: lint
 
-.PHONY: test
+GODOC_HOST ?= localhost:6060
+
+docs:
+	@(sleep 2 && open http://$(GODOC_HOST)/pkg/$(LOCAL)/) &
+	@godoc -http=$(GODOC_HOST)
+.PHONY: docs
+
 test:
 	@go test -race -timeout $(TIMEOUT) $(PACKAGES)
+.PHONY: test
 
-.PHONY: test-clean
 test-clean:
 	@go clean -testcache
+.PHONY: test-clean
 
-.PHONY: test-with-coverage
+test-quick:
+	@go test -timeout $(TIMEOUT) $(PACKAGES)
+.PHONY: test-quick
+
 test-with-coverage:
-	@go test -cover -timeout $(TIMEOUT) $(PACKAGES) | column -t | sort -r
+	@go test \
+		-cover \
+		-covermode atomic \
+		-coverprofile c.out \
+		-race \
+		-timeout $(TIMEOUT) \
+		$(PACKAGES) | column -t | sort -r
+.PHONY: test-with-coverage
 
-.PHONY: test-with-coverage-profile
-test-with-coverage-profile:
-	@go test -cover -covermode count -coverprofile c.out -timeout $(TIMEOUT) $(PACKAGES)
+test-with-coverage-report: test-with-coverage
+	@go tool cover -html c.out
+.PHONY: test-with-coverage-report
 
-.PHONY: hooks
-hooks:
-	@ls .git/hooks | grep -v .sample | sed 's|.*|.git/hooks/&|' | xargs rm -f || true
+test-integration:
+	@go test \
+		-cover \
+		-covermode atomic \
+		-coverprofile integration.out \
+		-race \
+		-tags integration \
+		./... | column -t | sort -r
+.PHONY: test-integration
+
+test-integration-quick:
+	@go test -tags integration ./...
+.PHONY: test-integration-quick
+
+test-integration-report: test-integration
+	@go tool cover -html integration.out
+.PHONY: test-integration-report
+
+ifdef GIT_HOOKS
+
+hooks: unhook
 	@for hook in $(GIT_HOOKS); do cp githooks/$$hook .git/hooks/; done
+.PHONY: hooks
+
+unhook:
+	@ls .git/hooks | grep -v .sample | sed 's|.*|.git/hooks/&|' | xargs rm -f || true
+.PHONY: unhook
+
+define hook_tpl
+$(1):
+	@githooks/$(1)
+.PHONY: $(1)
+endef
+
+render_hook_tpl = $(eval $(call hook_tpl,$(hook)))
+$(foreach hook,$(GIT_HOOKS),$(render_hook_tpl))
+
+endif
 
 ifdef GO_VERSIONS
 
 define go_tpl
-.PHONY: go$(1)
 go$(1):
 	@docker run \
 		--rm -it \
 		-v $(PWD):/src \
 		-w /src \
 		golang:$(1) bash
+.PHONY: go$(1)
 endef
 
 render_go_tpl = $(eval $(call go_tpl,$(version)))
@@ -149,26 +208,27 @@ $(foreach version,$(GO_VERSIONS),$(render_go_tpl))
 endif
 
 
-.PHONY: init
 init: deps test lint hooks
+	@git config core.autocrlf input
+.PHONY: init
 
-.PHONY: clean
 clean: deps-clean test-clean
+.PHONY: clean
 
-.PHONY: deps
 deps: deps-fetch
+.PHONY: deps
 
-.PHONY: env
 env: go-env
+.PHONY: env
 
-.PHONY: format
 format: go-fmt
+.PHONY: format
 
-.PHONY: generate
 generate: go-generate format
+.PHONY: generate
 
-.PHONY: refresh
 refresh: deps-tidy update deps generate format test
+.PHONY: refresh
 
-.PHONY: update
 update: deps-update
+.PHONY: update

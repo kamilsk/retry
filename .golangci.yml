@@ -1,0 +1,78 @@
+linters:
+  fast: true
+  fetch: >
+    curl -s https://golangci-lint.run/usage/linters/ \
+    | pup ':parent-of(#enabled-by-default-linters)' \
+    | pup 'ul li a json{}' \
+    | jq '.[] | (.text + " " + .href)' \
+    | sed 's/"//g' \
+    | column -t
+  enable:
+    - deadcode      # https://github.com/remyoudompheng/go-misc/tree/master/deadcode
+    - errcheck      # https://github.com/kisielk/errcheck
+    - gosimple      # https://github.com/dominikh/go-tools/tree/master/simple
+    - govet         # https://golang.org/cmd/vet/
+    - ineffassign   # https://github.com/gordonklaus/ineffassign
+    - staticcheck   # https://staticcheck.io/
+    - structcheck   # https://github.com/opennota/check
+    - typecheck     # -
+    - unused        # https://github.com/dominikh/go-tools/tree/master/unused
+    - varcheck      # https://github.com/opennota/check
+
+    - bodyclose     # https://github.com/timakin/bodyclose
+    - exhaustive    # https://github.com/nishanths/exhaustive
+    - exportloopref # https://github.com/kyoh86/exportloopref
+    - gocritic      # https://github.com/go-critic/go-critic
+    - noctx         # https://github.com/sonatard/noctx
+
+#    - asciicheck         # https://github.com/tdakkota/asciicheck
+#    - depguard           # https://github.com/OpenPeeDeeP/depguard
+#    - dogsled            # https://github.com/alexkohler/dogsled
+#    - dupl               # https://github.com/mibk/dupl
+#    - errorlint          # https://github.com/polyfloyd/go-errorlint
+#    - exhaustivestruct   # https://github.com/mbilski/exhaustivestruct
+#    - forbidigo          # https://github.com/ashanbrown/forbidigo
+#    - funlen             # https://github.com/ultraware/funlen
+#    - gci                # https://github.com/daixiang0/gci
+#    - gochecknoglobals   # https://github.com/leighmcculloch/gochecknoglobals
+#    - gochecknoinits     # https://github.com/leighmcculloch/gochecknoinits
+#    - gocognit           # https://github.com/uudashr/gocognit
+#    - goconst            # https://github.com/jgautheron/goconst
+#    - gocyclo            # https://github.com/alecthomas/gocyclo
+#    - godot              # https://github.com/tetafro/godot
+#    - godox              # https://github.com/matoous/godox
+#    - goerr113           # https://github.com/Djarvur/go-err113
+#    - gofmt              # https://golang.org/cmd/gofmt/
+#    - gofumpt            # https://github.com/mvdan/gofumpt
+#    - goheader           # https://github.com/denis-tingajkin/go-header
+#    - goimports          # https://godoc.org/golang.org/x/tools/cmd/goimports
+#    - golint             # https://github.com/golang/lint
+#    - gomnd              # https://github.com/tommy-muehle/go-mnd
+#    - gomodguard         # https://github.com/ryancurrah/gomodguard
+#    - goprintffuncname   # https://github.com/jirfag/go-printf-func-name
+#    - gosec              # https://github.com/securego/gosec
+#    - interfacer         # https://github.com/mvdan/interfacer
+#    - lll                # https://github.com/walle/lll
+#    - maligned           # https://github.com/mdempsky/maligned
+#    - makezero           # https://github.com/ashanbrown/makezero
+#    - misspell           # https://github.com/client9/misspell
+#    - nakedret           # https://github.com/alexkohler/nakedret
+#    - nestif             # https://github.com/nakabonne/nestif
+#    - nlreturn           # https://github.com/ssgreg/nlreturn
+#    - nolintlint         # https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/nolintlint/README.md
+#    - paralleltest       # https://github.com/kunwardeep/paralleltest
+#    - prealloc           # https://github.com/alexkohler/prealloc
+#    - rowserrcheck       # https://github.com/jingyugao/rowserrcheck
+#    - scopelint          # https://github.com/kyoh86/scopelint
+#    - sqlclosecheck      # https://github.com/ryanrolds/sqlclosecheck
+#    - stylecheck         # https://github.com/dominikh/go-tools/tree/master/stylecheck
+#    - testpackage        # https://github.com/maratori/testpackage
+#    - thelper            # https://github.com/kulti/thelper
+#    - tparallel          # https://github.com/moricho/tparallel
+#    - unconvert          # https://github.com/mdempsky/unconvert
+#    - unparam            # https://github.com/mvdan/unparam
+#    - whitespace         # https://github.com/ultraware/whitespace
+#    - wrapcheck          # https://github.com/tomarrell/wrapcheck
+#    - wsl                # https://github.com/bombsimon/wsl
+
+#    - https://github.com/kyoh86/looppointer

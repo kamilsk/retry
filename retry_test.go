@@ -60,6 +60,19 @@ func TestDo(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("preserve context values", func(t *testing.T) {
+		ctx := context.WithValue(context.TODO(), "test", "value")
+		action := func(ctx context.Context) error {
+			if !reflect.DeepEqual("value", ctx.Value("test")) {
+				t.Error("value is not preserved")
+			}
+			return nil
+		}
+		if err := Do(ctx, action); err != nil {
+			t.Error("result is not asserted")
+		}
+	})
 }
 
 func TestGo(t *testing.T) {
@@ -122,16 +135,29 @@ func TestGo(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("preserve context values", func(t *testing.T) {
+		ctx := context.WithValue(context.TODO(), "test", "value")
+		action := func(ctx context.Context) error {
+			if !reflect.DeepEqual("value", ctx.Value("test")) {
+				t.Error("value is not preserved")
+			}
+			return nil
+		}
+		if err := Go(ctx, action); err != nil {
+			t.Error("result is not asserted")
+		}
+	})
 }
 
 // helpers
 
 func breaker() strategy.Breaker {
-	return context.Background()
+	return context.TODO()
 }
 
 func interrupted() strategy.Breaker {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.TODO())
 	cancel()
 	return ctx
 }

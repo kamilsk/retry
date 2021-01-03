@@ -30,7 +30,11 @@ func Do(
 	strategies ...func(strategy.Breaker, uint, error) bool,
 ) error {
 	var err, clean error
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, is := breaker.(context.Context)
+	if !is {
+		ctx = context.Background()
+	}
+	ctx, cancel := context.WithCancel(ctx)
 	for attempt, should := uint(0), true; should; attempt++ {
 		clean = unwrap(err)
 		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
