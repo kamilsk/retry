@@ -13,45 +13,10 @@ import (
 )
 
 func TestDo(t *testing.T) {
-	type expected struct {
-		attempts uint
-		error    error
-	}
+	tests := testCases
 
-	tests := map[string]struct {
-		breaker    strategy.Breaker
-		strategies How
-		action     func(context.Context) error
-		expected   expected
-	}{
-		"successful action call": {
-			breaker(),
-			How{strategy.Wait(time.Hour)},
-			func(context.Context) error { return nil },
-			expected{1, nil},
-		},
-		"failed action call": {
-			breaker(),
-			How{strategy.Limit(10)},
-			func(context.Context) error { return layer{causer{errors.New("failure")}} },
-			expected{10, layer{causer{errors.New("failure")}}},
-		},
-		"action call with interrupted breaker": {
-			interrupted(),
-			How{strategy.Delay(time.Hour)},
-			func(context.Context) error { return errors.New("zero iterations") },
-			expected{0, context.Canceled},
-		},
-		"have no action call": {
-			breaker(),
-			How{strategy.Limit(0)},
-			func(context.Context) error { return layer{causer{errors.New("failure")}} },
-			expected{0, Error("have no any try")},
-		},
-	}
-
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 			var attempts uint
 			action := func(ctx context.Context) error {
 				attempts++
@@ -68,9 +33,10 @@ func TestDo(t *testing.T) {
 	}
 
 	t.Run("preserve context values", func(t *testing.T) {
-		ctx := context.WithValue(context.TODO(), key{}, "value")
+		val := "value"
+		ctx := context.WithValue(context.TODO(), key{}, val)
 		action := func(ctx context.Context) error {
-			if !reflect.DeepEqual("value", ctx.Value(key{})) {
+			if !reflect.DeepEqual(val, ctx.Value(key{})) {
 				t.Error("value is not preserved")
 			}
 			return nil
@@ -82,57 +48,26 @@ func TestDo(t *testing.T) {
 }
 
 func TestGo(t *testing.T) {
-	type expected struct {
-		attempts uint
-		error    error
-	}
-
-	tests := map[string]struct {
-		breaker    strategy.Breaker
-		strategies How
-		action     func(context.Context) error
-		expected   expected
-	}{
-		"successful action call": {
+	tests := append(
+		testCases,
+		testCase{
+			"action call with error panic",
 			breaker(),
 			How{strategy.Wait(time.Hour)},
-			func(context.Context) error { return nil },
-			expected{1, nil},
+			func(context.Context) error { panic(Error("failure")) },
+			expected{1, Error("failure")},
 		},
-		"failed action call": {
-			breaker(),
-			How{strategy.Limit(10)},
-			func(context.Context) error { return layer{causer{errors.New("failure")}} },
-			expected{10, layer{causer{errors.New("failure")}}},
-		},
-		"action call with interrupted breaker": {
-			interrupted(),
-			How{strategy.Delay(time.Hour)},
-			func(context.Context) error { return errors.New("zero iterations") },
-			expected{0, context.Canceled},
-		},
-		"have no action call": {
-			breaker(),
-			How{strategy.Limit(0)},
-			func(context.Context) error { return layer{causer{errors.New("failure")}} },
-			expected{0, Error("have no any try")},
-		},
-		"action call with error panic": {
-			breaker(),
-			How{strategy.Wait(time.Hour)},
-			func(context.Context) error { panic(errors.New("failure")) },
-			expected{1, errors.New("failure")},
-		},
-		"action call with non-error panic": {
+		testCase{
+			"action call with non-error panic",
 			breaker(),
 			How{strategy.Wait(time.Hour)},
 			func(context.Context) error { panic("non-error") },
 			expected{1, fmt.Errorf("retry: unexpected panic: %#v", "non-error")},
 		},
-	}
+	)
 
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 			var attempts uint
 			action := func(ctx context.Context) error {
 				attempts++
@@ -149,9 +84,10 @@ func TestGo(t *testing.T) {
 	}
 
 	t.Run("preserve context values", func(t *testing.T) {
-		ctx := context.WithValue(context.TODO(), key{}, "value")
+		val := "value"
+		ctx := context.WithValue(context.TODO(), key{}, val)
 		action := func(ctx context.Context) error {
-			if !reflect.DeepEqual("value", ctx.Value(key{})) {
+			if !reflect.DeepEqual(val, ctx.Value(key{})) {
 				t.Error("value is not preserved")
 			}
 			return nil
@@ -164,8 +100,6 @@ func TestGo(t *testing.T) {
 
 // helpers
 
-type key struct{}
-
 func breaker() strategy.Breaker {
 	return context.TODO()
 }
@@ -176,10 +110,56 @@ func interrupted() strategy.Breaker {
 	return ctx
 }
 
+type causer struct{ error }
+
+func (causer causer) Cause() error { return causer.error }
+
+type expected struct {
+	attempts uint
+	error    error
+}
+
+type key struct{}
+
 type layer struct{ error }
 
 func (layer layer) Unwrap() error { return layer.error }
 
-type causer struct{ error }
+type testCase struct {
+	name       string
+	breaker    strategy.Breaker
+	strategies How
+	action     func(context.Context) error
+	expected   expected
+}
 
-func (causer causer) Cause() error { return causer.error }
+var testCases = []testCase{
+	{
+		"successful action call",
+		breaker(),
+		How{strategy.Wait(time.Hour)},
+		func(context.Context) error { return nil },
+		expected{1, nil},
+	},
+	{
+		"failed action call",
+		breaker(),
+		How{strategy.Limit(10)},
+		func(context.Context) error { return layer{causer{errors.New("failure")}} },
+		expected{10, layer{causer{errors.New("failure")}}},
+	},
+	{
+		"action call with interrupted breaker",
+		interrupted(),
+		How{strategy.Delay(time.Hour)},
+		func(context.Context) error { return Error("zero iterations") },
+		expected{0, context.Canceled},
+	},
+	{
+		"have no action call",
+		breaker(),
+		How{strategy.Limit(0)},
+		func(context.Context) error { return layer{causer{errors.New("failure")}} },
+		expected{0, Error("have no any try")},
+	},
+}

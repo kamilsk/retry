@@ -45,28 +45,30 @@ func Do(
 		err   error = Error("have no any try")
 		clean error
 	)
+
 	ctx, is := breaker.(context.Context)
 	if !is {
-		ctx = context.Background()
+		ctx = lite{context.Background(), breaker.Done()}
 	}
-	ctx, cancel := context.WithCancel(ctx)
+
 	for attempt, should := uint(0), true; should; attempt++ {
 		clean = unwrap(err)
 		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
 			should = should && strategies[i](breaker, attempt, clean)
 		}
+
 		select {
 		case <-breaker.Done():
-			cancel()
 			return breaker.Err()
 		default:
 			if should {
 				err = action(ctx)
 			}
 		}
+
 		should = should && err != nil
 	}
-	cancel()
+
 	return err
 }
 
@@ -102,31 +104,4 @@ func Go(
 	case err := <-done:
 		return err
 	}
-}
-
-// equal to go.octolab.org/errors.Unwrap
-func unwrap(err error) error {
-	// compatible with github.com/pkg/errors
-	type causer interface {
-		Cause() error
-	}
-	// compatible with built-in errors since 1.13
-	type wrapper interface {
-		Unwrap() error
-	}
-
-	for err != nil {
-		layer, is := err.(wrapper)
-		if is {
-			err = layer.Unwrap()
-			continue
-		}
-		cause, is := err.(causer)
-		if is {
-			err = cause.Cause()
-			continue
-		}
-		break
-	}
-	return err
 }
