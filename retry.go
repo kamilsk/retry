@@ -8,21 +8,22 @@ package retry
 import (
 	"context"
 	"fmt"
-
-	"github.com/kamilsk/retry/v5/strategy"
 )
 
 // Action defines a callable function that package retry can handle.
 type Action = func(context.Context) error
 
-// Error defines a string-based error without a different root cause.
-type Error string
-
-// Error returns a string representation of an error.
-func (err Error) Error() string { return string(err) }
-
-// Unwrap always returns nil means that an error doesn't have other root cause.
-func (err Error) Unwrap() error { return nil }
+// A Breaker carries a cancellation signal to interrupt an action execution.
+//
+// It is a subset of the built-in context and github.com/kamilsk/breaker interfaces.
+type Breaker = interface {
+	// Done returns a channel that's closed when a cancellation signal occurred.
+	Done() <-chan struct{}
+	// If Done is not yet closed, Err returns nil.
+	// If Done is closed, Err returns a non-nil error.
+	// After Err returns a non-nil error, successive calls to Err return the same error.
+	Err() error
+}
 
 // How is an alias for batch of Strategies.
 //
@@ -30,31 +31,27 @@ func (err Error) Unwrap() error { return nil }
 //  	strategy.Limit(3),
 //  }
 //
-type How = []func(strategy.Breaker, uint, error) bool
+type How = []func(Breaker, uint, error) bool
 
 // Do takes the action and performs it, repetitively, until successful.
 //
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
 func Do(
-	breaker strategy.Breaker,
+	breaker Breaker,
 	action func(context.Context) error,
-	strategies ...func(strategy.Breaker, uint, error) bool,
+	strategies ...func(Breaker, uint, error) bool,
 ) error {
 	var (
-		err   error = Error("have no any try")
-		clean error
+		ctx        = convert(breaker)
+		err  error = internal
+		core error
 	)
 
-	ctx, is := breaker.(context.Context)
-	if !is {
-		ctx = lite{context.Background(), breaker.Done()}
-	}
-
 	for attempt, should := uint(0), true; should; attempt++ {
-		clean = unwrap(err)
+		core = unwrap(err)
 		for i, repeat := 0, len(strategies); should && i < repeat; i++ {
-			should = should && strategies[i](breaker, attempt, clean)
+			should = should && strategies[i](breaker, attempt, core)
 		}
 
 		select {
@@ -78,9 +75,9 @@ func Do(
 // Optionally, strategies may be passed that assess whether or not an attempt
 // should be made.
 func Go(
-	breaker strategy.Breaker,
+	breaker Breaker,
 	action func(context.Context) error,
-	strategies ...func(strategy.Breaker, uint, error) bool,
+	strategies ...func(Breaker, uint, error) bool,
 ) error {
 	done := make(chan error, 1)
 

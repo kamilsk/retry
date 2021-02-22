@@ -2,7 +2,6 @@ package retry_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -100,11 +99,11 @@ func TestGo(t *testing.T) {
 
 // helpers
 
-func breaker() strategy.Breaker {
+func breaker() Breaker {
 	return context.TODO()
 }
 
-func interrupted() strategy.Breaker {
+func interrupted() Breaker {
 	ctx, cancel := context.WithCancel(context.TODO())
 	cancel()
 	return ctx
@@ -127,7 +126,7 @@ func (layer layer) Unwrap() error { return layer.error }
 
 type testCase struct {
 	name       string
-	breaker    strategy.Breaker
+	breaker    Breaker
 	strategies How
 	action     func(context.Context) error
 	expected   expected
@@ -145,8 +144,8 @@ var testCases = []testCase{
 		"failed action call",
 		breaker(),
 		How{strategy.Limit(10)},
-		func(context.Context) error { return layer{causer{errors.New("failure")}} },
-		expected{10, layer{causer{errors.New("failure")}}},
+		func(context.Context) error { return layer{causer{Error("failure")}} },
+		expected{10, layer{causer{Error("failure")}}},
 	},
 	{
 		"action call with interrupted breaker",
@@ -159,7 +158,7 @@ var testCases = []testCase{
 		"have no action call",
 		breaker(),
 		How{strategy.Limit(0)},
-		func(context.Context) error { return layer{causer{errors.New("failure")}} },
+		func(context.Context) error { return layer{causer{Error("failure")}} },
 		expected{0, Error("have no any try")},
 	},
 }
