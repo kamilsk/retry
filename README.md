@@ -72,6 +72,8 @@ See more details [here][cli].
 
 <p align="right">made with ❤️ for everyone</p>
 
+[awesome.page]:     https://github.com/avelino/awesome-go#utilities
+[awesome.icon]:     https://awesome.re/mentioned-badge.svg
 [build.page]:       https://travis-ci.com/kamilsk/retry
 [build.icon]:       https://travis-ci.com/kamilsk/retry.svg?branch=v5
 [coverage.page]:    https://codeclimate.com/github/kamilsk/retry/test_coverage
@@ -87,12 +89,11 @@ See more details [here][cli].
 [mirror.page]:      https://bitbucket.org/kamilsk/retry
 [mirror.icon]:      https://img.shields.io/badge/mirror-bitbucket-blue
 
-[awesome.page]:     https://github.com/avelino/awesome-go#utilities
-[awesome.icon]:     https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
-
 [Avito]:            https://tech.avito.ru/
 [breaker]:          https://github.com/kamilsk/breaker
 [cli]:              https://github.com/octolab/try
 [context]:          https://pkg.go.dev/context
 [Lazada]:           https://github.com/lazada
 [Rican7/retry]:     https://github.com/Rican7/retry
+
+[_]:                https://img.shields.io/sourcegraph/rrc/github.com/kamilsk/retry
