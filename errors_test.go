@@ -17,18 +17,18 @@ func TestError(t *testing.T) {
 }
 
 func TestUnwrap(t *testing.T) {
-	cause := errors.New("root")
-	core := unwrap(causer{layer{cause}})
-	if !reflect.DeepEqual(core, cause) {
+	root := errors.New("root")
+	core := unwrap(cause{layer{root}})
+	if !reflect.DeepEqual(core, root) {
 		t.Error("unexpected behavior")
 	}
 }
 
 // helpers
 
-type causer struct{ error }
+type cause struct{ error }
 
-func (causer causer) Cause() error { return causer.error }
+func (cause cause) Cause() error { return cause.error }
 
 type layer struct{ error }
 

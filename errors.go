@@ -11,17 +11,7 @@ func (err Error) Error() string { return string(err) }
 // Unwrap always returns nil means that an error doesn't have other root cause.
 func (err Error) Unwrap() error { return nil }
 
-// equal to go.octolab.org/errors.Unwrap
 func unwrap(err error) error {
-	// compatible with github.com/pkg/errors
-	type causer interface {
-		Cause() error
-	}
-	// compatible with built-in errors since 1.13
-	type wrapper interface {
-		Unwrap() error
-	}
-
 	for err != nil {
 		layer, is := err.(wrapper)
 		if is {
@@ -36,4 +26,14 @@ func unwrap(err error) error {
 		break
 	}
 	return err
+}
+
+// compatible with github.com/pkg/errors
+type causer interface {
+	Cause() error
+}
+
+// compatible with built-in errors since 1.13
+type wrapper interface {
+	Unwrap() error
 }

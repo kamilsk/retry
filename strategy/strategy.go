@@ -5,7 +5,7 @@ import "time"
 
 // A Breaker carries a cancellation signal to interrupt an action execution.
 //
-// It is a subset of the built-in Context and github.com/kamilsk/breaker interfaces.
+// It is a subset of the built-in context and github.com/kamilsk/breaker interfaces.
 type Breaker = interface {
 	// Done returns a channel that's closed when a cancellation signal occurred.
 	Done() <-chan struct{}

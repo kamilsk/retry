@@ -1,16 +1,20 @@
-package retry_test
+// +build go1.13
+
+package sandbox_test
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net"
 	"time"
 
+	"github.com/kamilsk/retry/sandbox"
+
 	"github.com/kamilsk/retry/v5"
 	"github.com/kamilsk/retry/v5/backoff"
-	"github.com/kamilsk/retry/v5/exp"
 	"github.com/kamilsk/retry/v5/jitter"
 	"github.com/kamilsk/retry/v5/strategy"
 )
@@ -31,8 +35,8 @@ func Example() {
 		),
 
 		// experimental
-		exp.CheckError(
-			exp.NetworkError(exp.Skip),
+		sandbox.CheckError(
+			sandbox.NetworkError(sandbox.Skip),
 			DatabaseError(),
 		),
 	}
@@ -60,10 +64,10 @@ func SendRequest(ctx context.Context) error {
 }
 
 func DatabaseError() func(error) bool {
-	blacklist := []error{sql.ErrNoRows, sql.ErrConnDone, sql.ErrTxDone}
+	deprecated := []error{sql.ErrNoRows, sql.ErrConnDone, sql.ErrTxDone}
 	return func(err error) bool {
-		for _, preset := range blacklist {
-			if err == preset {
+		for _, deprecated := range deprecated {
+			if errors.Is(err, deprecated) {
 				return false
 			}
 		}

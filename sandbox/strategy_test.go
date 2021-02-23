@@ -1,4 +1,4 @@
-package exp_test
+package sandbox_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"net"
 	"testing"
 
-	. "github.com/kamilsk/retry/v5/exp"
+	. "github.com/kamilsk/retry/sandbox"
 )
 
 func TestCheckError(t *testing.T) {
